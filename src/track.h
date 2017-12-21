@@ -3,6 +3,10 @@
 
 #define TILE_SIZE 3.67423461417477
 
+enum {
+TRACK_DIAGONAL=1
+};
+
 typedef struct
 {
 mesh_t mesh;
@@ -32,8 +36,11 @@ int num_sprites;
 mask_t* masks;
 }view_t;
 
+
+
 typedef struct
 {
+unsigned int flags;
 track_point_t (*curve)(float distance);
 float length;
 view_t views[4];

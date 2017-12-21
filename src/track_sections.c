@@ -161,7 +161,7 @@ return cubic_curve_horizontal(-1.3711730708738337,-0.4432403936892513,11,0.0,1.3
 
 track_point_t flat_diag_curve(float distance)
 {
-return plane_curve_horizontal(vector3(-distance/sqrt(2)+0.75*sqrt(6),0.0,distance/sqrt(2)),vector3(-sqrt(0.5),0.0,sqrt(0.5)));
+return plane_curve_horizontal(vector3(-distance/sqrt(2),0.0,distance/sqrt(2)),vector3(-sqrt(0.5),0.0,sqrt(0.5)));
 }
 
 
@@ -182,17 +182,17 @@ return point;
 
 
 //Slopes
-track_section_t flat={flat_curve,TILE_SIZE,{{1,NULL},{1,NULL},{1,NULL},{1,NULL}}};
-track_section_t flat_to_gentle_up={flat_to_gentle_up_curve,TILE_SIZE,{{1,NULL},{1,NULL},{1,NULL},{1,NULL}}};
-track_section_t flat_to_gentle_down={flat_to_gentle_down_curve,TILE_SIZE,{{1,NULL},{1,NULL},{1,NULL},{1,NULL}}};
-track_section_t gentle_up_to_flat={gentle_up_to_flat_curve,TILE_SIZE,{{1,NULL},{1,NULL},{1,NULL},{1,NULL}}};
-track_section_t gentle={gentle_curve,TILE_SIZE,{{1,NULL},{1,NULL},{1,NULL},{1,NULL}}};
-track_section_t gentle_to_steep_up={gentle_to_steep_up_curve,3.0,{{1,NULL},{2,NULL},{2,NULL},{1,NULL}}};//Needs manual split
-track_section_t steep_to_gentle_up={steep_to_gentle_up_curve,3.0,{{1,NULL},{2,NULL},{2,NULL},{1,NULL}}};//Needs manual split
-track_section_t steep={steep_curve,6.0,{{1,NULL},{1,NULL},{1,NULL},{1,NULL}}};
-track_section_t steep_to_vertical_up={steep_to_vertical_up_curve,5.25,{{1,NULL},{1,NULL},{1,NULL},{1,NULL}}};
-track_section_t steep_to_vertical_down={steep_to_vertical_down_curve,5.25,{{1,NULL},{1,NULL},{1,NULL},{1,NULL}}};
-track_section_t vertical={vertical_curve,3.0,{{1,NULL},{1,NULL},{1,NULL},{1,NULL}}};
+track_section_t flat={0,flat_curve,TILE_SIZE,{{1,NULL},{1,NULL},{1,NULL},{1,NULL}}};
+track_section_t flat_to_gentle_up={0,flat_to_gentle_up_curve,TILE_SIZE,{{1,NULL},{1,NULL},{1,NULL},{1,NULL}}};
+track_section_t flat_to_gentle_down={0,flat_to_gentle_down_curve,TILE_SIZE,{{1,NULL},{1,NULL},{1,NULL},{1,NULL}}};
+track_section_t gentle_up_to_flat={0,gentle_up_to_flat_curve,TILE_SIZE,{{1,NULL},{1,NULL},{1,NULL},{1,NULL}}};
+track_section_t gentle={0,gentle_curve,TILE_SIZE,{{1,NULL},{1,NULL},{1,NULL},{1,NULL}}};
+track_section_t gentle_to_steep_up={0,gentle_to_steep_up_curve,3.0,{{1,NULL},{2,NULL},{2,NULL},{1,NULL}}};//Needs manual split
+track_section_t steep_to_gentle_up={0,steep_to_gentle_up_curve,3.0,{{1,NULL},{2,NULL},{2,NULL},{1,NULL}}};//Needs manual split
+track_section_t steep={0,steep_curve,6.0,{{1,NULL},{1,NULL},{1,NULL},{1,NULL}}};
+track_section_t steep_to_vertical_up={0,steep_to_vertical_up_curve,5.25,{{1,NULL},{1,NULL},{1,NULL},{1,NULL}}};
+track_section_t steep_to_vertical_down={0,steep_to_vertical_down_curve,5.25,{{1,NULL},{1,NULL},{1,NULL},{1,NULL}}};
+track_section_t vertical={0,vertical_curve,3.0,{{1,NULL},{1,NULL},{1,NULL},{1,NULL}}};
 
 //Turns
 rect_t small_turn_rects[165]={
@@ -204,7 +204,7 @@ mask_t small_turn_masks[12]={
 	{26,0,0,small_turn_rects+102},{13,32,-16,small_turn_rects+128},{13,0,-32,small_turn_rects+141},
 	{4,0,0,small_turn_rects+154},{3,32,16,small_turn_rects+158},{4,64,0,small_turn_rects+161}
 };
-track_section_t small_turn_left={small_turn_left_curve,0.75*TILE_SIZE*3.1415926,{{3,small_turn_masks},{3,small_turn_masks+3},{3,small_turn_masks+6},{3,small_turn_masks+9}}};
+track_section_t small_turn_left={0,small_turn_left_curve,0.75*TILE_SIZE*3.1415926,{{3,small_turn_masks},{3,small_turn_masks+3},{3,small_turn_masks+6},{3,small_turn_masks+9}}};
 rect_t medium_turn_rects[]={
 //First angle
 {INT32_MIN,-17,-32,-16},{INT32_MIN,-16,-30,-15},{INT32_MIN,-15,-28,-14},{INT32_MIN,-14,-26,-13},{INT32_MIN,-13,-24,-12},{INT32_MIN,-12,-22,-11},{INT32_MIN,-11,-20,-10},{INT32_MIN,-10,-18,-9},{INT32_MIN,-9,-16,-8},{INT32_MIN,-8,-14,-7},{INT32_MIN,-7,-12,-6},{INT32_MIN,-6,-10,-5},{INT32_MIN,-5,-8,-4},{INT32_MIN,-4,-6,-3},{INT32_MIN,-3,-4,-2},{INT32_MIN,-2,-2,-1},{INT32_MIN,-1,0,0},{INT32_MIN,0,2,1},{INT32_MIN,1,4,2},{INT32_MIN,2,6,3},{INT32_MIN,3,8,4},{INT32_MIN,4,10,5},{INT32_MIN,5,12,6},{INT32_MIN,6,14,7},{INT32_MIN,7,16,8},{INT32_MIN,8,18,9},{INT32_MIN,9,20,10},{INT32_MIN,10,22,11},{INT32_MIN,11,24,12},{INT32_MIN,12,26,13},{INT32_MIN,13,28,14},{INT32_MIN,14,30,15},{INT32_MIN,15,INT32_MAX,INT32_MAX},
@@ -225,7 +225,7 @@ mask_t medium_turn_masks[]={
 {33,0,0,medium_turn_rects+320},{32,32,-16,medium_turn_rects+353},{31,0,-32,medium_turn_rects+384},{32,32,-48,medium_turn_rects+416},{32,0,-64,medium_turn_rects+448},
 {33,0,0,medium_turn_rects+480},{31,32,16,medium_turn_rects+513},{32,64,0,medium_turn_rects+544},{31,96,16,medium_turn_rects+576},{33,128,0,medium_turn_rects+607}
 };
-track_section_t medium_turn_left={medium_turn_left_curve,1.25*TILE_SIZE*3.1415926,{{5,medium_turn_masks},{5,medium_turn_masks+5},{5,medium_turn_masks+10},{5,medium_turn_masks+15}}};
+track_section_t medium_turn_left={0,medium_turn_left_curve,1.25*TILE_SIZE*3.1415926,{{5,medium_turn_masks},{5,medium_turn_masks+5},{5,medium_turn_masks+10},{5,medium_turn_masks+15}}};
 rect_t large_turn_left_to_diag_rects[]={
 //First angle
 {INT32_MIN,-17,-32,-16},{INT32_MIN,-16,-30,-15},{INT32_MIN,-15,-28,-14},{INT32_MIN,-14,-26,-13},{INT32_MIN,-13,-24,-12},{INT32_MIN,-12,-22,-11},{INT32_MIN,-11,-20,-10},{INT32_MIN,-10,-18,-9},{INT32_MIN,-9,-16,-8},{INT32_MIN,-8,-14,-7},{INT32_MIN,-7,-12,-6},{INT32_MIN,-6,-10,-5},{INT32_MIN,-5,-8,-4},{INT32_MIN,-4,-6,-3},{INT32_MIN,-3,-4,-2},{INT32_MIN,-2,-2,-1},{INT32_MIN,-1,0,0},{INT32_MIN,0,2,1},{INT32_MIN,1,4,2},{INT32_MIN,2,6,3},{INT32_MIN,3,8,4},{INT32_MIN,4,10,5},{INT32_MIN,5,12,6},{INT32_MIN,6,14,7},{INT32_MIN,7,16,8},{INT32_MIN,8,18,9},{INT32_MIN,9,20,10},{INT32_MIN,10,22,11},{INT32_MIN,11,24,12},{INT32_MIN,12,26,13},{INT32_MIN,13,28,14},{INT32_MIN,14,30,15},{INT32_MIN,15,INT32_MAX,INT32_MAX},
@@ -254,7 +254,7 @@ mask_t large_turn_left_to_diag_masks[]={
 {16,0,0,large_turn_left_to_diag_rects+271},{32,32,-16,large_turn_left_to_diag_rects+287},{33,0,-32,large_turn_left_to_diag_rects+319},{33,32,-48,large_turn_left_to_diag_rects+352},
 {17,0,0,large_turn_left_to_diag_rects+385},{16,32,16,large_turn_left_to_diag_rects+402},{16,64,0,large_turn_left_to_diag_rects+418},{17,96,16,large_turn_left_to_diag_rects+434},
 };
-track_section_t large_turn_left_to_diag={large_turn_left_to_diag_curve,0.875*TILE_SIZE*3.1415926,{{4,large_turn_left_to_diag_masks},{4,large_turn_left_to_diag_masks+4},{4,large_turn_left_to_diag_masks+8},{4,large_turn_left_to_diag_masks+12}}};
+track_section_t large_turn_left_to_diag={0,large_turn_left_to_diag_curve,0.875*TILE_SIZE*3.1415926,{{4,large_turn_left_to_diag_masks},{4,large_turn_left_to_diag_masks+4},{4,large_turn_left_to_diag_masks+8},{4,large_turn_left_to_diag_masks+12}}};
 rect_t large_turn_right_to_diag_rects[]={
 //First angle
 {INT32_MIN,INT32_MIN,0,0},{INT32_MIN,0,2,1},{INT32_MIN,1,4,2},{INT32_MIN,2,6,3},{INT32_MIN,3,8,4},{INT32_MIN,4,10,5},{INT32_MIN,5,12,6},{INT32_MIN,6,14,7},{INT32_MIN,7,16,8},{INT32_MIN,8,18,9},{INT32_MIN,9,20,10},{INT32_MIN,10,22,11},{INT32_MIN,11,24,12},{INT32_MIN,12,26,13},{INT32_MIN,13,28,14},{INT32_MIN,14,30,15},{INT32_MIN,15,32,16},{96,15,INT32_MAX,16},{INT32_MIN,16,34,17},{94,16,INT32_MAX,17},{INT32_MIN,17,36,18},{92,17,INT32_MAX,18},{INT32_MIN,18,38,19},{90,18,INT32_MAX,19},{INT32_MIN,19,40,20},{88,19,INT32_MAX,20},{INT32_MIN,20,42,21},{86,20,INT32_MAX,21},{INT32_MIN,21,44,22},{84,21,INT32_MAX,22},{INT32_MIN,22,46,23},{82,22,INT32_MAX,23},{INT32_MIN,23,48,24},{80,23,INT32_MAX,24},{INT32_MIN,24,50,25},{78,24,INT32_MAX,25},{INT32_MIN,25,52,26},{76,25,INT32_MAX,26},{INT32_MIN,26,54,27},{74,26,INT32_MAX,27},{INT32_MIN,27,56,28},{72,27,INT32_MAX,28},{INT32_MIN,28,58,29},{70,28,INT32_MAX,29},{INT32_MIN,29,60,30},{68,29,INT32_MAX,30},{INT32_MIN,30,62,31},{66,30,INT32_MAX,31},{INT32_MIN,31,INT32_MAX,INT32_MAX},
@@ -283,10 +283,10 @@ mask_t large_turn_right_to_diag_masks[]={
 {16,0,0,large_turn_right_to_diag_rects+227},{32,32,-16,large_turn_right_to_diag_rects+243},{32,64,0,large_turn_right_to_diag_rects+275},{33,96,-16,large_turn_right_to_diag_rects+307},
 {33,0,0,large_turn_right_to_diag_rects+340},{31,32,16,large_turn_right_to_diag_rects+373},{41,0,32,large_turn_right_to_diag_rects+404},{31,32,48,large_turn_right_to_diag_rects+445},
 };
-track_section_t large_turn_right_to_diag={large_turn_right_to_diag_curve,0.875*TILE_SIZE*3.1415926,{{4,large_turn_right_to_diag_masks},{4,large_turn_right_to_diag_masks+4},{4,large_turn_right_to_diag_masks+8},{4,large_turn_right_to_diag_masks+12}}};
+track_section_t large_turn_right_to_diag={0,large_turn_right_to_diag_curve,0.875*TILE_SIZE*3.1415926,{{4,large_turn_right_to_diag_masks},{4,large_turn_right_to_diag_masks+4},{4,large_turn_right_to_diag_masks+8},{4,large_turn_right_to_diag_masks+12}}};
 
 //Diagonals
-track_section_t flat_diag={flat_diag_curve,sqrt(2)*TILE_SIZE,{{1,NULL},{1,NULL},{1,NULL},{1,NULL}}};
+track_section_t flat_diag={TRACK_DIAGONAL,flat_diag_curve,sqrt(2)*TILE_SIZE,{{1,NULL},{1,NULL},{1,NULL},{1,NULL}}};
 
 
 
@@ -295,8 +295,8 @@ track_section_t flat_diag={flat_diag_curve,sqrt(2)*TILE_SIZE,{{1,NULL},{1,NULL},
 //+64
 
 
-track_section_t vertical_twist_left={vertical_twist_left_curve,9.0,{{1,NULL},{1,NULL},{1,NULL},{1,NULL}}};
-track_section_t vertical_twist_right={vertical_twist_right_curve,9.0,{{1,NULL},{1,NULL},{1,NULL},{1,NULL}}};
+track_section_t vertical_twist_left={0,vertical_twist_left_curve,9.0,{{1,NULL},{1,NULL},{1,NULL},{1,NULL}}};
+track_section_t vertical_twist_right={0,vertical_twist_right_curve,9.0,{{1,NULL},{1,NULL},{1,NULL},{1,NULL}}};
 
 
 
@@ -309,7 +309,7 @@ track_section_t vertical_twist_right={vertical_twist_right_curve,9.0,{{1,NULL},{
 
 
 
-track_section_t heartline_roll_left={heartline_roll_left_curve,3.0*TILE_SIZE,{{1,NULL},{1,NULL},{1,NULL},{1,NULL}}};
+track_section_t heartline_roll_left={0,heartline_roll_left_curve,3.0*TILE_SIZE,{{1,NULL},{1,NULL},{1,NULL},{1,NULL}}};
 
 
 
