@@ -61,7 +61,17 @@ extern track_section_t small_turn_left;
 extern track_section_t medium_turn_left;
 extern track_section_t large_turn_left_to_diag;
 extern track_section_t large_turn_right_to_diag;
-
+extern track_section_t flat_diag;
+extern track_section_t flat_to_gentle_up_diag;
+extern track_section_t flat_to_gentle_down_diag;
+extern track_section_t gentle_up_to_flat_diag;
+extern track_section_t gentle_down_to_flat_diag;
+extern track_section_t gentle_diag;
+extern track_section_t gentle_to_steep_up_diag;
+extern track_section_t gentle_to_steep_down_diag;
+extern track_section_t steep_to_gentle_up_diag;
+extern track_section_t steep_to_gentle_down_diag;
+extern track_section_t steep_diag;
 
 extern track_section_t vertical_twist_left;
 extern track_section_t vertical_twist_right;
