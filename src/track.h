@@ -4,7 +4,8 @@
 #define TILE_SIZE 3.67423461417477
 
 enum {
-TRACK_DIAGONAL=1
+TRACK_DIAGONAL=1,
+TRACK_EXTRUDE_BEHIND=2
 };
 
 typedef struct
@@ -47,7 +48,7 @@ view_t views[4];
 }track_section_t;
 
 
-void framebuffer_render_track_section(framebuffer_t* framebuffer,context_t* context,track_section_t* track_section,track_type_t* track_type);
+void framebuffer_render_track_section(framebuffer_t* framebuffer,context_t* context,track_section_t* track_section,track_type_t* track_type,int extrude_behind);
 
 
 extern track_section_t flat;
@@ -72,7 +73,7 @@ extern track_section_t flat_diag;
 extern track_section_t flat_to_gentle_up_diag;
 extern track_section_t flat_to_gentle_down_diag;
 extern track_section_t gentle_up_to_flat_diag;
-extern track_section_t gentle_down_to_flat_diag;
+extern track_section_t gentle_to_flat_up_diag;
 extern track_section_t gentle_diag;
 extern track_section_t gentle_to_steep_up_diag;
 extern track_section_t gentle_to_steep_down_diag;

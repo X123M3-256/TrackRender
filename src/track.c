@@ -28,17 +28,19 @@ void track_transform_primitives(track_point_t (*track_curve)(float distance),pri
 
 
 
-void framebuffer_render_track_section(framebuffer_t* framebuffer,context_t* context,track_section_t* track_section,track_type_t* track_type)
+void framebuffer_render_track_section(framebuffer_t* framebuffer,context_t* context,track_section_t* track_section,track_type_t* track_type,int extrude_behind)
 {
-float num_meshes=floor(0.5+track_section->length/track_type->length);
+float num_meshes=(int)floor(0.5+track_section->length/track_type->length);
 float scale=track_section->length/(num_meshes*track_type->length);
 float length=scale*track_type->length;
+
+	if(extrude_behind)num_meshes++;//TODO make extruded section straight
 
 uint32_t primitives_per_mesh=mesh_count_primitives(&(track_type->mesh));
 primitive_t* primitives=malloc(((size_t)num_meshes)*primitives_per_mesh*sizeof(primitive_t));
 	for(int i=0;i<num_meshes;i++)
 	{
-	transform_t transform={{1.0,0.0,0.0,0.0,1.0,0.0,0.0,0.0,scale},{0.0,0.0,i*length}};
+	transform_t transform={{1.0,0.0,0.0,0.0,1.0,0.0,0.0,0.0,scale},{0.0,0.0,(i-(extrude_behind?1:0))*length}};
 	mesh_get_primitives(&(track_type->mesh),primitives+i*primitives_per_mesh);
 	transform_primitives(transform,primitives+i*primitives_per_mesh,primitives_per_mesh);
 	}

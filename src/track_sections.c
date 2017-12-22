@@ -23,6 +23,16 @@ point.binormal=vector3(1.0,0.0,0.0);
 return point;
 }
 
+track_point_t plane_curve_vertical_diagonal(vector3_t position,vector3_t tangent)
+{
+track_point_t point;
+point.position=position;
+point.tangent=tangent;
+point.normal=vector3(tangent.y/sqrt(2),tangent.z*sqrt(2),-tangent.y/sqrt(2));
+point.binormal=vector3(sqrt(0.5),0.0,sqrt(0.5)); 
+return point;
+}
+
 track_point_t plane_curve_horizontal(vector3_t position,vector3_t tangent)
 {
 track_point_t point;
@@ -37,6 +47,16 @@ track_point_t cubic_curve_vertical(float xa,float xb,float xc,float xd,float ya,
 {
 return plane_curve_vertical(vector3(0.0,cubic(ya,yb,yc,yd,distance),cubic(xa,xb,xc,xd,distance)),vector3_normalize(vector3(0.0,cubic_derivative(ya,yb,yc,distance),cubic_derivative(xa,xb,xc,distance))));
 }
+
+track_point_t cubic_curve_vertical_diagonal(float xa,float xb,float xc,float xd,float ya,float yb,float yc,float yd,float distance)
+{
+float x=cubic(xa,xb,xc,xd,distance);
+float y=cubic(ya,yb,yc,yd,distance);
+float dx=cubic_derivative(xa,xb,xc,distance);
+float dy=cubic_derivative(ya,yb,yc,distance);
+return plane_curve_vertical_diagonal(vector3(-x/sqrt(2),y,x/sqrt(2)),vector3_normalize(vector3(-dx/sqrt(2),dy,dx/sqrt(2))));
+}
+
 
 track_point_t cubic_curve_horizontal(float xa,float xb,float xc,float xd,float ya,float yb,float yc,float yd,float distance)
 {
@@ -56,7 +76,10 @@ track_point_t flat_to_gentle_up_curve(float distance)
 {
 return plane_curve_vertical(vector3(0.0,(1.0/18.0)*distance*distance,distance),vector3_normalize(vector3(0.0,(1.0/9.0)*distance,1.0)));
 }
-
+track_point_t gentle_to_flat_up_curve(float distance)
+{
+return plane_curve_vertical(vector3(0.0,(1.0/18.0)*distance*distance,distance),vector3_normalize(vector3(0.0,(1.0/9.0)*distance,1.0)));
+}
 track_point_t flat_to_gentle_down_curve(float distance) //Unconfirmed
 {
 return plane_curve_vertical(vector3(0.0,-(1.0/18.0)*distance*distance,distance),vector3_normalize(vector3(0.0,-(1.0/9.0)*distance,1.0)));
@@ -83,8 +106,10 @@ return cubic_curve_vertical(0,0,1.5*sqrt(6),0,0,-1.5,4.5,0,distance/3.0);
 }
 track_point_t steep_curve(float distance)
 {
-return plane_curve_vertical(vector3(0.0,distance,distance*TILE_SIZE/6.0),vector3_normalize(vector3(0.0,4.5/TILE_SIZE,1.0)));
+return plane_curve_vertical(vector3(0.0,distance,distance*TILE_SIZE/6.0),vector3_normalize(vector3(0.0,6.0/TILE_SIZE,1.0)));
 }
+
+
 track_point_t vertical_curve(float distance)
 {
 return plane_curve_vertical(vector3(0.0,distance,0.0),vector3(0.0,1.0,0.0));
@@ -163,9 +188,39 @@ track_point_t flat_diag_curve(float distance)
 {
 return plane_curve_horizontal(vector3(-distance/sqrt(2),0.0,distance/sqrt(2)),vector3(-sqrt(0.5),0.0,sqrt(0.5)));
 }
+track_point_t flat_to_gentle_up_diag_curve(float distance)
+{
+return cubic_curve_vertical_diagonal(0,0,sqrt(2),0,0,1.0/18.0,0,0,distance/sqrt(2));
+}
+track_point_t flat_to_gentle_down_diag_curve(float distance)
+{
+return cubic_curve_vertical_diagonal(0,0,sqrt(2),0,0,-1.0/18.0,0,0.75,distance/sqrt(2));
+}
+track_point_t gentle_to_flat_up_diag_curve(float distance)
+{
+return cubic_curve_vertical_diagonal(0,0,sqrt(2),0,0,-1.0/18.0,1.5/TILE_SIZE,0.0,distance/sqrt(2));//TODO confirm this is correct geometry
+}
 
 
 
+
+
+track_point_t gentle_diag_curve(float distance)
+{
+return plane_curve_vertical_diagonal(vector3(-distance/sqrt(2),1.5*distance/(sqrt(2)*TILE_SIZE),distance/sqrt(2)),vector3_normalize(vector3(-1.0/sqrt(2),1.5/(sqrt(2)*TILE_SIZE),1.0/sqrt(2))));
+}
+track_point_t gentle_to_steep_up_diag_curve(float distance)
+{
+return cubic_curve_vertical_diagonal(0,0,sqrt(2)*TILE_SIZE,0.0,0,1.5,1.5,0,distance/3.0);
+}
+track_point_t steep_to_gentle_up_diag_curve(float distance)
+{
+return cubic_curve_vertical_diagonal(0,0,sqrt(2)*TILE_SIZE,0,0,-1.5,4.5,0,distance/3.0);
+}
+track_point_t steep_diag_curve(float distance)
+{
+return plane_curve_vertical_diagonal(vector3(-distance*TILE_SIZE/6.0,distance,distance*TILE_SIZE/6.0),vector3_normalize(vector3(-1.0,6.0/TILE_SIZE,1.0)));
+}
 
 
 
@@ -286,7 +341,18 @@ mask_t large_turn_right_to_diag_masks[]={
 track_section_t large_turn_right_to_diag={0,large_turn_right_to_diag_curve,0.875*TILE_SIZE*3.1415926,{{4,large_turn_right_to_diag_masks},{4,large_turn_right_to_diag_masks+4},{4,large_turn_right_to_diag_masks+8},{4,large_turn_right_to_diag_masks+12}}};
 
 //Diagonals
+rect_t diag_slope_rect={-32,INT32_MIN,32,INT32_MAX};
+mask_t diag_slope_mask={1,0,0,&diag_slope_rect};
 track_section_t flat_diag={TRACK_DIAGONAL,flat_diag_curve,sqrt(2)*TILE_SIZE,{{1,NULL},{1,NULL},{1,NULL},{1,NULL}}};
+track_section_t flat_to_gentle_up_diag={TRACK_DIAGONAL,flat_to_gentle_up_diag_curve,sqrt(2)*TILE_SIZE,{{1,NULL},{1,NULL},{1,NULL},{1,NULL}}};
+track_section_t gentle_to_flat_up_diag={TRACK_DIAGONAL|TRACK_EXTRUDE_BEHIND,gentle_to_flat_up_diag_curve,sqrt(2)*TILE_SIZE,{{1,&diag_slope_mask},{1,&diag_slope_mask},{1,&diag_slope_mask},{1,&diag_slope_mask}}};
+track_section_t gentle_diag={TRACK_DIAGONAL|TRACK_EXTRUDE_BEHIND,gentle_diag_curve,sqrt(2)*TILE_SIZE,{{1,&diag_slope_mask},{1,&diag_slope_mask},{1,&diag_slope_mask},{1,&diag_slope_mask}}};
+track_section_t gentle_to_steep_up_diag={TRACK_DIAGONAL|TRACK_EXTRUDE_BEHIND,gentle_to_steep_up_diag_curve,3.0,{{1,&diag_slope_mask},{1,&diag_slope_mask},{1,&diag_slope_mask},{1,&diag_slope_mask}}};
+track_section_t steep_to_gentle_up_diag={TRACK_DIAGONAL|TRACK_EXTRUDE_BEHIND,steep_to_gentle_up_diag_curve,3.0,{{1,&diag_slope_mask},{1,&diag_slope_mask},{1,&diag_slope_mask},{1,&diag_slope_mask}}};
+track_section_t steep_diag={TRACK_DIAGONAL|TRACK_EXTRUDE_BEHIND,steep_diag_curve,6.0,{{1,&diag_slope_mask},{1,&diag_slope_mask},{1,&diag_slope_mask},{1,&diag_slope_mask}}};
+
+
+
 
 
 
