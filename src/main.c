@@ -3,7 +3,6 @@
 #include <string.h>
 #include <math.h>
 #include <jansson.h>
-#include <object.h>
 #include <renderer.h>
 #include <model.h>
 #include <vectormath.h>
@@ -13,7 +12,7 @@
 int image_write_png(image_t* image,FILE* file);
 
 
-void mesh_load_obj(mesh_t* mesh,char* filename)
+void mesh_load_obj(mesh_t* mesh,char* filename,int remap1,int remap2,int nonremap)
 {
     int i, j;
     obj_scene_data obj_data;
@@ -36,16 +35,22 @@ exit(0);
     mesh->faces = malloc(mesh->num_faces * sizeof(face_t));
 
 	mesh->materials=malloc(3*sizeof(material_t));
-	mesh->materials[1].flags=MATERIAL_IS_REMAPPABLE;
-	mesh->materials[1].region=1;
-	mesh->materials[1].specular_intensity=0.0;
-	mesh->materials[1].specular_exponent=0.0;
-	mesh->materials[1].color=vector3(0.6,0.6,0.6);
-	mesh->materials[0].flags=MATERIAL_IS_REMAPPABLE;
-	mesh->materials[0].region=2;
-	mesh->materials[0].specular_intensity=0.0;
-	mesh->materials[0].specular_exponent=0.0;
-	mesh->materials[0].color=vector3(1.0,1.0,1.0);
+	mesh->materials[remap1].flags=MATERIAL_IS_REMAPPABLE;
+	mesh->materials[remap1].region=1;
+	mesh->materials[remap1].specular_intensity=0.4;
+	mesh->materials[remap1].specular_exponent=2.0;
+	mesh->materials[remap1].color=vector3(0.6,0.6,0.6);
+	mesh->materials[remap2].flags=MATERIAL_IS_REMAPPABLE;
+	mesh->materials[remap2].region=2;
+	mesh->materials[remap2].specular_intensity=0.4;
+	mesh->materials[remap2].specular_exponent=2.0;
+	mesh->materials[remap2].color=vector3(0.6,0.6,0.6);
+
+	mesh->materials[nonremap].flags=0;
+	mesh->materials[nonremap].region=0;
+	mesh->materials[nonremap].specular_intensity=0.0;
+	mesh->materials[nonremap].specular_exponent=0.0;
+	mesh->materials[nonremap].color=vector3(0.1,0.1,0.1);
 
 
 
@@ -109,7 +114,33 @@ int is_in_mask(int x,int y,mask_t* mask)
 	}
 return 0;
 }
+/*
+void render_track_sprite(image_t* image,int angle,int sprite,track_section_t* track_section,track_type_t* track_type)
+{
+context_t context=get_context();
+	for(int i=0;i<angle;i++)context_rotate(&context);
 
+view_t* view=track_section->views+angle;
+framebuffer_t framebuffer;
+framebuffer_render_track_section(&framebuffer,&context,track_section,track_type,(track_section->flags&TRACK_EXTRUDE_BEHIND)&&(angle%2==0));
+image_from_framebuffer(image,&framebuffer,&(context.palette));
+
+	if(view->masks!=NULL)
+	{
+	printf("%d %d\n",image->offset_x,image->offset_y);
+		for(int x=0;x<image->width;x++)
+		for(int y=0;y<image->height;y++)
+		{
+			if(!is_in_mask(x+image->offset_x,y+image->offset_y,view->masks+sprite))
+			{
+			image->pixels[x+image->width*y]=0;
+			}
+		}
+	image->offset_x+=view->masks[sprite].offset_x;
+	image->offset_y+=view->masks[sprite].offset_y;
+	}	
+}
+*/
 
 void write_track_section(track_section_t* track_section,track_type_t* track_type,const char* filename,json_t* sprites)
 {
@@ -118,6 +149,19 @@ context_t context=get_context();
 	for(int angle=0;angle<4;angle++)
 	{
 	view_t* view=track_section->views+angle;
+
+	image_t full_sprite;
+	framebuffer_t framebuffer;
+	framebuffer_render_track_section(&framebuffer,&context,track_section,track_type,(track_section->flags&TRACK_EXTRUDE_BEHIND)&&(angle%2==0),0);
+	image_t track_mask;
+		if(view->flags&VIEW_NEEDS_TRACK_MASK)
+		{
+		framebuffer_t mask_framebuffer;
+		framebuffer_render_track_section(&mask_framebuffer,&context,track_section,track_type,0,1);
+		image_from_framebuffer(&track_mask,&mask_framebuffer,&(context.palette));
+		}
+	image_from_framebuffer(&full_sprite,&framebuffer,&(context.palette));
+
 		for(int sprite=0;sprite<view->num_sprites;sprite++)
 		{
 		char final_filename[255];
@@ -125,42 +169,69 @@ context_t context=get_context();
 			if(track_section->views[angle].num_sprites==1)sprintf(relative_filename,"%s_%d.png",filename,angle+1);
 			else sprintf(relative_filename,"%s_%d_%d.png",filename,angle+1,sprite+1);
 		sprintf(final_filename,"/home/edward/Programming/OpenRCT2/resources/g2/%s",relative_filename);
-		//sprintf(final_filename,"/home/edward/RCT2/Programming/TrackRender/%s",relative_filename);
 		printf("%s\n",final_filename);
-		image_t image;
-		framebuffer_t framebuffer;
-		framebuffer_render_track_section(&framebuffer,&context,track_section,track_type);
-		image_from_framebuffer(&image,&framebuffer,&(context.palette));
+
+		image_t part_sprite;
+		image_copy(&full_sprite,&part_sprite);
 
 			if(view->masks!=NULL)
 			{
-			printf("%d %d\n",image.offset_x,image.offset_y);
-				for(int x=0;x<image.width;x++)
-				for(int y=0;y<image.height;y++)
+				for(int x=0;x<full_sprite.width;x++)
+				for(int y=0;y<full_sprite.height;y++)
 				{
-					if(!is_in_mask(x+image.offset_x,y+image.offset_y,view->masks+sprite))
+				int in_mask=is_in_mask(x+full_sprite.offset_x,y+full_sprite.offset_y,view->masks+sprite);
+
+					if(view->masks[sprite].track_mask_op!=TRACK_MASK_NONE)
 					{
-					image.pixels[x+image.width*y]=0;
+					int mask_x=(x+full_sprite.offset_x)-track_mask.offset_x;
+					int mask_y=(y+full_sprite.offset_y)-track_mask.offset_y;
+					int in_track_mask=mask_x>=0&&mask_y>=0&&mask_x<track_mask.width&&mask_y<track_mask.height&&track_mask.pixels[mask_x+mask_y*track_mask.width]!=0;
+						if(in_track_mask)part_sprite.pixels[x+part_sprite.width*y]=50;
+						switch(view->masks[sprite].track_mask_op)
+						{
+						case TRACK_MASK_DIFFERENCE:
+						in_mask=in_mask&&!in_track_mask;
+						break;
+						case TRACK_MASK_INTERSECT:
+						in_mask=in_mask&&in_track_mask;
+						break;
+						case TRACK_MASK_UNION:
+						in_mask=in_mask||in_track_mask;
+						break;
+						}
+					}
+
+					if(in_mask)
+					{
+					part_sprite.pixels[x+part_sprite.width*y]=full_sprite.pixels[x+full_sprite.width*y];
+					}
+					else
+					{
+					part_sprite.pixels[x+part_sprite.width*y]=0;
 					}
 				}
-			image.offset_x+=view->masks[sprite].offset_x;
-			image.offset_y+=view->masks[sprite].offset_y;
-			}	
-		FILE* file=fopen(final_filename,"w");
-		image_write_png(&image,file);
+			part_sprite.offset_x+=view->masks[sprite].offset_x;
+			part_sprite.offset_y+=view->masks[sprite].offset_y;
+			}
+
 	
+		FILE* file=fopen(final_filename,"w");
+		image_write_png(&part_sprite,file);
+		fclose(file);	
+
 		json_t* sprite_entry=json_object();
 		json_object_set(sprite_entry,"path",json_string(relative_filename));
-		json_object_set(sprite_entry,"x_offset",json_integer(image.offset_x));
-		json_object_set(sprite_entry,"y_offset",json_integer(image.offset_y));
+		json_object_set(sprite_entry,"x_offset",json_integer(part_sprite.offset_x));
+		json_object_set(sprite_entry,"y_offset",json_integer(part_sprite.offset_y));
 		json_array_append(sprites,sprite_entry);
+		image_destroy(&part_sprite);
 		}
+
+		if(view->flags&VIEW_NEEDS_TRACK_MASK)image_destroy(&track_mask);
+	image_destroy(&full_sprite);
 	context_rotate(&context);
 	}
 }
-
-
-
 
 
 
@@ -207,58 +278,91 @@ return a*a+b*b+c*c;
 
 int main(int argc,char** argv)
 {
-uint8_t* g1_data;
-uint32_t g1_length;
-	if(load_file("/home/edward/Programming/OpenRCT2/data/g1.dat",&g1_data,&g1_length))return 3;
-image_list_t image_list;
-error_t error=image_list_decode(&image_list,g1_data,g1_length);
-	if(error!=ERROR_NONE)return 4;
+track_type_t intamindouble;
+mesh_load_obj(&(intamindouble.mesh),"intamindouble.obj",1,0,2);
+intamindouble.length=TILE_SIZE*0.5;
+intamindouble.rail_offset_x=0.175*1.5*sqrt(6);
+intamindouble.rail_offset_y=0.035*1.5*sqrt(6);
 
-track_type_t rmc;
-mesh_load_obj(&(rmc.mesh),"rmc.obj");
-rmc.length=TILE_SIZE*0.5;
-
-track_type_t rmc_lift;
-mesh_load_obj(&(rmc_lift.mesh),"rmc_lift.obj");
-rmc_lift.length=TILE_SIZE*0.5;
+track_type_t intamindouble_lift;
+mesh_load_obj(&(intamindouble_lift.mesh),"intamindouble_lift.obj",2,1,0);
+intamindouble_lift.length=TILE_SIZE*0.5;
+intamindouble_lift.rail_offset_x=0.175;
+intamindouble_lift.rail_offset_y=0.035;
 
 
-json_t* sprites=json_load_file("/home/edward/Programming/OpenRCT2/resources/g2/sprites.json",0,NULL);
+json_t* sprites=json_load_file("/home/edward/Programming/OpenRCT2/resources/g2/sprites_old.json",0,NULL);
 
 
 //Flat
-write_track_section(&flat,&rmc,"track/rmc/flat",sprites);
-write_track_section(&flat,&rmc_lift,"track/rmc/flat_lift",sprites);
-write_track_section(&flat,&rmc,"track/rmc/brake",sprites);//TODO actual sprites for these
+write_track_section(&flat,&intamindouble,"track/intamindouble/flat",sprites);
+write_track_section(&flat,&intamindouble_lift,"track/intamindouble/flat_lift",sprites);
+write_track_section(&flat,&intamindouble,"track/intamindouble/brake",sprites);//TODO actual sprites for these
+
 //Slopes
-write_track_section(&flat_to_gentle_up,&rmc,"track/rmc/flat_to_gentle_up",sprites);
-write_track_section(&flat_to_gentle_up,&rmc_lift,"track/rmc/flat_to_gentle_up_lift",sprites);
-write_track_section(&gentle_up_to_flat,&rmc,"track/rmc/gentle_up_to_flat",sprites);
-write_track_section(&gentle_up_to_flat,&rmc_lift,"track/rmc/gentle_up_to_flat_lift",sprites);
-write_track_section(&gentle,&rmc,"track/rmc/gentle",sprites);
-write_track_section(&gentle,&rmc_lift,"track/rmc/gentle_lift",sprites);
-write_track_section(&gentle_to_steep_up,&rmc,"track/rmc/gentle_to_steep_up",sprites);
-write_track_section(&gentle_to_steep_up,&rmc_lift,"track/rmc/gentle_to_steep_up_lift",sprites);
-write_track_section(&steep_to_gentle_up,&rmc,"track/rmc/steep_to_gentle_up",sprites);
-write_track_section(&steep_to_gentle_up,&rmc_lift,"track/rmc/steep_to_gentle_up_lift",sprites);
-write_track_section(&steep,&rmc,"track/rmc/steep",sprites);
-write_track_section(&steep,&rmc_lift,"track/rmc/steep_lift",sprites);
+write_track_section(&flat_to_gentle_up,&intamindouble,"track/intamindouble/flat_to_gentle_up",sprites);
+write_track_section(&flat_to_gentle_up,&intamindouble_lift,"track/intamindouble/flat_to_gentle_up_lift",sprites);
+write_track_section(&gentle_up_to_flat,&intamindouble,"track/intamindouble/gentle_to_flat_up",sprites);
+write_track_section(&gentle_up_to_flat,&intamindouble_lift,"track/intamindouble/gentle_to_flat_up_lift",sprites);
+write_track_section(&gentle,&intamindouble,"track/intamindouble/gentle",sprites);
+write_track_section(&gentle,&intamindouble_lift,"track/intamindouble/gentle_lift",sprites);
 
-write_track_section(&steep_to_vertical_up,&rmc,"track/rmc/steep_to_vertical_up",sprites);
-write_track_section(&steep_to_vertical_down,&rmc,"track/rmc/steep_to_vertical_down",sprites);
-write_track_section(&vertical,&rmc,"track/rmc/vertical",sprites);
+write_track_section(&gentle_to_steep_up,&intamindouble,"track/intamindouble/gentle_to_steep_up",sprites);
+write_track_section(&gentle_to_steep_up,&intamindouble_lift,"track/intamindouble/gentle_to_steep_up_lift",sprites);
+write_track_section(&steep_to_gentle_up,&intamindouble,"track/intamindouble/steep_to_gentle_up",sprites);
+write_track_section(&steep_to_gentle_up,&intamindouble_lift,"track/intamindouble/steep_to_gentle_up_lift",sprites);
 
+write_track_section(&steep,&intamindouble,"track/intamindouble/steep",sprites);
+write_track_section(&steep,&intamindouble_lift,"track/intamindouble/steep_lift",sprites);
+write_track_section(&steep_to_vertical_up,&intamindouble,"track/intamindouble/steep_to_vertical_up",sprites);
+write_track_section(&steep_to_vertical_down,&intamindouble,"track/intamindouble/steep_to_vertical_down",sprites);
+write_track_section(&vertical,&intamindouble,"track/intamindouble/vertical",sprites);
 
 
 //Turns
-write_track_section(&small_turn_left,&rmc,"track/rmc/small_turn_left",sprites);
-write_track_section(&medium_turn_left,&rmc,"track/rmc/medium_turn_left",sprites);
-write_track_section(&large_turn_left_to_diag,&rmc,"track/rmc/large_turn_left_to_diag",sprites);
-write_track_section(&large_turn_right_to_diag,&rmc,"track/rmc/large_turn_right_to_diag",sprites);
+write_track_section(&small_turn_left,&intamindouble,"track/intamindouble/small_turn_left",sprites);
+write_track_section(&medium_turn_left,&intamindouble,"track/intamindouble/medium_turn_left",sprites);
+write_track_section(&large_turn_left_to_diag,&intamindouble,"track/intamindouble/large_turn_left_to_diag",sprites);
+write_track_section(&large_turn_right_to_diag,&intamindouble,"track/intamindouble/large_turn_right_to_diag",sprites);
 
+//Diagonals
+write_track_section(&flat_diag,&intamindouble,"track/intamindouble/flat_diag",sprites);
+write_track_section(&flat_diag,&intamindouble_lift,"track/intamindouble/flat_diag_lift",sprites);
+write_track_section(&flat_to_gentle_up_diag,&intamindouble,"track/intamindouble/flat_to_gentle_up_diag",sprites);
+write_track_section(&flat_to_gentle_up_diag,&intamindouble_lift,"track/intamindouble/flat_to_gentle_up_diag_lift",sprites);
+write_track_section(&gentle_to_flat_up_diag,&intamindouble,"track/intamindouble/gentle_to_flat_up_diag",sprites);
+write_track_section(&gentle_to_flat_up_diag,&intamindouble_lift,"track/intamindouble/gentle_to_flat_up_diag_lift",sprites);
+write_track_section(&gentle_diag,&intamindouble,"track/intamindouble/gentle_diag",sprites);
+write_track_section(&gentle_diag,&intamindouble_lift,"track/intamindouble/gentle_diag_lift",sprites);
+write_track_section(&gentle_to_steep_up_diag,&intamindouble,"track/intamindouble/gentle_to_steep_up_diag",sprites);
+write_track_section(&gentle_to_steep_up_diag,&intamindouble_lift,"track/intamindouble/gentle_to_steep_up_diag_lift",sprites);
+write_track_section(&steep_to_gentle_up_diag,&intamindouble,"track/intamindouble/steep_to_gentle_up_diag",sprites);
+write_track_section(&steep_to_gentle_up_diag,&intamindouble_lift,"track/intamindouble/steep_to_gentle_up_diag_lift",sprites);
+write_track_section(&steep_diag,&intamindouble,"track/intamindouble/steep_diag",sprites);
+write_track_section(&steep_diag,&intamindouble_lift,"track/intamindouble/steep_diag_lift",sprites);
 
 
 //Banked turns
+write_track_section(&flat_to_left_bank,&intamindouble,"track/intamindouble/flat_to_left_bank",sprites);
+write_track_section(&flat_to_right_bank,&intamindouble,"track/intamindouble/flat_to_right_bank",sprites);
+write_track_section(&left_bank_to_gentle_up,&intamindouble,"track/intamindouble/left_bank_to_gentle_up",sprites);
+write_track_section(&right_bank_to_gentle_up,&intamindouble,"track/intamindouble/right_bank_to_gentle_up",sprites);
+write_track_section(&gentle_up_to_left_bank,&intamindouble,"track/intamindouble/gentle_up_to_left_bank",sprites);
+write_track_section(&gentle_up_to_right_bank,&intamindouble,"track/intamindouble/gentle_up_to_right_bank",sprites);
+write_track_section(&left_bank,&intamindouble,"track/intamindouble/left_bank",sprites);
+write_track_section(&flat_to_left_bank_diag,&intamindouble,"track/intamindouble/flat_to_left_bank_diag",sprites);
+write_track_section(&flat_to_right_bank_diag,&intamindouble,"track/intamindouble/flat_to_right_bank_diag",sprites);
+write_track_section(&left_bank_to_gentle_up_diag,&intamindouble,"track/intamindouble/left_bank_to_gentle_up_diag",sprites);
+write_track_section(&right_bank_to_gentle_up_diag,&intamindouble,"track/intamindouble/right_bank_to_gentle_up_diag",sprites);
+write_track_section(&gentle_up_to_left_bank_diag,&intamindouble,"track/intamindouble/gentle_up_to_left_bank_diag",sprites);
+write_track_section(&gentle_up_to_right_bank_diag,&intamindouble,"track/intamindouble/gentle_up_to_right_bank_diag",sprites);
+write_track_section(&left_bank_diag,&intamindouble,"track/intamindouble/left_bank_diag",sprites);
+write_track_section(&small_turn_left_bank,&intamindouble,"track/intamindouble/small_turn_left_bank",sprites);
+write_track_section(&medium_turn_left_bank,&intamindouble,"track/intamindouble/medium_turn_left_bank",sprites);
+write_track_section(&large_turn_left_to_diag_bank,&intamindouble,"track/intamindouble/large_turn_left_to_diag_bank",sprites);
+write_track_section(&large_turn_right_to_diag_bank,&intamindouble,"track/intamindouble/large_turn_right_to_diag_bank",sprites);
+
+
 
 //Sloped turns
 
@@ -273,6 +377,7 @@ write_track_section(&large_turn_right_to_diag,&rmc,"track/rmc/large_turn_right_t
 
 
 json_dump_file(sprites,"/home/edward/Programming/OpenRCT2/resources/g2/sprites.json",JSON_INDENT(4));
+
 return 0;
 
 }

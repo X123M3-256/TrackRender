@@ -5,13 +5,27 @@
 
 enum {
 TRACK_DIAGONAL=1,
-TRACK_EXTRUDE_BEHIND=2
+TRACK_VERTICAL=2,
+TRACK_EXTRUDE_BEHIND=4,
+};
+
+enum {
+VIEW_NEEDS_TRACK_MASK=1
+};
+
+enum {
+TRACK_MASK_NONE=0,
+TRACK_MASK_DIFFERENCE,
+TRACK_MASK_INTERSECT,
+TRACK_MASK_UNION
 };
 
 typedef struct
 {
 mesh_t mesh;
 float length;
+float rail_offset_x;
+float rail_offset_y;
 }track_type_t;
 
 typedef struct
@@ -24,6 +38,7 @@ vector3_t binormal;
 
 typedef struct
 {
+int track_mask_op;
 int num_rects;
 int offset_x;
 int offset_y;
@@ -33,6 +48,7 @@ rect_t* rects;
 
 typedef struct
 {
+int flags;
 int num_sprites;
 mask_t* masks;
 }view_t;
@@ -48,7 +64,7 @@ view_t views[4];
 }track_section_t;
 
 
-void framebuffer_render_track_section(framebuffer_t* framebuffer,context_t* context,track_section_t* track_section,track_type_t* track_type,int extrude_behind);
+void framebuffer_render_track_section(framebuffer_t* framebuffer,context_t* context,track_section_t* track_section,track_type_t* track_type,int extrude_behind,int track_mask);
 
 
 extern track_section_t flat;
@@ -80,6 +96,27 @@ extern track_section_t gentle_to_steep_down_diag;
 extern track_section_t steep_to_gentle_up_diag;
 extern track_section_t steep_to_gentle_down_diag;
 extern track_section_t steep_diag;
+extern track_section_t flat_to_left_bank;
+extern track_section_t flat_to_right_bank;
+extern track_section_t left_bank_to_gentle_up;
+extern track_section_t right_bank_to_gentle_up;
+extern track_section_t gentle_up_to_left_bank;
+extern track_section_t gentle_up_to_right_bank;
+extern track_section_t left_bank;
+extern track_section_t flat_to_left_bank_diag;
+extern track_section_t flat_to_right_bank_diag;
+extern track_section_t left_bank_to_gentle_up_diag;
+extern track_section_t right_bank_to_gentle_up_diag;
+extern track_section_t gentle_up_to_left_bank_diag;
+extern track_section_t gentle_up_to_right_bank_diag;
+extern track_section_t left_bank_diag;
+
+
+extern track_section_t small_turn_left_bank;
+extern track_section_t medium_turn_left_bank;
+extern track_section_t large_turn_left_to_diag_bank;
+extern track_section_t large_turn_right_to_diag_bank;
+
 
 extern track_section_t vertical_twist_left;
 extern track_section_t vertical_twist_right;
