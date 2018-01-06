@@ -110,15 +110,50 @@ extern track_section_t right_bank_to_gentle_up_diag;
 extern track_section_t gentle_up_to_left_bank_diag;
 extern track_section_t gentle_up_to_right_bank_diag;
 extern track_section_t left_bank_diag;
-
-
 extern track_section_t small_turn_left_bank;
 extern track_section_t medium_turn_left_bank;
 extern track_section_t large_turn_left_to_diag_bank;
 extern track_section_t large_turn_right_to_diag_bank;
+extern track_section_t small_turn_left_gentle_up;
+extern track_section_t small_turn_right_gentle_up;
+extern track_section_t medium_turn_left_gentle_up;
+extern track_section_t medium_turn_right_gentle_up;
+extern track_section_t very_small_turn_left_steep_up;
+extern track_section_t very_small_turn_right_steep_up;
+extern track_section_t vertical_twist_left_up;
+extern track_section_t vertical_twist_right_up;
+
+extern track_section_t gentle_up_to_gentle_up_left_bank;
+extern track_section_t gentle_up_to_gentle_up_right_bank;
+extern track_section_t gentle_up_left_bank_to_gentle_up;
+extern track_section_t gentle_up_right_bank_to_gentle_up;
+
+extern track_section_t left_bank_to_gentle_up_left_bank;
+extern track_section_t gentle_up_left_bank_to_left_bank;
+extern track_section_t right_bank_to_gentle_up_right_bank;
+extern track_section_t gentle_up_right_bank_to_right_bank;
+
+extern track_section_t gentle_up_left_bank;
+extern track_section_t gentle_up_right_bank;
+
+extern track_section_t flat_to_gentle_up_left_bank;
+extern track_section_t flat_to_gentle_up_right_bank;
+extern track_section_t gentle_up_left_bank_to_flat;
+extern track_section_t gentle_up_right_bank_to_flat;
+
+extern track_section_t small_turn_left_bank_gentle_up;
+extern track_section_t small_turn_right_bank_gentle_up;
+extern track_section_t medium_turn_left_bank_gentle_up;
+extern track_section_t medium_turn_right_bank_gentle_up;
+
+extern track_section_t s_bend_left;
+extern track_section_t s_bend_right;
+
+extern track_section_t small_helix_left_up;
+extern track_section_t small_helix_right_up;
+extern track_section_t medium_helix_left_up;
+extern track_section_t medium_helix_right_up;
 
 
-extern track_section_t vertical_twist_left;
-extern track_section_t vertical_twist_right;
 extern track_section_t heartline_roll_left;
 

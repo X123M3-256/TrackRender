@@ -32,7 +32,6 @@ void framebuffer_render_track_section(framebuffer_t* framebuffer,context_t* cont
 float num_meshes=(int)floor(0.5+track_section->length/track_type->length);
 float scale=track_section->length/(num_meshes*track_type->length);
 float length=scale*track_type->length;
-
 	if(extrude_behind)num_meshes++;//TODO make extruded section straight
 
 uint32_t primitives_per_mesh=mesh_count_primitives(&(track_type->mesh));

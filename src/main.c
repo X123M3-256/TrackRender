@@ -37,13 +37,13 @@ exit(0);
 	mesh->materials=malloc(3*sizeof(material_t));
 	mesh->materials[remap1].flags=MATERIAL_IS_REMAPPABLE;
 	mesh->materials[remap1].region=1;
-	mesh->materials[remap1].specular_intensity=0.4;
-	mesh->materials[remap1].specular_exponent=2.0;
+	mesh->materials[remap1].specular_intensity=0.2;
+	mesh->materials[remap1].specular_exponent=4.0;
 	mesh->materials[remap1].color=vector3(0.6,0.6,0.6);
 	mesh->materials[remap2].flags=MATERIAL_IS_REMAPPABLE;
 	mesh->materials[remap2].region=2;
-	mesh->materials[remap2].specular_intensity=0.4;
-	mesh->materials[remap2].specular_exponent=2.0;
+	mesh->materials[remap2].specular_intensity=0.2;
+	mesh->materials[remap2].specular_exponent=4.0;
 	mesh->materials[remap2].color=vector3(0.6,0.6,0.6);
 
 	mesh->materials[nonremap].flags=0;
@@ -148,6 +148,8 @@ context_t context=get_context();
 
 	for(int angle=0;angle<4;angle++)
 	{
+		if(track_section->views[angle].num_sprites==0)continue;
+
 	view_t* view=track_section->views+angle;
 
 	image_t full_sprite;
@@ -278,6 +280,7 @@ return a*a+b*b+c*c;
 
 int main(int argc,char** argv)
 {
+
 track_type_t intamindouble;
 mesh_load_obj(&(intamindouble.mesh),"intamindouble.obj",1,0,2);
 intamindouble.length=TILE_SIZE*0.5;
@@ -287,8 +290,22 @@ intamindouble.rail_offset_y=0.035*1.5*sqrt(6);
 track_type_t intamindouble_lift;
 mesh_load_obj(&(intamindouble_lift.mesh),"intamindouble_lift.obj",2,1,0);
 intamindouble_lift.length=TILE_SIZE*0.5;
-intamindouble_lift.rail_offset_x=0.175;
-intamindouble_lift.rail_offset_y=0.035;
+intamindouble_lift.rail_offset_x=0.175*1.5*sqrt(6);
+intamindouble_lift.rail_offset_y=0.035*1.5*sqrt(6);
+
+/*
+track_type_t rmc;
+mesh_load_obj(&(rmc.mesh),"rmc.obj",1,0,2);
+rmc.length=TILE_SIZE*0.5;
+rmc.rail_offset_x=0.15*1.5*sqrt(6);
+rmc.rail_offset_y=0.01*1.5*sqrt(6);
+
+track_type_t rmc_lift;
+mesh_load_obj(&(rmc_lift.mesh),"rmc_lift.obj",1,0,2);
+rmc_lift.length=TILE_SIZE*0.5;
+rmc_lift.rail_offset_x=0.15*1.5*sqrt(6);
+rmc_lift.rail_offset_y=0.01*1.5*sqrt(6);
+*/
 
 
 json_t* sprites=json_load_file("/home/edward/Programming/OpenRCT2/resources/g2/sprites_old.json",0,NULL);
@@ -296,7 +313,7 @@ json_t* sprites=json_load_file("/home/edward/Programming/OpenRCT2/resources/g2/s
 
 //Flat
 write_track_section(&flat,&intamindouble,"track/intamindouble/flat",sprites);
-write_track_section(&flat,&intamindouble_lift,"track/intamindouble/flat_lift",sprites);
+write_track_section(&flat,&intamindouble_lift,"track/intamindouble/flat_lift",sprites); 
 write_track_section(&flat,&intamindouble,"track/intamindouble/brake",sprites);//TODO actual sprites for these
 
 //Slopes
@@ -341,7 +358,6 @@ write_track_section(&steep_to_gentle_up_diag,&intamindouble_lift,"track/intamind
 write_track_section(&steep_diag,&intamindouble,"track/intamindouble/steep_diag",sprites);
 write_track_section(&steep_diag,&intamindouble_lift,"track/intamindouble/steep_diag_lift",sprites);
 
-
 //Banked turns
 write_track_section(&flat_to_left_bank,&intamindouble,"track/intamindouble/flat_to_left_bank",sprites);
 write_track_section(&flat_to_right_bank,&intamindouble,"track/intamindouble/flat_to_right_bank",sprites);
@@ -362,14 +378,45 @@ write_track_section(&medium_turn_left_bank,&intamindouble,"track/intamindouble/m
 write_track_section(&large_turn_left_to_diag_bank,&intamindouble,"track/intamindouble/large_turn_left_to_diag_bank",sprites);
 write_track_section(&large_turn_right_to_diag_bank,&intamindouble,"track/intamindouble/large_turn_right_to_diag_bank",sprites);
 
-
-
 //Sloped turns
-
-//write_track_section(&vertical_twist_left,&rmc,"track/rmc/vertical_twist_left",sprites);
-//write_track_section(&vertical_twist_right,&rmc,"track/rmc/vertical_twist_right",sprites);
+write_track_section(&small_turn_left_gentle_up,&intamindouble,"track/intamindouble/small_turn_left_gentle_up",sprites);
+write_track_section(&small_turn_right_gentle_up,&intamindouble,"track/intamindouble/small_turn_right_gentle_up",sprites);
+write_track_section(&medium_turn_left_gentle_up,&intamindouble,"track/intamindouble/medium_turn_left_gentle_up",sprites);
+write_track_section(&medium_turn_right_gentle_up,&intamindouble,"track/intamindouble/medium_turn_right_gentle_up",sprites);
+write_track_section(&very_small_turn_left_steep_up,&intamindouble,"track/intamindouble/very_small_turn_left_steep_up",sprites);
+write_track_section(&very_small_turn_right_steep_up,&intamindouble,"track/intamindouble/very_small_turn_right_steep_up",sprites);
+write_track_section(&vertical_twist_left_up,&intamindouble,"track/intamindouble/vertical_twist_left_up",sprites);
+write_track_section(&vertical_twist_right_up,&intamindouble,"track/intamindouble/vertical_twist_right_up",sprites);
 
 //Sloped banked turns
+write_track_section(&gentle_up_to_gentle_up_left_bank,&intamindouble,"track/intamindouble/gentle_up_to_gentle_up_left_bank",sprites);
+write_track_section(&gentle_up_to_gentle_up_right_bank,&intamindouble,"track/intamindouble/gentle_up_to_gentle_up_right_bank",sprites);
+write_track_section(&gentle_up_left_bank_to_gentle_up,&intamindouble,"track/intamindouble/gentle_up_left_bank_to_gentle_up",sprites);
+write_track_section(&gentle_up_right_bank_to_gentle_up,&intamindouble,"track/intamindouble/gentle_up_right_bank_to_gentle_up",sprites);
+write_track_section(&left_bank_to_gentle_up_left_bank,&intamindouble,"track/intamindouble/left_bank_to_gentle_up_left_bank",sprites);
+write_track_section(&right_bank_to_gentle_up_right_bank,&intamindouble,"track/intamindouble/right_bank_to_gentle_up_right_bank",sprites);
+write_track_section(&gentle_up_left_bank_to_left_bank,&intamindouble,"track/intamindouble/gentle_up_left_bank_to_left_bank",sprites);
+write_track_section(&gentle_up_right_bank_to_right_bank,&intamindouble,"track/intamindouble/gentle_up_right_bank_to_right_bank",sprites);
+write_track_section(&gentle_up_left_bank,&intamindouble,"track/intamindouble/gentle_up_left_bank",sprites);
+write_track_section(&gentle_up_right_bank,&intamindouble,"track/intamindouble/gentle_up_right_bank",sprites);
+write_track_section(&flat_to_gentle_up_left_bank,&intamindouble,"track/intamindouble/flat_to_gentle_up_left_bank",sprites);
+write_track_section(&flat_to_gentle_up_right_bank,&intamindouble,"track/intamindouble/flat_to_gentle_up_right_bank",sprites);
+write_track_section(&gentle_up_left_bank_to_flat,&intamindouble,"track/intamindouble/gentle_up_left_bank_to_flat",sprites);
+write_track_section(&gentle_up_right_bank_to_flat,&intamindouble,"track/intamindouble/gentle_up_right_bank_to_flat",sprites);
+write_track_section(&small_turn_left_bank_gentle_up,&intamindouble,"track/intamindouble/small_turn_left_bank_gentle_up",sprites);
+write_track_section(&small_turn_right_bank_gentle_up,&intamindouble,"track/intamindouble/small_turn_right_bank_gentle_up",sprites);
+write_track_section(&medium_turn_left_bank_gentle_up,&intamindouble,"track/intamindouble/medium_turn_left_bank_gentle_up",sprites);
+write_track_section(&medium_turn_right_bank_gentle_up,&intamindouble,"track/intamindouble/medium_turn_right_bank_gentle_up",sprites);
+
+
+//Miscellaneous
+write_track_section(&s_bend_left,&intamindouble,"track/intamindouble/s_bend_left",sprites);
+write_track_section(&s_bend_right,&intamindouble,"track/intamindouble/s_bend_right",sprites);
+write_track_section(&small_helix_left_up,&intamindouble,"track/intamindouble/small_helix_left_up",sprites);
+write_track_section(&small_helix_right_up,&intamindouble,"track/intamindouble/small_helix_right_up",sprites);
+write_track_section(&medium_helix_left_up,&intamindouble,"track/intamindouble/medium_helix_left_up",sprites);
+write_track_section(&medium_helix_right_up,&intamindouble,"track/intamindouble/medium_helix_right_up",sprites);
+
 
 
 //Inversions
