@@ -23,9 +23,8 @@ TRACK_MASK_UNION
 typedef struct
 {
 mesh_t mesh;
+mesh_t mask;
 float length;
-float rail_offset_x;
-float rail_offset_y;
 }track_type_t;
 
 typedef struct
@@ -40,8 +39,8 @@ typedef struct
 {
 int track_mask_op;
 int num_rects;
-int offset_x;
-int offset_y;
+int x_offset;
+int y_offset;
 rect_t* rects;
 }mask_t;
 
@@ -155,5 +154,5 @@ extern track_section_t medium_helix_left_up;
 extern track_section_t medium_helix_right_up;
 
 
-extern track_section_t heartline_roll_left;
-
+extern track_section_t barrel_roll_left;
+extern track_section_t barrel_roll_right;

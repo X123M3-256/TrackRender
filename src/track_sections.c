@@ -23,7 +23,6 @@ point.normal=vector3(0.0,tangent.z,-tangent.y);
 point.binormal=vector3(1.0,0.0,0.0);
 return point;
 }
-
 track_point_t plane_curve_vertical_diagonal(vector3_t position,vector3_t tangent)
 {
 track_point_t point;
@@ -33,7 +32,6 @@ point.normal=vector3(tangent.y/sqrt(2),tangent.z*sqrt(2),-tangent.y/sqrt(2));
 point.binormal=vector3(sqrt(0.5),0.0,sqrt(0.5)); 
 return point;
 }
-
 track_point_t plane_curve_horizontal(vector3_t position,vector3_t tangent)
 {
 track_point_t point;
@@ -48,7 +46,6 @@ track_point_t cubic_curve_vertical(float xa,float xb,float xc,float xd,float ya,
 {
 return plane_curve_vertical(vector3(0.0,cubic(ya,yb,yc,yd,distance),cubic(xa,xb,xc,xd,distance)),vector3_normalize(vector3(0.0,cubic_derivative(ya,yb,yc,distance),cubic_derivative(xa,xb,xc,distance))));
 }
-
 track_point_t cubic_curve_vertical_diagonal(float xa,float xb,float xc,float xd,float ya,float yb,float yc,float yd,float distance)
 {
 float x=cubic(xa,xb,xc,xd,distance);
@@ -57,7 +54,6 @@ float dx=cubic_derivative(xa,xb,xc,distance);
 float dy=cubic_derivative(ya,yb,yc,distance);
 return plane_curve_vertical_diagonal(vector3(-x/sqrt(2),y,x/sqrt(2)),vector3_normalize(vector3(-dx/sqrt(2),dy,dx/sqrt(2))));
 }
-
 track_point_t cubic_curve_horizontal(float xa,float xb,float xc,float xd,float ya,float yb,float yc,float yd,float distance)
 {
 return plane_curve_horizontal(vector3(cubic(ya,yb,yc,yd,distance),0.0,cubic(xa,xb,xc,xd,distance)),vector3_normalize(vector3(cubic_derivative(ya,yb,yc,distance),0.0,cubic_derivative(xa,xb,xc,distance))));
@@ -72,7 +68,6 @@ point.normal=vector3_add(vector3_mult(unbanked_curve.normal,cos(angle)),vector3_
 point.binormal=vector3_add(vector3_mult(unbanked_curve.normal,-sin(angle)),vector3_mult(unbanked_curve.binormal,cos(angle)));
 return point;
 }
-
 
 track_point_t flat_curve(float distance)
 {
@@ -437,17 +432,26 @@ track_point_t medium_helix_right_up_curve(float distance)
 return banked_curve(sloped_turn_right_curve(2.5*TILE_SIZE,0.75/(1.25*M_PI*TILE_SIZE),distance),-0.25*M_PI);
 }
 
-track_point_t heartline_roll_left_curve(float x)
+track_point_t barrel_roll_left_curve(float x)
 {
 track_point_t point;
 float length=4.5*sqrt(6)/3.1415926589;
-point.position=vector3(-sin(x/length),1-cos(x/length),x);
-point.tangent=vector3_normalize(vector3(-cos(x/length)/length,-sin(x/length)/length,1.0));
+point.position=vector3(-0.875*sin(x/length),0.875*(1-cos(x/length)),x);
+point.tangent=vector3_normalize(vector3(-0.875*cos(x/length)/length,0.875*sin(x/length)/length,1.0));
 point.normal=vector3(sin(x/length),cos(x/length),0.0);
 point.binormal=vector3_cross(point.tangent,point.normal);
 return point;
 }
-
+track_point_t barrel_roll_right_curve(float x)
+{
+track_point_t left_point=barrel_roll_left_curve(x);
+track_point_t point;
+point.position=vector3(-left_point.position.x,left_point.position.y,left_point.position.z);
+point.tangent=vector3(-left_point.tangent.x,left_point.tangent.y,left_point.tangent.z);
+point.normal=vector3(-left_point.normal.x,left_point.normal.y,left_point.normal.z);
+point.binormal=vector3_cross(point.tangent,point.normal);
+return point;
+}
 
 //Slopes
 track_section_t flat={0,flat_curve,TILE_SIZE,{{0,1,NULL},{0,1,NULL},{0,1,NULL},{0,1,NULL}}};
@@ -972,10 +976,60 @@ track_section_t medium_helix_right_up={0,medium_helix_right_up_curve,NORM(0.75,1
 
 
 
+rect_t barrel_roll_left_rects[]={
+//First angle
+{INT32_MIN,INT32_MIN,-14,-7},{INT32_MIN,-7,-12,-6},{INT32_MIN,-6,-10,-5},{INT32_MIN,-5,-8,-4},{INT32_MIN,-4,-6,-3},{INT32_MIN,-3,-4,-2},{INT32_MIN,-2,-2,-1},{INT32_MIN,-1,0,0},{INT32_MIN,0,2,1},{INT32_MIN,1,4,2},{INT32_MIN,2,6,3},{INT32_MIN,3,8,4},{INT32_MIN,4,10,5},{INT32_MIN,5,12,6},{INT32_MIN,6,14,7},{INT32_MIN,7,16,8},{INT32_MIN,8,18,9},{INT32_MIN,9,20,10},{INT32_MIN,10,22,11},{INT32_MIN,11,24,12},{INT32_MIN,12,26,13},{INT32_MIN,13,28,14},{INT32_MIN,14,30,15},{INT32_MIN,15,32,16},{INT32_MIN,16,34,17},{INT32_MIN,17,36,18},{INT32_MIN,18,38,19},{INT32_MIN,19,40,20},{INT32_MIN,20,42,21},{INT32_MIN,21,44,22},{INT32_MIN,22,46,23},{INT32_MIN,23,INT32_MAX,INT32_MAX},
+{-14,-28,61,-7},{-12,-7,61,-6},{-10,-6,61,-5},{-8,-5,61,-4},{-6,-4,61,-3},{-4,-3,61,-2},{-2,-2,61,-1},{0,-1,61,0},{2,0,61,1},{4,1,61,2},{6,2,61,3},{8,3,61,4},{10,4,61,5},{12,5,61,6},{14,6,61,7},{16,7,61,8},{18,8,61,9},{20,9,61,10},{22,10,61,11},{24,11,61,12},{26,12,61,13},{28,13,61,14},{30,14,61,15},{32,15,61,16},{34,16,61,17},{36,17,61,18},{38,18,61,19},{40,19,61,20},{42,20,61,21},{44,21,61,22},{46,22,61,23},
+{-14,INT32_MIN,INT32_MAX,-28},{61,-28,INT32_MAX,23},
+//Second angle
+{INT32_MIN,INT32_MIN,15,-4},{INT32_MIN,-4,14,3},{INT32_MIN,3,13,10},{INT32_MIN,10,12,17},{INT32_MIN,17,11,24},{INT32_MIN,24,10,31},{INT32_MIN,31,9,38},{INT32_MIN,38,8,INT32_MAX},
+{15,INT32_MIN,32,-4},{14,-4,32,3},{13,3,32,10},{12,10,32,17},{11,17,32,24},{10,24,32,31},{9,31,32,38},{8,38,32,INT32_MAX},
+{32,INT32_MIN,INT32_MAX,INT32_MAX},
+//Third angle
+{-34,INT32_MIN,INT32_MAX,-15},{-33,-15,INT32_MAX,-11},{-32,-11,INT32_MAX,-8},{-31,-8,INT32_MAX,-4},{-30,-4,INT32_MAX,-1},{-29,-1,INT32_MAX,3},{-28,3,INT32_MAX,6},{-27,6,INT32_MAX,10},{-26,10,INT32_MAX,13},{-25,13,INT32_MAX,17},{-24,17,INT32_MAX,20},{-23,20,INT32_MAX,24},{-22,24,INT32_MAX,27},{-21,27,INT32_MAX,31},{-20,31,INT32_MAX,34},{-19,34,INT32_MAX,38},{-18,38,INT32_MAX,41},{-17,41,INT32_MAX,INT32_MAX},
+{-65,INT32_MIN,-34,-15},{-65,-15,-33,-14},{-64,-14,-33,-11},{-64,-11,-32,-9},{-63,-9,-32,-8},{-63,-8,-31,-5},{-62,-5,-31,-4},{-62,-4,-30,-1},{-62,-1,-29,0},{-61,0,-29,3},{-61,3,-28,4},{-60,4,-28,6},{-60,6,-27,9},{-59,9,-27,10},{-59,10,-26,13},{-58,13,-25,17},{-57,17,-24,20},{-57,20,-23,22},{-56,22,-23,24},{-56,24,-22,26},{-55,26,-22,27},{-55,27,-21,31},{-54,31,-20,34},{-54,34,-19,35},{-53,35,-19,38},{-53,38,-18,40},{-52,40,-18,41},{-52,41,-17,INT32_MAX},
+{INT32_MIN,INT32_MIN,-65,-14},{INT32_MIN,-14,-64,-9},{INT32_MIN,-9,-63,-5},{INT32_MIN,-5,-62,0},{INT32_MIN,0,-61,4},{INT32_MIN,4,-60,9},{INT32_MIN,9,-59,13},{INT32_MIN,13,-58,17},{INT32_MIN,17,-57,22},{INT32_MIN,22,-56,26},{INT32_MIN,26,-55,31},{INT32_MIN,31,-54,35},{INT32_MIN,35,-53,40},{INT32_MIN,40,-52,INT32_MAX},
+//Fourth angle
+{7,-30,INT32_MAX,-28},{6,-28,INT32_MAX,-27},{5,-27,INT32_MAX,-26},{4,-26,INT32_MAX,-25},{3,-25,INT32_MAX,-24},{2,-24,INT32_MAX,-22},{1,-22,INT32_MAX,-21},{0,-21,INT32_MAX,-20},{-1,-20,INT32_MAX,-19},{-2,-19,INT32_MAX,-18},{-3,-18,INT32_MAX,-17},{-4,-17,INT32_MAX,-15},{-5,-15,INT32_MAX,-14},{-6,-14,INT32_MAX,-13},{-7,-13,INT32_MAX,-12},{-8,-12,INT32_MAX,-11},{-9,-11,INT32_MAX,-9},{-10,-9,INT32_MAX,-8},{-11,-8,INT32_MAX,-7},{-12,-7,INT32_MAX,-6},{-13,-6,INT32_MAX,-5},{-14,-5,INT32_MAX,-4},{-15,-4,INT32_MAX,-2},{-16,-2,INT32_MAX,-1},{-17,-1,INT32_MAX,0},{-18,0,INT32_MAX,1},{-19,1,INT32_MAX,2},{-20,2,INT32_MAX,4},{-21,4,INT32_MAX,5},{-22,5,INT32_MAX,6},{-23,6,INT32_MAX,7},{-24,7,INT32_MAX,8},{-25,8,INT32_MAX,9},{-26,9,INT32_MAX,INT32_MAX},
+{-32,INT32_MIN,INT32_MAX,-57},{-33,-57,INT32_MAX,-55},{-34,-55,INT32_MAX,-53},{-35,-53,INT32_MAX,-51},{-36,-51,INT32_MAX,-49},{-37,-49,INT32_MAX,-47},{-38,-47,INT32_MAX,-45},{-39,-45,INT32_MAX,-43},{-40,-43,INT32_MAX,-41},{-41,-41,INT32_MAX,-39},{-42,-39,INT32_MAX,-37},{-43,-37,INT32_MAX,-34},{-44,-34,INT32_MAX,-32},{-45,-32,INT32_MAX,-30},{-46,-30,7,-28},{-47,-28,6,-27},{-47,-27,5,-26},{-48,-26,4,-25},{-48,-25,3,-24},{-49,-24,2,-22},{-50,-22,1,-21},{-50,-21,0,-20},{-51,-20,-1,-19},{-51,-19,-2,-18},{INT32_MIN,-18,-3,-17},{INT32_MIN,-17,-4,-15},{INT32_MIN,-15,-5,-14},{INT32_MIN,-14,-6,-13},{INT32_MIN,-13,-7,-12},{INT32_MIN,-12,-8,-11},{INT32_MIN,-11,-9,-9},{INT32_MIN,-9,-10,-8},{INT32_MIN,-8,-11,-7},{INT32_MIN,-7,-12,-6},{INT32_MIN,-6,-13,-5},{INT32_MIN,-5,-14,-4},{INT32_MIN,-4,-15,-2},{INT32_MIN,-2,-16,-1},{INT32_MIN,-1,-17,0},{INT32_MIN,0,-18,1},{INT32_MIN,1,-19,2},{INT32_MIN,2,-20,4},{INT32_MIN,4,-21,5},{INT32_MIN,5,-22,6},{INT32_MIN,6,-23,7},{INT32_MIN,7,-24,8},{INT32_MIN,8,-25,9},{INT32_MIN,9,-26,INT32_MAX},
+{INT32_MIN,INT32_MIN,-32,-57},{INT32_MIN,-57,-33,-55},{INT32_MIN,-55,-34,-53},{INT32_MIN,-53,-35,-51},{INT32_MIN,-51,-36,-49},{INT32_MIN,-49,-37,-47},{INT32_MIN,-47,-38,-45},{INT32_MIN,-45,-39,-43},{INT32_MIN,-43,-40,-41},{INT32_MIN,-41,-41,-39},{INT32_MIN,-39,-42,-37},{INT32_MIN,-37,-43,-34},{INT32_MIN,-34,-44,-32},{INT32_MIN,-32,-45,-30},{INT32_MIN,-30,-46,-28},{INT32_MIN,-28,-47,-26},{INT32_MIN,-26,-48,-24},{INT32_MIN,-24,-49,-22},{INT32_MIN,-22,-50,-20},{INT32_MIN,-20,-51,-18},
+};
+mask_t barrel_roll_left_masks[]={
+	{TRACK_MASK_INTERSECT,32,0,0,barrel_roll_left_rects},{TRACK_MASK_DIFFERENCE,32,0,0,barrel_roll_left_rects},{TRACK_MASK_INTERSECT,31,-32,16,barrel_roll_left_rects+32},{TRACK_MASK_DIFFERENCE,31,-32,16,barrel_roll_left_rects+32},{TRACK_MASK_INTERSECT,2,-64,32,barrel_roll_left_rects+63},{TRACK_MASK_DIFFERENCE,2,-64,32,barrel_roll_left_rects+63},
+	{TRACK_MASK_INTERSECT,8,0,0,barrel_roll_left_rects+65},{TRACK_MASK_DIFFERENCE,8,0,0,barrel_roll_left_rects+65},{TRACK_MASK_INTERSECT,8,-32,-16,barrel_roll_left_rects+73},{TRACK_MASK_DIFFERENCE,8,-32,-16,barrel_roll_left_rects+73},{TRACK_MASK_INTERSECT,1,-64,-32,barrel_roll_left_rects+81},{TRACK_MASK_DIFFERENCE,1,-64,-32,barrel_roll_left_rects+81},
+	{TRACK_MASK_INTERSECT,18,0,0,barrel_roll_left_rects+82},{TRACK_MASK_DIFFERENCE,18,0,0,barrel_roll_left_rects+82},{TRACK_MASK_INTERSECT,28,32,-16,barrel_roll_left_rects+100},{TRACK_MASK_DIFFERENCE,28,32,-16,barrel_roll_left_rects+100},{TRACK_MASK_INTERSECT,14,64,-32,barrel_roll_left_rects+128},{TRACK_MASK_DIFFERENCE,14,64,-32,barrel_roll_left_rects+128},
+	{TRACK_MASK_INTERSECT,34,0,0,barrel_roll_left_rects+142},{TRACK_MASK_DIFFERENCE,34,0,0,barrel_roll_left_rects+142},{TRACK_MASK_INTERSECT,48,32,16,barrel_roll_left_rects+176},{TRACK_MASK_DIFFERENCE,48,32,16,barrel_roll_left_rects+176},{TRACK_MASK_INTERSECT,20,64,32,barrel_roll_left_rects+224},{TRACK_MASK_DIFFERENCE,20,64,32,barrel_roll_left_rects+224}
+};
+track_section_t barrel_roll_left={0,barrel_roll_left_curve,3.0*TILE_SIZE,{{VIEW_NEEDS_TRACK_MASK,6,barrel_roll_left_masks},{VIEW_NEEDS_TRACK_MASK,6,barrel_roll_left_masks+6},{VIEW_NEEDS_TRACK_MASK,6,barrel_roll_left_masks+12},{VIEW_NEEDS_TRACK_MASK,6,barrel_roll_left_masks+18}}};
 
-/*
-track_section_t heartline_roll_left={0,heartline_roll_left_curve,3.0*TILE_SIZE,{{1,NULL},{1,NULL},{1,NULL},{1,NULL}}};
-*/
+
+rect_t barrel_roll_right_rects[]={
+//First angle
+{INT32_MIN,-30,-7,-28},{INT32_MIN,-28,-6,-27},{INT32_MIN,-27,-5,-26},{INT32_MIN,-26,-4,-25},{INT32_MIN,-25,-3,-24},{INT32_MIN,-24,-2,-22},{INT32_MIN,-22,-1,-21},{INT32_MIN,-21,0,-20},{INT32_MIN,-20,1,-19},{INT32_MIN,-19,2,-18},{INT32_MIN,-18,3,-17},{INT32_MIN,-17,4,-15},{INT32_MIN,-15,5,-14},{INT32_MIN,-14,6,-13},{INT32_MIN,-13,7,-12},{INT32_MIN,-12,8,-11},{INT32_MIN,-11,9,-9},{INT32_MIN,-9,10,-8},{INT32_MIN,-8,11,-7},{INT32_MIN,-7,12,-6},{INT32_MIN,-6,13,-5},{INT32_MIN,-5,14,-4},{INT32_MIN,-4,15,-2},{INT32_MIN,-2,16,-1},{INT32_MIN,-1,17,0},{INT32_MIN,0,18,1},{INT32_MIN,1,19,2},{INT32_MIN,2,20,4},{INT32_MIN,4,21,5},{INT32_MIN,5,22,6},{INT32_MIN,6,23,7},{INT32_MIN,7,24,8},{INT32_MIN,8,25,9},{INT32_MIN,9,26,INT32_MAX},
+{INT32_MIN,INT32_MIN,32,-57},{INT32_MIN,-57,33,-55},{INT32_MIN,-55,34,-53},{INT32_MIN,-53,35,-51},{INT32_MIN,-51,36,-49},{INT32_MIN,-49,37,-47},{INT32_MIN,-47,38,-45},{INT32_MIN,-45,39,-43},{INT32_MIN,-43,40,-41},{INT32_MIN,-41,41,-39},{INT32_MIN,-39,42,-37},{INT32_MIN,-37,43,-34},{INT32_MIN,-34,44,-32},{INT32_MIN,-32,45,-30},{-7,-30,46,-28},{-6,-28,47,-27},{-5,-27,47,-26},{-4,-26,48,-25},{-3,-25,48,-24},{-2,-24,49,-22},{-1,-22,50,-21},{0,-21,50,-20},{1,-20,51,-19},{2,-19,51,-18},{3,-18,INT32_MAX,-17},{4,-17,INT32_MAX,-15},{5,-15,INT32_MAX,-14},{6,-14,INT32_MAX,-13},{7,-13,INT32_MAX,-12},{8,-12,INT32_MAX,-11},{9,-11,INT32_MAX,-9},{10,-9,INT32_MAX,-8},{11,-8,INT32_MAX,-7},{12,-7,INT32_MAX,-6},{13,-6,INT32_MAX,-5},{14,-5,INT32_MAX,-4},{15,-4,INT32_MAX,-2},{16,-2,INT32_MAX,-1},{17,-1,INT32_MAX,0},{18,0,INT32_MAX,1},{19,1,INT32_MAX,2},{20,2,INT32_MAX,4},{21,4,INT32_MAX,5},{22,5,INT32_MAX,6},{23,6,INT32_MAX,7},{24,7,INT32_MAX,8},{25,8,INT32_MAX,9},{26,9,INT32_MAX,INT32_MAX},
+{32,INT32_MIN,INT32_MAX,-57},{33,-57,INT32_MAX,-55},{34,-55,INT32_MAX,-53},{35,-53,INT32_MAX,-51},{36,-51,INT32_MAX,-49},{37,-49,INT32_MAX,-47},{38,-47,INT32_MAX,-45},{39,-45,INT32_MAX,-43},{40,-43,INT32_MAX,-41},{41,-41,INT32_MAX,-39},{42,-39,INT32_MAX,-37},{43,-37,INT32_MAX,-34},{44,-34,INT32_MAX,-32},{45,-32,INT32_MAX,-30},{46,-30,INT32_MAX,-28},{47,-28,INT32_MAX,-26},{48,-26,INT32_MAX,-24},{49,-24,INT32_MAX,-22},{50,-22,INT32_MAX,-20},{51,-20,INT32_MAX,-18},
+//Second angle
+{INT32_MIN,INT32_MIN,34,-15},{INT32_MIN,-15,33,-11},{INT32_MIN,-11,32,-8},{INT32_MIN,-8,31,-4},{INT32_MIN,-4,30,-1},{INT32_MIN,-1,29,3},{INT32_MIN,3,28,6},{INT32_MIN,6,27,10},{INT32_MIN,10,26,13},{INT32_MIN,13,25,17},{INT32_MIN,17,24,20},{INT32_MIN,20,23,24},{INT32_MIN,24,22,27},{INT32_MIN,27,21,31},{INT32_MIN,31,20,34},{INT32_MIN,34,19,38},{INT32_MIN,38,18,41},{INT32_MIN,41,17,INT32_MAX},
+{34,INT32_MIN,65,-15},{33,-15,65,-14},{33,-14,64,-11},{32,-11,64,-9},{32,-9,63,-8},{31,-8,63,-5},{31,-5,62,-4},{30,-4,62,-1},{29,-1,62,0},{29,0,61,3},{28,3,61,4},{28,4,60,6},{27,6,60,9},{27,9,59,10},{26,10,59,13},{25,13,58,17},{24,17,57,20},{23,20,57,22},{23,22,56,24},{22,24,56,26},{22,26,55,27},{21,27,55,31},{20,31,54,34},{19,34,54,35},{19,35,53,38},{18,38,53,40},{18,40,52,41},{17,41,52,INT32_MAX},
+{65,INT32_MIN,INT32_MAX,-14},{64,-14,INT32_MAX,-9},{63,-9,INT32_MAX,-5},{62,-5,INT32_MAX,0},{61,0,INT32_MAX,4},{60,4,INT32_MAX,9},{59,9,INT32_MAX,13},{58,13,INT32_MAX,17},{57,17,INT32_MAX,22},{56,22,INT32_MAX,26},{55,26,INT32_MAX,31},{54,31,INT32_MAX,35},{53,35,INT32_MAX,40},{52,40,INT32_MAX,INT32_MAX},
+//Third angle
+{-15,INT32_MIN,INT32_MAX,-4},{-14,-4,INT32_MAX,3},{-13,3,INT32_MAX,10},{-12,10,INT32_MAX,17},{-11,17,INT32_MAX,24},{-10,24,INT32_MAX,31},{-9,31,INT32_MAX,38},{-8,38,INT32_MAX,INT32_MAX},
+{-32,INT32_MIN,-15,-4},{-32,-4,-14,3},{-32,3,-13,10},{-32,10,-12,17},{-32,17,-11,24},{-32,24,-10,31},{-32,31,-9,38},{-32,38,-8,INT32_MAX},
+{INT32_MIN,INT32_MIN,-32,INT32_MAX},
+//Fourth angle
+{14,INT32_MIN,INT32_MAX,-7},{12,-7,INT32_MAX,-6},{10,-6,INT32_MAX,-5},{8,-5,INT32_MAX,-4},{6,-4,INT32_MAX,-3},{4,-3,INT32_MAX,-2},{2,-2,INT32_MAX,-1},{0,-1,INT32_MAX,0},{-2,0,INT32_MAX,1},{-4,1,INT32_MAX,2},{-6,2,INT32_MAX,3},{-8,3,INT32_MAX,4},{-10,4,INT32_MAX,5},{-12,5,INT32_MAX,6},{-14,6,INT32_MAX,7},{-16,7,INT32_MAX,8},{-18,8,INT32_MAX,9},{-20,9,INT32_MAX,10},{-22,10,INT32_MAX,11},{-24,11,INT32_MAX,12},{-26,12,INT32_MAX,13},{-28,13,INT32_MAX,14},{-30,14,INT32_MAX,15},{-32,15,INT32_MAX,16},{-34,16,INT32_MAX,17},{-36,17,INT32_MAX,18},{-38,18,INT32_MAX,19},{-40,19,INT32_MAX,20},{-42,20,INT32_MAX,21},{-44,21,INT32_MAX,22},{-46,22,INT32_MAX,23},{INT32_MIN,23,INT32_MAX,INT32_MAX},
+{-61,-28,14,-7},{-61,-7,12,-6},{-61,-6,10,-5},{-61,-5,8,-4},{-61,-4,6,-3},{-61,-3,4,-2},{-61,-2,2,-1},{-61,-1,0,0},{-61,0,-2,1},{-61,1,-4,2},{-61,2,-6,3},{-61,3,-8,4},{-61,4,-10,5},{-61,5,-12,6},{-61,6,-14,7},{-61,7,-16,8},{-61,8,-18,9},{-61,9,-20,10},{-61,10,-22,11},{-61,11,-24,12},{-61,12,-26,13},{-61,13,-28,14},{-61,14,-30,15},{-61,15,-32,16},{-61,16,-34,17},{-61,17,-36,18},{-61,18,-38,19},{-61,19,-40,20},{-61,20,-42,21},{-61,21,-44,22},{-61,22,-46,23},
+{INT32_MIN,INT32_MIN,14,-28},{INT32_MIN,-28,-61,23},
+};
+mask_t barrel_roll_right_masks[]={
+	{TRACK_MASK_INTERSECT,34,0,0,barrel_roll_right_rects},{TRACK_MASK_DIFFERENCE,34,0,0,barrel_roll_right_rects},{TRACK_MASK_INTERSECT,48,-32,16,barrel_roll_right_rects+34},{TRACK_MASK_DIFFERENCE,48,-32,16,barrel_roll_right_rects+34},{TRACK_MASK_INTERSECT,20,-64,32,barrel_roll_right_rects+82},{TRACK_MASK_DIFFERENCE,20,-64,32,barrel_roll_right_rects+82},
+	{TRACK_MASK_INTERSECT,18,0,0,barrel_roll_right_rects+102},{TRACK_MASK_DIFFERENCE,18,0,0,barrel_roll_right_rects+102},{TRACK_MASK_INTERSECT,28,-32,-16,barrel_roll_right_rects+120},{TRACK_MASK_DIFFERENCE,28,-32,-16,barrel_roll_right_rects+120},{TRACK_MASK_INTERSECT,14,-64,-32,barrel_roll_right_rects+148},{TRACK_MASK_DIFFERENCE,14,-64,-32,barrel_roll_right_rects+148},
+	{TRACK_MASK_INTERSECT,8,0,0,barrel_roll_right_rects+162},{TRACK_MASK_DIFFERENCE,8,0,0,barrel_roll_right_rects+162},{TRACK_MASK_INTERSECT,8,32,-16,barrel_roll_right_rects+170},{TRACK_MASK_DIFFERENCE,8,32,-16,barrel_roll_right_rects+170},{TRACK_MASK_INTERSECT,1,64,-32,barrel_roll_right_rects+178},{TRACK_MASK_DIFFERENCE,1,64,-32,barrel_roll_right_rects+178},
+	{TRACK_MASK_INTERSECT,32,0,0,barrel_roll_right_rects+179},{TRACK_MASK_DIFFERENCE,32,0,0,barrel_roll_right_rects+179},{TRACK_MASK_INTERSECT,31,32,16,barrel_roll_right_rects+211},{TRACK_MASK_DIFFERENCE,31,32,16,barrel_roll_right_rects+211},{TRACK_MASK_INTERSECT,2,64,32,barrel_roll_right_rects+242},{TRACK_MASK_DIFFERENCE,2,64,32,barrel_roll_right_rects+242}
+};
+track_section_t barrel_roll_right={0,barrel_roll_right_curve,3.0*TILE_SIZE,{{VIEW_NEEDS_TRACK_MASK,6,barrel_roll_right_masks},{VIEW_NEEDS_TRACK_MASK,6,barrel_roll_right_masks+6},{VIEW_NEEDS_TRACK_MASK,6,barrel_roll_right_masks+12},{VIEW_NEEDS_TRACK_MASK,6,barrel_roll_right_masks+18}}};
+
+//track_section_t barrel_roll_right={0,barrel_roll_left_curve,3.0*TILE_SIZE,{{6,NULL},{6,NULL},{6,NULL},{6,NULL}}};
 
 
 
