@@ -10,7 +10,8 @@ TRACK_EXTRUDE_BEHIND=4,
 };
 
 enum {
-VIEW_NEEDS_TRACK_MASK=1
+VIEW_NEEDS_TRACK_MASK=1,
+VIEW_ENFORCE_NON_OVERLAPPING=2
 };
 
 enum {
@@ -156,3 +157,4 @@ extern track_section_t medium_helix_right_up;
 
 extern track_section_t barrel_roll_left;
 extern track_section_t barrel_roll_right;
+extern track_section_t half_loop;

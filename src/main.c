@@ -132,6 +132,13 @@ context_t context=get_context();
 						break;
 						}
 					}
+					if(view->flags&VIEW_ENFORCE_NON_OVERLAPPING)
+					{
+						for(int i=0;i<sprite;i++)
+						{
+							if(is_in_mask(x+full_sprite.x_offset,y+full_sprite.y_offset,view->masks+i))in_mask=0;
+						}
+					}
 
 					if(in_mask)
 					{
@@ -228,10 +235,9 @@ intamindouble_lift.length=TILE_SIZE*0.5;
 
 /*
 track_type_t intamin;
-mesh_load_obj(&(intamin.mesh),"intamin.obj",0,1,2);
+mesh_load_obj(&(intamin.mesh),"models/intamin.obj");
+mesh_load_obj(&(intamin.mask),"models/intamindouble/intamindouble_mask.obj");
 intamin.length=TILE_SIZE*0.5;
-intamin.rail_x_offset=0.175*1.5*sqrt(6);
-intamin.rail_y_offset=0.035*1.5*sqrt(6);
 */
 /*
 track_type_t rmc;
@@ -366,7 +372,7 @@ write_track_section(&steep_diag,&intamindouble_lift,"track/intamindouble/steep_d
 //Inversions
 write_track_section(&barrel_roll_left,&intamindouble,"track/intamindouble/barrel_roll_left",sprites);
 write_track_section(&barrel_roll_right,&intamindouble,"track/intamindouble/barrel_roll_right",sprites);
-
+write_track_section(&half_loop,&intamindouble,"track/intamindouble/half_loop",sprites);
 
 json_dump_file(sprites,"/home/edward/Programming/RCT2/OpenRCT2/resources/g2/sprites.json",JSON_INDENT(4));
 
