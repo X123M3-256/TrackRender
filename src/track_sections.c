@@ -457,11 +457,14 @@ track_point_t half_loop_curve(float distance)
 {
 float bezier_start=1.9843134832984428;
 
+#define HALF_LOOP_LENGTH (7.1888786411859895+9.877636849070576+1.9843134832984428)
+
+
 	if(distance<bezier_start)return plane_curve_vertical(vector3(0.0,0.75*(distance/bezier_start),0.5*TILE_SIZE*(distance/bezier_start)),vector3_normalize(vector3(0.0,1.5/TILE_SIZE,1.0)));
 
-float u=(distance-bezier_start)/(HALF_LOOP_LENGTH-bezier_start);
-	if(u<0.5)return cubic_curve_vertical(6.696938456699067,-19.230994220485517,18.371173070873834,1.8371173070873834,-7,6.75,7.5,0.75,2.0*u);
-	else return cubic_curve_vertical(0,-4,0,4.0+1.5*sqrt(6),-2.0,-1.0,8.0,8.0,2.0*(u-0.5));
+float bezier_distance=distance-bezier_start;
+	if(bezier_distance<9.877636849070576)return cubic_curve_vertical(6.696938456699067,-19.230994220485517,18.371173070873834,1.8371173070873834,-7,6.75,7.5,0.75,cubic(1.6,-1.2,0.6,0,bezier_distance/9.877636849070576));
+	else return cubic_curve_vertical(0,-4,0,4.0+1.5*sqrt(6),-2.0,-1.0,8.0,8.0,cubic(-0.45,0.77,0.68,0,(bezier_distance-9.877636849070576)/7.1888786411859895));
 }
 
 //Slopes
