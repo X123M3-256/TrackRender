@@ -11,11 +11,24 @@ return result;
 
 void track_transform_primitives(track_point_t (*track_curve)(float distance),primitive_t* primitives,uint32_t num_primitives,int flags)
 {
+float min=10000000.0;
+float max=-10000000.0;
 	for(int i=0;i<num_primitives;i++)
 	{
 		for(int j=0;j<3;j++)
 		{
-		track_point_t track_point=track_curve(primitives[i].vertices[j].z);
+		min=(primitives[i].vertices[j].z/4.848872)<min?(primitives[i].vertices[j].z/4.848872):min;
+		max=(primitives[i].vertices[j].z/4.848872)>max?(primitives[i].vertices[j].z/4.848872):max;
+		track_point_t track_point;
+			if(primitives[i].vertices[j].z>0)
+			{
+			track_point=track_curve(primitives[i].vertices[j].z);
+			}
+			else
+			{
+			track_point=track_curve(0);
+			track_point.position=vector3_add(track_point.position,vector3_mult(track_point.tangent,primitives[i].vertices[j].z));
+			}
 			if(flags&TRACK_DIAGONAL)track_point.position.x+=0.75*sqrt(6);
 		track_point.position.y-=0.75;
 			if(!(flags&TRACK_VERTICAL))track_point.position.z-=0.75*sqrt(6);
@@ -31,6 +44,7 @@ void framebuffer_render_track_section(framebuffer_t* framebuffer,context_t* cont
 {
 int num_meshes=(int)floor(0.5+track_section->length/track_type->length);
 float scale=track_section->length/(num_meshes*track_type->length);
+
 float length=scale*track_type->length;
 	if(extrude_behind)num_meshes++;//TODO make extruded section straight
 

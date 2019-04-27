@@ -6,7 +6,7 @@
 #define FLAT_LENGTH TILE_SIZE
 #define FLAT_TO_GENTLE_LENGTH 3.773886 
 #define GENTLE_LENGTH NORM(FLAT_LENGTH,1.5)
-#define GENTLE_TO_STEEP_LENGTH 4.791530 
+#define GENTLE_TO_STEEP_LENGTH 4.828603
 #define STEEP_LENGTH NORM(FLAT_LENGTH,6)
 #define STEEP_TO_VERTICAL_LENGTH 5.627339
 #define VERTICAL_LENGTH 3
@@ -14,7 +14,7 @@
 #define FLAT_DIAG_LENGTH (sqrt(2)*TILE_SIZE)
 #define FLAT_TO_GENTLE_DIAG_LENGTH 5.267445
 #define GENTLE_DIAG_LENGTH NORM(FLAT_DIAG_LENGTH,1.5)
-#define GENTLE_TO_STEEP_DIAG_LENGTH 6.046973
+#define GENTLE_TO_STEEP_DIAG_LENGTH 6.085424
 #define STEEP_DIAG_LENGTH NORM(FLAT_DIAG_LENGTH,6)
 
 #define PI 3.1415926
@@ -132,11 +132,11 @@ return plane_curve_vertical(vector3(0.0,1.5*u,u*TILE_SIZE),vector3_normalize(vec
 
 track_point_t gentle_to_steep_up_curve(float distance)
 {
-return cubic_curve_vertical(0,0,TILE_SIZE,0,0,1.5,1.5,0,-1.09809580e-07,3.16894368e-06,-4.01083330e-05,2.74139798e-04,-6.77621640e-04,-9.05897297e-03,2.51974402e-01,distance);
+return cubic_curve_vertical(-0.5*TILE_SIZE,TILE_SIZE,0.5*TILE_SIZE,0,0.75,1.5,0.75,0,1.03809332e-04,-2.00628254e-03,1.59305808e-02,-6.75327840e-02,1.68115244e-01,-2.67819389e-01,4.74022260e-01,distance);
 }
 track_point_t steep_to_gentle_up_curve(float distance)
 {
-return cubic_curve_vertical(0,0,TILE_SIZE,0,0,-1.5,4.5,0,-1.09809573e-07,5.14147553e-07,-1.94672749e-06,1.82323973e-05,3.14515779e-04,5.92690606e-03,1.72132516e-01,distance);
+return cubic_curve_vertical(-0.5*TILE_SIZE,0.5*TILE_SIZE,TILE_SIZE,0,0.75,-3.75,6,0,1.03809332e-04,-1.50249574e-03,8.63282156e-03,-2.44630312e-02,3.57654761e-02,-1.76496309e-02,1.47759227e-01,distance);
 }
 track_point_t steep_curve(float distance)
 {
@@ -217,11 +217,11 @@ return plane_curve_vertical_diagonal(vector3(-TILE_SIZE*u,1.5*u,TILE_SIZE*u),vec
 }
 track_point_t gentle_to_steep_up_diag_curve(float distance)
 {
-return cubic_curve_vertical_diagonal(0,0,FLAT_DIAG_LENGTH,0.0,0,1.5,1.5,0,3.84002498e-09,-5.25361275e-08,-8.52474658e-07,2.74914462e-05,-2.28166019e-04,-2.62712682e-03,1.84899364e-01,distance);
+return cubic_curve_vertical_diagonal(-0.5*FLAT_DIAG_LENGTH,FLAT_DIAG_LENGTH,0.5*FLAT_DIAG_LENGTH,0,0.75,1.5,0.75,0,1.78635273e-05,-4.35933078e-04,4.37240480e-03,-2.34451422e-02,7.41421344e-02,-1.50070476e-01,3.50024806e-01,distance);
 }
 track_point_t steep_to_gentle_up_diag_curve(float distance)
 {
-return cubic_curve_vertical_diagonal(0,0,FLAT_DIAG_LENGTH,0,0,-1.5,4.5,0,3.84002587e-09,-1.10007596e-07,1.90110496e-07,-2.61931082e-06,7.24534623e-05,3.02137395e-03,1.45479154e-01,distance);
+return cubic_curve_vertical_diagonal(-0.5*FLAT_DIAG_LENGTH,0.5*FLAT_DIAG_LENGTH,FLAT_DIAG_LENGTH,0,0.75,-3.75,6,0,1.78635273e-05,-3.25016888e-04,2.34748867e-03,-8.33887962e-03,1.52652332e-02,-1.07964578e-02,1.29831889e-01,distance);
 }
 track_point_t steep_diag_curve(float distance)
 {

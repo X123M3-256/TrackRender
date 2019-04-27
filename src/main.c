@@ -256,7 +256,6 @@ write_track_section(&steep_to_vertical_down,&intamin,"track/intamin/steep_to_ver
 write_track_section(&vertical,&intamin,"track/intamin/vertical",sprites);
 write_track_section(&vertical_twist_left_up,&intamin,"track/intamin/vertical_twist_left_up",sprites);
 write_track_section(&vertical_twist_right_up,&intamin,"track/intamin/vertical_twist_right_up",sprites);*/
-
 //Flat
 write_track_section(&flat,&intamindouble,"track/intamindouble/flat",sprites);
 write_track_section(&flat,&intamindouble,"track/intamindouble/brake",sprites);//TODO actual sprites for these
@@ -374,7 +373,6 @@ write_track_section(&half_loop,&intamindouble,"track/intamindouble/half_loop",sp
 json_dump_file(sprites,"/home/edward/Programming/RCT2/OpenRCT2/resources/g2/sprites.json",JSON_INDENT(4));
 
 return 0;
-
 }
 
 
