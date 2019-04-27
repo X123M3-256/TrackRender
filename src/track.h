@@ -79,7 +79,7 @@ extern track_section_t steep_to_gentle_up;
 extern track_section_t steep_to_gentle_down;
 extern track_section_t steep;
 extern track_section_t steep_to_vertical_up;
-extern track_section_t steep_to_vertical_down;
+extern track_section_t vertical_to_steep_up;
 extern track_section_t vertical;
 extern track_section_t small_turn_left;
 extern track_section_t medium_turn_left;

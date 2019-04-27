@@ -222,7 +222,6 @@ return a*a+b*b+c*c;
 */
 int main(int argc,char** argv)
 {
-
 track_type_t intamindouble;
 mesh_load_obj(&(intamindouble.mesh),"models/intamindouble/intamindouble.obj");
 mesh_load_obj(&(intamindouble.mask),"models/intamindouble/intamindouble_mask.obj");
@@ -232,7 +231,6 @@ track_type_t intamindouble_lift;
 mesh_load_obj(&(intamindouble_lift.mesh),"models/intamindouble/intamindouble_lift.obj");
 mesh_load_obj(&(intamindouble_lift.mask),"models/intamindouble/intamindouble_mask.obj");
 intamindouble_lift.length=TILE_SIZE*0.5;
-
 /*
 track_type_t intamin;
 mesh_load_obj(&(intamin.mesh),"models/intamin.obj");
@@ -241,13 +239,13 @@ intamin.length=TILE_SIZE*0.5;
 */
 /*
 track_type_t rmc;
-mesh_load_obj(&(rmc.mesh),"models/rmc.obj");
-mesh_load_obj(&(rmc.mask),"models/rmc_mask.obj");
+mesh_load_obj(&(rmc.mesh),"models/rmc/rmc.obj");
+mesh_load_obj(&(rmc.mask),"models/rmc/rmc_mask.obj");
 rmc.length=TILE_SIZE*0.5;
 
 track_type_t rmc_lift;
-mesh_load_obj(&(rmc_lift.mesh),"models/rmc_lift.obj");
-mesh_load_obj(&(rmc_lift.mask),"models/rmc_mask.obj");
+mesh_load_obj(&(rmc_lift.mesh),"models/rmc/rmc_lift.obj");
+mesh_load_obj(&(rmc_lift.mask),"models/rmc/rmc_mask.obj");
 rmc_lift.length=TILE_SIZE*0.5;
 */
 
@@ -271,9 +269,8 @@ write_track_section(&gentle_to_steep_up,&intamindouble,"track/intamindouble/gent
 write_track_section(&steep_to_gentle_up,&intamindouble,"track/intamindouble/steep_to_gentle_up",sprites);
 write_track_section(&steep,&intamindouble,"track/intamindouble/steep",sprites);
 write_track_section(&steep_to_vertical_up,&intamindouble,"track/intamindouble/steep_to_vertical_up",sprites);
-write_track_section(&steep_to_vertical_down,&intamindouble,"track/intamindouble/steep_to_vertical_down",sprites);
+write_track_section(&vertical_to_steep_up,&intamindouble,"track/intamindouble/vertical_to_steep_up",sprites);
 write_track_section(&vertical,&intamindouble,"track/intamindouble/vertical",sprites);
-
 
 //Turns
 write_track_section(&small_turn_left,&intamindouble,"track/intamindouble/small_turn_left",sprites);
@@ -310,6 +307,7 @@ write_track_section(&medium_turn_left_bank,&intamindouble,"track/intamindouble/m
 write_track_section(&large_turn_left_to_diag_bank,&intamindouble,"track/intamindouble/large_turn_left_to_diag_bank",sprites);
 write_track_section(&large_turn_right_to_diag_bank,&intamindouble,"track/intamindouble/large_turn_right_to_diag_bank",sprites);
 
+
 //Sloped turns
 write_track_section(&small_turn_left_gentle_up,&intamindouble,"track/intamindouble/small_turn_left_gentle_up",sprites);
 write_track_section(&small_turn_right_gentle_up,&intamindouble,"track/intamindouble/small_turn_right_gentle_up",sprites);
@@ -319,6 +317,7 @@ write_track_section(&very_small_turn_left_steep_up,&intamindouble,"track/intamin
 write_track_section(&very_small_turn_right_steep_up,&intamindouble,"track/intamindouble/very_small_turn_right_steep_up",sprites);
 write_track_section(&vertical_twist_left_up,&intamindouble,"track/intamindouble/vertical_twist_left_up",sprites);
 write_track_section(&vertical_twist_right_up,&intamindouble,"track/intamindouble/vertical_twist_right_up",sprites);
+
 
 //Sloped banked turns
 write_track_section(&gentle_up_to_gentle_up_left_bank,&intamindouble,"track/intamindouble/gentle_up_to_gentle_up_left_bank",sprites);
@@ -340,7 +339,6 @@ write_track_section(&small_turn_right_bank_gentle_up,&intamindouble,"track/intam
 write_track_section(&medium_turn_left_bank_gentle_up,&intamindouble,"track/intamindouble/medium_turn_left_bank_gentle_up",sprites);
 write_track_section(&medium_turn_right_bank_gentle_up,&intamindouble,"track/intamindouble/medium_turn_right_bank_gentle_up",sprites);
 
-
 //Miscellaneous
 write_track_section(&s_bend_left,&intamindouble,"track/intamindouble/s_bend_left",sprites);
 write_track_section(&s_bend_right,&intamindouble,"track/intamindouble/s_bend_right",sprites);
@@ -350,9 +348,8 @@ write_track_section(&medium_helix_left_up,&intamindouble,"track/intamindouble/me
 write_track_section(&medium_helix_right_up,&intamindouble,"track/intamindouble/medium_helix_right_up",sprites);
 
 
-
-
 //Lift pieces
+
 write_track_section(&flat,&intamindouble_lift,"track/intamindouble/flat_lift",sprites); 
 write_track_section(&flat_to_gentle_up,&intamindouble_lift,"track/intamindouble/flat_to_gentle_up_lift",sprites);
 write_track_section(&gentle_up_to_flat,&intamindouble_lift,"track/intamindouble/gentle_to_flat_up_lift",sprites);
