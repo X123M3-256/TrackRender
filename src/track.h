@@ -158,3 +158,6 @@ extern track_section_t medium_helix_right_up;
 extern track_section_t barrel_roll_left;
 extern track_section_t barrel_roll_right;
 extern track_section_t half_loop;
+
+extern track_section_t flat_to_steep_up;
+extern track_section_t steep_to_flat_up;

@@ -249,13 +249,16 @@ mesh_load_obj(&(rmc_lift.mask),"models/rmc/rmc_mask.obj");
 rmc_lift.length=TILE_SIZE*0.5;
 */
 
-json_t* sprites=json_load_file("/home/edward/Programming/RCT2/OpenRCT2/resources/g2/sprites_old.json",0,NULL);
+json_t* sprites=json_load_file("/home/edward/Programming/RCT2/OpenRCT2/resources/g2/sprites_working.json",0,NULL);
 
 /*write_track_section(&steep_to_vertical_up,&intamin,"track/intamin/steep_to_vertical_up",sprites);
 write_track_section(&steep_to_vertical_down,&intamin,"track/intamin/steep_to_vertical_down",sprites);
 write_track_section(&vertical,&intamin,"track/intamin/vertical",sprites);
 write_track_section(&vertical_twist_left_up,&intamin,"track/intamin/vertical_twist_left_up",sprites);
 write_track_section(&vertical_twist_right_up,&intamin,"track/intamin/vertical_twist_right_up",sprites);*/
+
+
+
 //Flat
 write_track_section(&flat,&intamindouble,"track/intamindouble/flat",sprites);
 write_track_section(&flat,&intamindouble,"track/intamindouble/brake",sprites);//TODO actual sprites for these
@@ -369,6 +372,10 @@ write_track_section(&steep_diag,&intamindouble_lift,"track/intamindouble/steep_d
 write_track_section(&barrel_roll_left,&intamindouble,"track/intamindouble/barrel_roll_left",sprites);
 write_track_section(&barrel_roll_right,&intamindouble,"track/intamindouble/barrel_roll_right",sprites);
 write_track_section(&half_loop,&intamindouble,"track/intamindouble/half_loop",sprites);
+
+
+write_track_section(&flat_to_steep_up,&intamindouble,"track/intamindouble/flat_to_steep_up",sprites);
+write_track_section(&steep_to_flat_up,&intamindouble,"track/intamindouble/steep_to_flat_up",sprites);
 
 json_dump_file(sprites,"/home/edward/Programming/RCT2/OpenRCT2/resources/g2/sprites.json",JSON_INDENT(4));
 
