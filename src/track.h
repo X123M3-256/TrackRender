@@ -161,3 +161,5 @@ extern track_section_t half_loop;
 
 extern track_section_t flat_to_steep_up;
 extern track_section_t steep_to_flat_up;
+
+extern track_section_t quarter_loop_up;

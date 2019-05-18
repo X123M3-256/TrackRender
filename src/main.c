@@ -222,6 +222,7 @@ return a*a+b*b+c*c;
 */
 int main(int argc,char** argv)
 {
+/*
 track_type_t intamindouble;
 mesh_load_obj(&(intamindouble.mesh),"models/intamindouble/intamindouble.obj");
 mesh_load_obj(&(intamindouble.mask),"models/intamindouble/intamindouble_mask.obj");
@@ -231,6 +232,7 @@ track_type_t intamindouble_lift;
 mesh_load_obj(&(intamindouble_lift.mesh),"models/intamindouble/intamindouble_lift.obj");
 mesh_load_obj(&(intamindouble_lift.mask),"models/intamindouble/intamindouble_mask.obj");
 intamindouble_lift.length=TILE_SIZE*0.5;
+*/
 /*
 track_type_t intamin;
 mesh_load_obj(&(intamin.mesh),"models/intamin.obj");
@@ -249,6 +251,18 @@ mesh_load_obj(&(rmc_lift.mask),"models/rmc/rmc_mask.obj");
 rmc_lift.length=TILE_SIZE*0.5;
 */
 
+track_type_t raptor;
+mesh_load_obj(&(raptor.mesh),"models/raptor/raptor.obj");
+mesh_load_obj(&(raptor.mask),"models/raptor/raptor_mask.obj");
+raptor.length=TILE_SIZE;
+
+track_type_t raptor_lift;
+mesh_load_obj(&(raptor_lift.mesh),"models/raptor/raptor_lift.obj");
+mesh_load_obj(&(raptor_lift.mask),"models/raptor/raptor_mask.obj");
+raptor_lift.length=TILE_SIZE;
+
+
+
 json_t* sprites=json_load_file("/home/edward/Programming/RCT2/OpenRCT2/resources/g2/sprites_working.json",0,NULL);
 
 /*write_track_section(&steep_to_vertical_up,&intamin,"track/intamin/steep_to_vertical_up",sprites);
@@ -258,124 +272,123 @@ write_track_section(&vertical_twist_left_up,&intamin,"track/intamin/vertical_twi
 write_track_section(&vertical_twist_right_up,&intamin,"track/intamin/vertical_twist_right_up",sprites);*/
 
 
-
 //Flat
-write_track_section(&flat,&intamindouble,"track/intamindouble/flat",sprites);
-write_track_section(&flat,&intamindouble,"track/intamindouble/brake",sprites);//TODO actual sprites for these
+write_track_section(&flat,&raptor,"track/raptor/flat",sprites);
+write_track_section(&flat,&raptor,"track/raptor/brake",sprites);//TODO actual sprites for these
 
 //Slopes
-write_track_section(&flat_to_gentle_up,&intamindouble,"track/intamindouble/flat_to_gentle_up",sprites);
-write_track_section(&gentle_up_to_flat,&intamindouble,"track/intamindouble/gentle_to_flat_up",sprites);
-write_track_section(&gentle,&intamindouble,"track/intamindouble/gentle",sprites);
-write_track_section(&gentle_to_steep_up,&intamindouble,"track/intamindouble/gentle_to_steep_up",sprites);
-write_track_section(&steep_to_gentle_up,&intamindouble,"track/intamindouble/steep_to_gentle_up",sprites);
-write_track_section(&steep,&intamindouble,"track/intamindouble/steep",sprites);
-write_track_section(&steep_to_vertical_up,&intamindouble,"track/intamindouble/steep_to_vertical_up",sprites);
-write_track_section(&vertical_to_steep_up,&intamindouble,"track/intamindouble/vertical_to_steep_up",sprites);
-write_track_section(&vertical,&intamindouble,"track/intamindouble/vertical",sprites);
+write_track_section(&flat_to_gentle_up,&raptor,"track/raptor/flat_to_gentle_up",sprites);
+write_track_section(&gentle_up_to_flat,&raptor,"track/raptor/gentle_to_flat_up",sprites);
+write_track_section(&gentle,&raptor,"track/raptor/gentle",sprites);
+write_track_section(&gentle_to_steep_up,&raptor,"track/raptor/gentle_to_steep_up",sprites);
+write_track_section(&steep_to_gentle_up,&raptor,"track/raptor/steep_to_gentle_up",sprites);
+write_track_section(&steep,&raptor,"track/raptor/steep",sprites);
+write_track_section(&steep_to_vertical_up,&raptor,"track/raptor/steep_to_vertical_up",sprites);
+write_track_section(&vertical_to_steep_up,&raptor,"track/raptor/vertical_to_steep_up",sprites);
+write_track_section(&vertical,&raptor,"track/raptor/vertical",sprites);
 
 //Turns
-write_track_section(&small_turn_left,&intamindouble,"track/intamindouble/small_turn_left",sprites);
-write_track_section(&medium_turn_left,&intamindouble,"track/intamindouble/medium_turn_left",sprites);
-write_track_section(&large_turn_left_to_diag,&intamindouble,"track/intamindouble/large_turn_left_to_diag",sprites);
-write_track_section(&large_turn_right_to_diag,&intamindouble,"track/intamindouble/large_turn_right_to_diag",sprites);
+write_track_section(&small_turn_left,&raptor,"track/raptor/small_turn_left",sprites);
+write_track_section(&medium_turn_left,&raptor,"track/raptor/medium_turn_left",sprites);
+write_track_section(&large_turn_left_to_diag,&raptor,"track/raptor/large_turn_left_to_diag",sprites);
+write_track_section(&large_turn_right_to_diag,&raptor,"track/raptor/large_turn_right_to_diag",sprites);
 
 //Diagonals
-write_track_section(&flat_diag,&intamindouble,"track/intamindouble/flat_diag",sprites);
-write_track_section(&flat_to_gentle_up_diag,&intamindouble,"track/intamindouble/flat_to_gentle_up_diag",sprites);
-write_track_section(&gentle_to_flat_up_diag,&intamindouble,"track/intamindouble/gentle_to_flat_up_diag",sprites);
-write_track_section(&gentle_diag,&intamindouble,"track/intamindouble/gentle_diag",sprites);
-write_track_section(&gentle_to_steep_up_diag,&intamindouble,"track/intamindouble/gentle_to_steep_up_diag",sprites);
-write_track_section(&steep_to_gentle_up_diag,&intamindouble,"track/intamindouble/steep_to_gentle_up_diag",sprites);
-write_track_section(&steep_diag,&intamindouble,"track/intamindouble/steep_diag",sprites);
+write_track_section(&flat_diag,&raptor,"track/raptor/flat_diag",sprites);
+write_track_section(&flat_to_gentle_up_diag,&raptor,"track/raptor/flat_to_gentle_up_diag",sprites);
+write_track_section(&gentle_to_flat_up_diag,&raptor,"track/raptor/gentle_to_flat_up_diag",sprites);
+write_track_section(&gentle_diag,&raptor,"track/raptor/gentle_diag",sprites);
+write_track_section(&gentle_to_steep_up_diag,&raptor,"track/raptor/gentle_to_steep_up_diag",sprites);
+write_track_section(&steep_to_gentle_up_diag,&raptor,"track/raptor/steep_to_gentle_up_diag",sprites);
+write_track_section(&steep_diag,&raptor,"track/raptor/steep_diag",sprites);
 
 //Banked turns
-write_track_section(&flat_to_left_bank,&intamindouble,"track/intamindouble/flat_to_left_bank",sprites);
-write_track_section(&flat_to_right_bank,&intamindouble,"track/intamindouble/flat_to_right_bank",sprites);
-write_track_section(&left_bank_to_gentle_up,&intamindouble,"track/intamindouble/left_bank_to_gentle_up",sprites);
-write_track_section(&right_bank_to_gentle_up,&intamindouble,"track/intamindouble/right_bank_to_gentle_up",sprites);
-write_track_section(&gentle_up_to_left_bank,&intamindouble,"track/intamindouble/gentle_up_to_left_bank",sprites);
-write_track_section(&gentle_up_to_right_bank,&intamindouble,"track/intamindouble/gentle_up_to_right_bank",sprites);
-write_track_section(&left_bank,&intamindouble,"track/intamindouble/left_bank",sprites);
-write_track_section(&flat_to_left_bank_diag,&intamindouble,"track/intamindouble/flat_to_left_bank_diag",sprites);
-write_track_section(&flat_to_right_bank_diag,&intamindouble,"track/intamindouble/flat_to_right_bank_diag",sprites);
-write_track_section(&left_bank_to_gentle_up_diag,&intamindouble,"track/intamindouble/left_bank_to_gentle_up_diag",sprites);
-write_track_section(&right_bank_to_gentle_up_diag,&intamindouble,"track/intamindouble/right_bank_to_gentle_up_diag",sprites);
-write_track_section(&gentle_up_to_left_bank_diag,&intamindouble,"track/intamindouble/gentle_up_to_left_bank_diag",sprites);
-write_track_section(&gentle_up_to_right_bank_diag,&intamindouble,"track/intamindouble/gentle_up_to_right_bank_diag",sprites);
-write_track_section(&left_bank_diag,&intamindouble,"track/intamindouble/left_bank_diag",sprites);
-write_track_section(&small_turn_left_bank,&intamindouble,"track/intamindouble/small_turn_left_bank",sprites);
-write_track_section(&medium_turn_left_bank,&intamindouble,"track/intamindouble/medium_turn_left_bank",sprites);
-write_track_section(&large_turn_left_to_diag_bank,&intamindouble,"track/intamindouble/large_turn_left_to_diag_bank",sprites);
-write_track_section(&large_turn_right_to_diag_bank,&intamindouble,"track/intamindouble/large_turn_right_to_diag_bank",sprites);
+write_track_section(&flat_to_left_bank,&raptor,"track/raptor/flat_to_left_bank",sprites);
+write_track_section(&flat_to_right_bank,&raptor,"track/raptor/flat_to_right_bank",sprites);
+write_track_section(&left_bank_to_gentle_up,&raptor,"track/raptor/left_bank_to_gentle_up",sprites);
+write_track_section(&right_bank_to_gentle_up,&raptor,"track/raptor/right_bank_to_gentle_up",sprites);
+write_track_section(&gentle_up_to_left_bank,&raptor,"track/raptor/gentle_up_to_left_bank",sprites);
+write_track_section(&gentle_up_to_right_bank,&raptor,"track/raptor/gentle_up_to_right_bank",sprites);
+write_track_section(&left_bank,&raptor,"track/raptor/left_bank",sprites);
+write_track_section(&flat_to_left_bank_diag,&raptor,"track/raptor/flat_to_left_bank_diag",sprites);
+write_track_section(&flat_to_right_bank_diag,&raptor,"track/raptor/flat_to_right_bank_diag",sprites);
+write_track_section(&left_bank_to_gentle_up_diag,&raptor,"track/raptor/left_bank_to_gentle_up_diag",sprites);
+write_track_section(&right_bank_to_gentle_up_diag,&raptor,"track/raptor/right_bank_to_gentle_up_diag",sprites);
+write_track_section(&gentle_up_to_left_bank_diag,&raptor,"track/raptor/gentle_up_to_left_bank_diag",sprites);
+write_track_section(&gentle_up_to_right_bank_diag,&raptor,"track/raptor/gentle_up_to_right_bank_diag",sprites);
+write_track_section(&left_bank_diag,&raptor,"track/raptor/left_bank_diag",sprites);
+write_track_section(&small_turn_left_bank,&raptor,"track/raptor/small_turn_left_bank",sprites);
+write_track_section(&medium_turn_left_bank,&raptor,"track/raptor/medium_turn_left_bank",sprites);
+write_track_section(&large_turn_left_to_diag_bank,&raptor,"track/raptor/large_turn_left_to_diag_bank",sprites);
+write_track_section(&large_turn_right_to_diag_bank,&raptor,"track/raptor/large_turn_right_to_diag_bank",sprites);
 
 
 //Sloped turns
-write_track_section(&small_turn_left_gentle_up,&intamindouble,"track/intamindouble/small_turn_left_gentle_up",sprites);
-write_track_section(&small_turn_right_gentle_up,&intamindouble,"track/intamindouble/small_turn_right_gentle_up",sprites);
-write_track_section(&medium_turn_left_gentle_up,&intamindouble,"track/intamindouble/medium_turn_left_gentle_up",sprites);
-write_track_section(&medium_turn_right_gentle_up,&intamindouble,"track/intamindouble/medium_turn_right_gentle_up",sprites);
-write_track_section(&very_small_turn_left_steep_up,&intamindouble,"track/intamindouble/very_small_turn_left_steep_up",sprites);
-write_track_section(&very_small_turn_right_steep_up,&intamindouble,"track/intamindouble/very_small_turn_right_steep_up",sprites);
-write_track_section(&vertical_twist_left_up,&intamindouble,"track/intamindouble/vertical_twist_left_up",sprites);
-write_track_section(&vertical_twist_right_up,&intamindouble,"track/intamindouble/vertical_twist_right_up",sprites);
+write_track_section(&small_turn_left_gentle_up,&raptor,"track/raptor/small_turn_left_gentle_up",sprites);
+write_track_section(&small_turn_right_gentle_up,&raptor,"track/raptor/small_turn_right_gentle_up",sprites);
+write_track_section(&medium_turn_left_gentle_up,&raptor,"track/raptor/medium_turn_left_gentle_up",sprites);
+write_track_section(&medium_turn_right_gentle_up,&raptor,"track/raptor/medium_turn_right_gentle_up",sprites);
+write_track_section(&very_small_turn_left_steep_up,&raptor,"track/raptor/very_small_turn_left_steep_up",sprites);
+write_track_section(&very_small_turn_right_steep_up,&raptor,"track/raptor/very_small_turn_right_steep_up",sprites);
+write_track_section(&vertical_twist_left_up,&raptor,"track/raptor/vertical_twist_left_up",sprites);
+write_track_section(&vertical_twist_right_up,&raptor,"track/raptor/vertical_twist_right_up",sprites);
 
 
 //Sloped banked turns
-write_track_section(&gentle_up_to_gentle_up_left_bank,&intamindouble,"track/intamindouble/gentle_up_to_gentle_up_left_bank",sprites);
-write_track_section(&gentle_up_to_gentle_up_right_bank,&intamindouble,"track/intamindouble/gentle_up_to_gentle_up_right_bank",sprites);
-write_track_section(&gentle_up_left_bank_to_gentle_up,&intamindouble,"track/intamindouble/gentle_up_left_bank_to_gentle_up",sprites);
-write_track_section(&gentle_up_right_bank_to_gentle_up,&intamindouble,"track/intamindouble/gentle_up_right_bank_to_gentle_up",sprites);
-write_track_section(&left_bank_to_gentle_up_left_bank,&intamindouble,"track/intamindouble/left_bank_to_gentle_up_left_bank",sprites);
-write_track_section(&right_bank_to_gentle_up_right_bank,&intamindouble,"track/intamindouble/right_bank_to_gentle_up_right_bank",sprites);
-write_track_section(&gentle_up_left_bank_to_left_bank,&intamindouble,"track/intamindouble/gentle_up_left_bank_to_left_bank",sprites);
-write_track_section(&gentle_up_right_bank_to_right_bank,&intamindouble,"track/intamindouble/gentle_up_right_bank_to_right_bank",sprites);
-write_track_section(&gentle_up_left_bank,&intamindouble,"track/intamindouble/gentle_up_left_bank",sprites);
-write_track_section(&gentle_up_right_bank,&intamindouble,"track/intamindouble/gentle_up_right_bank",sprites);
-write_track_section(&flat_to_gentle_up_left_bank,&intamindouble,"track/intamindouble/flat_to_gentle_up_left_bank",sprites);
-write_track_section(&flat_to_gentle_up_right_bank,&intamindouble,"track/intamindouble/flat_to_gentle_up_right_bank",sprites);
-write_track_section(&gentle_up_left_bank_to_flat,&intamindouble,"track/intamindouble/gentle_up_left_bank_to_flat",sprites);
-write_track_section(&gentle_up_right_bank_to_flat,&intamindouble,"track/intamindouble/gentle_up_right_bank_to_flat",sprites);
-write_track_section(&small_turn_left_bank_gentle_up,&intamindouble,"track/intamindouble/small_turn_left_bank_gentle_up",sprites);
-write_track_section(&small_turn_right_bank_gentle_up,&intamindouble,"track/intamindouble/small_turn_right_bank_gentle_up",sprites);
-write_track_section(&medium_turn_left_bank_gentle_up,&intamindouble,"track/intamindouble/medium_turn_left_bank_gentle_up",sprites);
-write_track_section(&medium_turn_right_bank_gentle_up,&intamindouble,"track/intamindouble/medium_turn_right_bank_gentle_up",sprites);
+write_track_section(&gentle_up_to_gentle_up_left_bank,&raptor,"track/raptor/gentle_up_to_gentle_up_left_bank",sprites);
+write_track_section(&gentle_up_to_gentle_up_right_bank,&raptor,"track/raptor/gentle_up_to_gentle_up_right_bank",sprites);
+write_track_section(&gentle_up_left_bank_to_gentle_up,&raptor,"track/raptor/gentle_up_left_bank_to_gentle_up",sprites);
+write_track_section(&gentle_up_right_bank_to_gentle_up,&raptor,"track/raptor/gentle_up_right_bank_to_gentle_up",sprites);
+write_track_section(&left_bank_to_gentle_up_left_bank,&raptor,"track/raptor/left_bank_to_gentle_up_left_bank",sprites);
+write_track_section(&right_bank_to_gentle_up_right_bank,&raptor,"track/raptor/right_bank_to_gentle_up_right_bank",sprites);
+write_track_section(&gentle_up_left_bank_to_left_bank,&raptor,"track/raptor/gentle_up_left_bank_to_left_bank",sprites);
+write_track_section(&gentle_up_right_bank_to_right_bank,&raptor,"track/raptor/gentle_up_right_bank_to_right_bank",sprites);
+write_track_section(&gentle_up_left_bank,&raptor,"track/raptor/gentle_up_left_bank",sprites);
+write_track_section(&gentle_up_right_bank,&raptor,"track/raptor/gentle_up_right_bank",sprites);
+write_track_section(&flat_to_gentle_up_left_bank,&raptor,"track/raptor/flat_to_gentle_up_left_bank",sprites);
+write_track_section(&flat_to_gentle_up_right_bank,&raptor,"track/raptor/flat_to_gentle_up_right_bank",sprites);
+write_track_section(&gentle_up_left_bank_to_flat,&raptor,"track/raptor/gentle_up_left_bank_to_flat",sprites);
+write_track_section(&gentle_up_right_bank_to_flat,&raptor,"track/raptor/gentle_up_right_bank_to_flat",sprites);
+write_track_section(&small_turn_left_bank_gentle_up,&raptor,"track/raptor/small_turn_left_bank_gentle_up",sprites);
+write_track_section(&small_turn_right_bank_gentle_up,&raptor,"track/raptor/small_turn_right_bank_gentle_up",sprites);
+write_track_section(&medium_turn_left_bank_gentle_up,&raptor,"track/raptor/medium_turn_left_bank_gentle_up",sprites);
+write_track_section(&medium_turn_right_bank_gentle_up,&raptor,"track/raptor/medium_turn_right_bank_gentle_up",sprites);
 
 //Miscellaneous
-write_track_section(&s_bend_left,&intamindouble,"track/intamindouble/s_bend_left",sprites);
-write_track_section(&s_bend_right,&intamindouble,"track/intamindouble/s_bend_right",sprites);
-write_track_section(&small_helix_left_up,&intamindouble,"track/intamindouble/small_helix_left_up",sprites);
-write_track_section(&small_helix_right_up,&intamindouble,"track/intamindouble/small_helix_right_up",sprites);
-write_track_section(&medium_helix_left_up,&intamindouble,"track/intamindouble/medium_helix_left_up",sprites);
-write_track_section(&medium_helix_right_up,&intamindouble,"track/intamindouble/medium_helix_right_up",sprites);
+write_track_section(&s_bend_left,&raptor,"track/raptor/s_bend_left",sprites);
+write_track_section(&s_bend_right,&raptor,"track/raptor/s_bend_right",sprites);
+write_track_section(&small_helix_left_up,&raptor,"track/raptor/small_helix_left_up",sprites);
+write_track_section(&small_helix_right_up,&raptor,"track/raptor/small_helix_right_up",sprites);
+write_track_section(&medium_helix_left_up,&raptor,"track/raptor/medium_helix_left_up",sprites);
+write_track_section(&medium_helix_right_up,&raptor,"track/raptor/medium_helix_right_up",sprites);
 
 
 //Lift pieces
 
-write_track_section(&flat,&intamindouble_lift,"track/intamindouble/flat_lift",sprites); 
-write_track_section(&flat_to_gentle_up,&intamindouble_lift,"track/intamindouble/flat_to_gentle_up_lift",sprites);
-write_track_section(&gentle_up_to_flat,&intamindouble_lift,"track/intamindouble/gentle_to_flat_up_lift",sprites);
-write_track_section(&gentle,&intamindouble_lift,"track/intamindouble/gentle_lift",sprites);
-write_track_section(&gentle_to_steep_up,&intamindouble_lift,"track/intamindouble/gentle_to_steep_up_lift",sprites);
-write_track_section(&steep_to_gentle_up,&intamindouble_lift,"track/intamindouble/steep_to_gentle_up_lift",sprites);
-write_track_section(&steep,&intamindouble_lift,"track/intamindouble/steep_lift",sprites);
+write_track_section(&flat,&raptor_lift,"track/raptor/flat_lift",sprites); 
+write_track_section(&flat_to_gentle_up,&raptor_lift,"track/raptor/flat_to_gentle_up_lift",sprites);
+write_track_section(&gentle_up_to_flat,&raptor_lift,"track/raptor/gentle_to_flat_up_lift",sprites);
+write_track_section(&gentle,&raptor_lift,"track/raptor/gentle_lift",sprites);
+write_track_section(&gentle_to_steep_up,&raptor_lift,"track/raptor/gentle_to_steep_up_lift",sprites);
+write_track_section(&steep_to_gentle_up,&raptor_lift,"track/raptor/steep_to_gentle_up_lift",sprites);
+write_track_section(&steep,&raptor_lift,"track/raptor/steep_lift",sprites);
 
-write_track_section(&flat_diag,&intamindouble_lift,"track/intamindouble/flat_diag_lift",sprites);
-write_track_section(&flat_to_gentle_up_diag,&intamindouble_lift,"track/intamindouble/flat_to_gentle_up_diag_lift",sprites);
-write_track_section(&gentle_to_flat_up_diag,&intamindouble_lift,"track/intamindouble/gentle_to_flat_up_diag_lift",sprites);
-write_track_section(&gentle_diag,&intamindouble_lift,"track/intamindouble/gentle_diag_lift",sprites);
-write_track_section(&gentle_to_steep_up_diag,&intamindouble_lift,"track/intamindouble/gentle_to_steep_up_diag_lift",sprites);
-write_track_section(&steep_to_gentle_up_diag,&intamindouble_lift,"track/intamindouble/steep_to_gentle_up_diag_lift",sprites);
-write_track_section(&steep_diag,&intamindouble_lift,"track/intamindouble/steep_diag_lift",sprites);
+write_track_section(&flat_diag,&raptor_lift,"track/raptor/flat_diag_lift",sprites);
+write_track_section(&flat_to_gentle_up_diag,&raptor_lift,"track/raptor/flat_to_gentle_up_diag_lift",sprites);
+write_track_section(&gentle_to_flat_up_diag,&raptor_lift,"track/raptor/gentle_to_flat_up_diag_lift",sprites);
+write_track_section(&gentle_diag,&raptor_lift,"track/raptor/gentle_diag_lift",sprites);
+write_track_section(&gentle_to_steep_up_diag,&raptor_lift,"track/raptor/gentle_to_steep_up_diag_lift",sprites);
+write_track_section(&steep_to_gentle_up_diag,&raptor_lift,"track/raptor/steep_to_gentle_up_diag_lift",sprites);
+write_track_section(&steep_diag,&raptor_lift,"track/raptor/steep_diag_lift",sprites);
 
 //Inversions
-write_track_section(&barrel_roll_left,&intamindouble,"track/intamindouble/barrel_roll_left",sprites);
-write_track_section(&barrel_roll_right,&intamindouble,"track/intamindouble/barrel_roll_right",sprites);
-write_track_section(&half_loop,&intamindouble,"track/intamindouble/half_loop",sprites);
+write_track_section(&barrel_roll_left,&raptor,"track/raptor/barrel_roll_left",sprites);
+write_track_section(&barrel_roll_right,&raptor,"track/raptor/barrel_roll_right",sprites);
+write_track_section(&half_loop,&raptor,"track/raptor/half_loop",sprites);
 
-
-write_track_section(&flat_to_steep_up,&intamindouble,"track/intamindouble/flat_to_steep_up",sprites);
-write_track_section(&steep_to_flat_up,&intamindouble,"track/intamindouble/steep_to_flat_up",sprites);
+write_track_section(&flat_to_steep_up,&raptor,"track/raptor/flat_to_steep_up",sprites);
+write_track_section(&steep_to_flat_up,&raptor,"track/raptor/steep_to_flat_up",sprites);
+write_track_section(&quarter_loop_up,&raptor,"track/raptor/quarter_loop_up",sprites);
 
 json_dump_file(sprites,"/home/edward/Programming/RCT2/OpenRCT2/resources/g2/sprites.json",JSON_INDENT(4));
 
