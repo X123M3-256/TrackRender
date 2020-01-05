@@ -8,7 +8,6 @@
 #include <image.h>
 #include <vectormath.h>
 #include "track.h"
-#include "objLoader/obj_parser.h"
 
 
 int load_file(const char* filename,uint8_t** data,uint32_t* length)
@@ -24,15 +23,14 @@ fclose(file);
 return 0;
 }
 
-context_t get_context()
-{
-light_t lights[6]={{LIGHT_HEMI,vector3(0.0,1.0,0.0),0.176},{LIGHT_DIFFUSE,vector3(0.671641,0.38733586252,-0.631561),0.9},{LIGHT_SPECULAR,vector3(0.671641,0.38733586252,-0.631561),0.3},{LIGHT_DIFFUSE,vector3(0.259037,0.03967,-0.965052),0.4},{LIGHT_DIFFUSE,vector3(-0.904066,0.412439,-0.112069),0.15},{LIGHT_DIFFUSE,vector3(0.50718,0.517623,0.689083),0.1}};
 
+context_t get_context(light_t* lights,uint32_t num_lights)
+{
 context_t context;
-context_init(&context,lights,6,palette_rct2(),TILE_SIZE);
-context.palette.colors[0].r=0;
-context.palette.colors[0].g=0;
-context.palette.colors[0].b=0;
+context_init(&context,lights,num_lights,palette_rct2(),1.5*sqrt(6));
+//context.palette.colors[0].r=0;
+//context.palette.colors[0].g=0;
+//context.palette.colors[0].b=0;
 return context;
 }
 
@@ -73,9 +71,21 @@ image_from_framebuffer(image,&framebuffer,&(context.palette));
 }
 */
 
-void write_track_section(track_section_t* track_section,track_type_t* track_type,const char* filename,json_t* sprites)
+void write_track_section(context_t* context,track_section_t* track_section,track_type_t* track_type,const char* filename,json_t* sprites)
 {
-context_t context=get_context();
+image_t full_sprites[4];
+	if(track_section->flags&TRACK_EXTRUDE_BEHIND)
+	{
+	printf("Test\n");
+	render_track_section(context,track_section,track_type,1,0,0x5,full_sprites);
+	render_track_section(context,track_section,track_type,0,0,0xA,full_sprites);
+	}
+	else render_track_section(context,track_section,track_type,0,0,0xF,full_sprites);
+
+image_t track_masks[4];
+int track_mask_views=0;
+	for(int i=0;i<4;i++)track_mask_views|=(track_section->views[i].flags&VIEW_NEEDS_TRACK_MASK?1:0)<<i;
+	if(track_mask_views!=0)render_track_section(context,track_section,track_type,0,1,track_mask_views,track_masks);
 
 	for(int angle=0;angle<4;angle++)
 	{
@@ -83,42 +93,31 @@ context_t context=get_context();
 
 	view_t* view=track_section->views+angle;
 
-	image_t full_sprite;
-	framebuffer_t framebuffer;
-	framebuffer_render_track_section(&framebuffer,&context,track_section,track_type,(track_section->flags&TRACK_EXTRUDE_BEHIND)&&(angle%2==0),0);
-	image_t track_mask;
-		if(view->flags&VIEW_NEEDS_TRACK_MASK)
-		{
-		framebuffer_t mask_framebuffer;
-		framebuffer_render_track_section(&mask_framebuffer,&context,track_section,track_type,0,1);
-		image_from_framebuffer(&track_mask,&mask_framebuffer,&(context.palette));
-		}
-	image_from_framebuffer(&full_sprite,&framebuffer,&(context.palette));
-
+		
 		for(int sprite=0;sprite<view->num_sprites;sprite++)
 		{
 		char final_filename[255];
 		char relative_filename[255];
-			if(track_section->views[angle].num_sprites==1)sprintf(relative_filename,"%s_%d.png",filename,angle+1);
+			if(view->num_sprites==1)sprintf(relative_filename,"%s_%d.png",filename,angle+1);
 			else sprintf(relative_filename,"%s_%d_%d.png",filename,angle+1,sprite+1);
-		sprintf(final_filename,"/home/edward/Programming/RCT2/OpenRCT2/resources/g2/%s",relative_filename);
+		sprintf(final_filename,"/home/edward/RCT2Prog/OpenRCT2/resources/g2/%s",relative_filename);
 		printf("%s\n",final_filename);
 
 		image_t part_sprite;
-		image_copy(&full_sprite,&part_sprite);
+		image_copy(full_sprites+angle,&part_sprite);
 
 			if(view->masks!=NULL)
 			{
-				for(int x=0;x<full_sprite.width;x++)
-				for(int y=0;y<full_sprite.height;y++)
+				for(int x=0;x<full_sprites[angle].width;x++)
+				for(int y=0;y<full_sprites[angle].height;y++)
 				{
-				int in_mask=is_in_mask(x+full_sprite.x_offset,y+full_sprite.y_offset,view->masks+sprite);
+				int in_mask=is_in_mask(x+full_sprites[angle].x_offset,y+full_sprites[angle].y_offset,view->masks+sprite);
 
 					if(view->masks[sprite].track_mask_op!=TRACK_MASK_NONE)
 					{
-					int mask_x=(x+full_sprite.x_offset)-track_mask.x_offset;
-					int mask_y=(y+full_sprite.y_offset)-track_mask.y_offset;
-					int in_track_mask=mask_x>=0&&mask_y>=0&&mask_x<track_mask.width&&mask_y<track_mask.height&&track_mask.pixels[mask_x+mask_y*track_mask.width]!=0;
+					int mask_x=(x+full_sprites[angle].x_offset)-track_masks[angle].x_offset;
+					int mask_y=(y+full_sprites[angle].y_offset)-track_masks[angle].y_offset;
+					int in_track_mask=mask_x>=0&&mask_y>=0&&mask_x<track_masks[angle].width&&mask_y<track_masks[angle].height&&track_masks[angle].pixels[mask_x+mask_y*track_masks[angle].width]!=0;
 						if(in_track_mask)part_sprite.pixels[x+part_sprite.width*y]=50;
 						switch(view->masks[sprite].track_mask_op)
 						{
@@ -137,13 +136,13 @@ context_t context=get_context();
 					{
 						for(int i=0;i<sprite;i++)
 						{
-							if(is_in_mask(x+full_sprite.x_offset,y+full_sprite.y_offset,view->masks+i))in_mask=0;
+							if(is_in_mask(x+full_sprites[angle].x_offset,y+full_sprites[angle].y_offset,view->masks+i))in_mask=0;
 						}
 					}
 
 					if(in_mask)
 					{
-					part_sprite.pixels[x+part_sprite.width*y]=full_sprite.pixels[x+full_sprite.width*y];
+					part_sprite.pixels[x+part_sprite.width*y]=full_sprites[angle].pixels[x+full_sprites[angle].width*y];
 					}
 					else
 					{
@@ -172,57 +171,28 @@ context_t context=get_context();
 		image_destroy(&part_sprite);
 		}
 
-		if(view->flags&VIEW_NEEDS_TRACK_MASK)image_destroy(&track_mask);
-	image_destroy(&full_sprite);
-	context_rotate(&context);
+		if(view->flags&VIEW_NEEDS_TRACK_MASK)image_destroy(track_masks+angle);
+	image_destroy(full_sprites+angle);
 	}
 }
 
 
 
-#define SQRT_2 1.4142135623731
-#define SQRT1_2 0.707106781
-#define SQRT_3 1.73205080757
-#define SQRT_6 2.44948974278
-/*
-float srgb2linear2(float x)
-{
-	if (x<=0.04045)return x/12.92;
-	else return pow((x+0.055)/1.055,2.4);
-}
-float luma_from_rgb(int r,int g,int b)
-{
-return 0.299*srgb2linear2(r/255.0)+0.587*srgb2linear2(g/255.0)+0.114*srgb2linear2(b/255.0);
-}
 
-
-float get_shaded_luma(float color,float ambient,float diffuse,float specular_intensity,float specular_exponent,vector3_t normal)
-{
-float projection[9]=
-	{2.0	,0.0	 ,-2.0,
-	 -1.0	,-SQRT_6 ,-1.0,
-	 SQRT_3	,-SQRT_2 ,SQRT_3};
-vector3_t light_direction=vector3_normalize(vector3(1.0,-atan(3.141592658979/9.0),0.0));
-
-normal=vector3_normalize(matrix_vector(projection,normal));
-
-float ambient_factor=ambient;
-float diffuse_factor=diffuse*fmax(vector3_dot(normal,light_direction),0.0);	
-//vector3_t reflected_light_direction=vector3_sub(vector3_mult(normal,2.0*vector3_dot(light_direction,normal)),light_direction);
-//float specular_factor=specular_intensity*powf(fmax(0.0,diffuse_factor>0.0?-reflected_light_direction.z:0.0),specular_exponent);
-return color*(ambient_factor+diffuse_factor);//+specular_factor;
-}
-
-float get_error(float color,float ambient,float diffuse,float specular_intensity,float specular_exponent)
-{
-float a=get_shaded_luma(color,ambient,diffuse,specular_intensity,specular_exponent,vector3(0,1.0,0))-luma_from_rgb(31,123,0);//Top
-float b=get_shaded_luma(color,ambient,diffuse,specular_intensity,specular_exponent,vector3(0,0,-1.0))-luma_from_rgb(71,175,39);//Side
-float c=get_shaded_luma(color,ambient,diffuse,specular_intensity,specular_exponent,vector3(-1.0,0,0))-luma_from_rgb(31,123,0);//Back
-return a*a+b*b+c*c;
-}
-*/
 int main(int argc,char** argv)
 {
+light_t lights[6]={
+{LIGHT_SPECULAR,vector3(0.671641,0.38733586252,-0.631561),0.35},
+{LIGHT_DIFFUSE,vector3(0.0,1.0,0.0),0.044},
+{LIGHT_DIFFUSE,vector3_normalize(vector3(-1.0,1.0,0.0)),0.19},
+{LIGHT_DIFFUSE,vector3_normalize(vector3(0.0,1.0,1.0)),0.04},
+{LIGHT_DIFFUSE,vector3_normalize(vector3(0.5,0.816,-0.5000000)),0.17},
+{LIGHT_DIFFUSE,vector3_normalize(vector3(-1.0,1.0,-1.0)),0.045},
+};
+
+//light_t lights[6]={{LIGHT_HEMI,{0.0,1.0,0.0},0.176},{LIGHT_DIFFUSE,{0.671641,0.38733586252,-0.631561},0.9},{LIGHT_SPECULAR,{0.671641,0.38733586252,-0.631561},0.3},{LIGHT_DIFFUSE,{0.259037,0.03967,-0.965052},0.4},{LIGHT_DIFFUSE,{-0.904066,0.412439,-0.112069},0.15},{LIGHT_DIFFUSE,{0.50718,0.517623,0.689083},0.1}};
+context_t context=get_context(lights,6);
+
 /*
 track_type_t intamindouble;
 mesh_load_obj(&(intamindouble.mesh),"models/intamindouble/intamindouble.obj");
@@ -240,31 +210,42 @@ mesh_load_obj(&(intamin.mesh),"models/intamin.obj");
 mesh_load_obj(&(intamin.mask),"models/intamindouble/intamindouble_mask.obj");
 intamin.length=TILE_SIZE*0.5;
 */
-/*
 track_type_t rmc;
-mesh_load_obj(&(rmc.mesh),"models/rmc/rmc.obj");
-mesh_load_obj(&(rmc.mask),"models/rmc/rmc_mask.obj");
+rmc.flags=TRACK_HAS_SUPPORTS;
+mesh_load(&(rmc.mesh),"rmc.obj");
+mesh_load(&(rmc.mask),"rmc_mask.obj");
+mesh_load(&(rmc.supports[SUPPORT_FLAT]),"rmc_support.obj");
+mesh_load(&(rmc.supports[SUPPORT_BANK_HALF]),"rmc_support_bank_half.obj");
+mesh_load(&(rmc.supports[SUPPORT_BANK]),"rmc_support_bank.obj");
+mesh_load(&(rmc.supports[SUPPORT_BASE]),"rmc_support_base.obj");
+mesh_load(&(rmc.supports[SUPPORT_SPECIAL_VERTICAL]),"rmc_support_vertical.obj");
+mesh_load(&(rmc.supports[SUPPORT_SPECIAL_STEEP_TO_VERTICAL]),"rmc_support_steep_to_vertical.obj");
+mesh_load(&(rmc.supports[SUPPORT_SPECIAL_VERTICAL_TO_STEEP]),"rmc_support_vertical_to_steep.obj");
+mesh_load(&(rmc.supports[SUPPORT_SPECIAL_VERTICAL_TWIST]),"rmc_support_vertical_twist.obj");
 rmc.length=TILE_SIZE*0.5;
 
 track_type_t rmc_lift;
-mesh_load_obj(&(rmc_lift.mesh),"models/rmc/rmc_lift.obj");
-mesh_load_obj(&(rmc_lift.mask),"models/rmc/rmc_mask.obj");
+rmc_lift.flags=TRACK_HAS_SUPPORTS;
+mesh_load(&(rmc_lift.mesh),"rmc_lift.obj");
+mesh_load(&(rmc_lift.mask),"rmc_mask.obj");
+mesh_load(&(rmc_lift.supports[SUPPORT_FLAT]),"rmc_support.obj");
+mesh_load(&(rmc_lift.supports[SUPPORT_BANK_HALF]),"rmc_support_bank_half.obj");
+mesh_load(&(rmc_lift.supports[SUPPORT_BANK]),"rmc_support_bank.obj");
+mesh_load(&(rmc_lift.supports[SUPPORT_BASE]),"rmc_support_base.obj");
 rmc_lift.length=TILE_SIZE*0.5;
-*/
-
+/*
 track_type_t raptor;
-mesh_load_obj(&(raptor.mesh),"models/raptor/raptor.obj");
-mesh_load_obj(&(raptor.mask),"models/raptor/raptor_mask.obj");
-raptor.length=TILE_SIZE;
+mesh_load(&(raptor.mesh),"raptor.obj");
+mesh_load(&(raptor.mask),"raptor_mask.obj");
+raptor.length=0.5*TILE_SIZE;
 
 track_type_t raptor_lift;
-mesh_load_obj(&(raptor_lift.mesh),"models/raptor/raptor_lift.obj");
-mesh_load_obj(&(raptor_lift.mask),"models/raptor/raptor_mask.obj");
-raptor_lift.length=TILE_SIZE;
+mesh_load(&(raptor_lift.mesh),"raptor_lift.obj");
+mesh_load(&(raptor_lift.mask),"raptor_mask.obj");
+raptor_lift.length=0.5*TILE_SIZE;
+*/
 
-
-
-json_t* sprites=json_load_file("/home/edward/Programming/RCT2/OpenRCT2/resources/g2/sprites_working.json",0,NULL);
+json_t* sprites=json_load_file("/home/edward/RCT2Prog/OpenRCT2/resources/g2/sprites_old.json",0,NULL);
 
 /*write_track_section(&steep_to_vertical_up,&intamin,"track/intamin/steep_to_vertical_up",sprites);
 write_track_section(&steep_to_vertical_down,&intamin,"track/intamin/steep_to_vertical_down",sprites);
@@ -272,128 +253,126 @@ write_track_section(&vertical,&intamin,"track/intamin/vertical",sprites);
 write_track_section(&vertical_twist_left_up,&intamin,"track/intamin/vertical_twist_left_up",sprites);
 write_track_section(&vertical_twist_right_up,&intamin,"track/intamin/vertical_twist_right_up",sprites);*/
 
-
 //Flat
-write_track_section(&flat,&raptor,"track/raptor/flat",sprites);
-write_track_section(&flat,&raptor,"track/raptor/brake",sprites);//TODO actual sprites for these
+write_track_section(&context,&flat,&rmc,"track/rmc/flat",sprites);
+write_track_section(&context,&flat,&rmc_lift,"track/rmc/brake",sprites);//TODO actual sprites for these
 
 //Slopes
-write_track_section(&flat_to_gentle_up,&raptor,"track/raptor/flat_to_gentle_up",sprites);
-write_track_section(&gentle_up_to_flat,&raptor,"track/raptor/gentle_to_flat_up",sprites);
-write_track_section(&gentle,&raptor,"track/raptor/gentle",sprites);
-write_track_section(&gentle_to_steep_up,&raptor,"track/raptor/gentle_to_steep_up",sprites);
-write_track_section(&steep_to_gentle_up,&raptor,"track/raptor/steep_to_gentle_up",sprites);
-write_track_section(&steep,&raptor,"track/raptor/steep",sprites);
-write_track_section(&steep_to_vertical_up,&raptor,"track/raptor/steep_to_vertical_up",sprites);
-write_track_section(&vertical_to_steep_up,&raptor,"track/raptor/vertical_to_steep_up",sprites);
-write_track_section(&vertical,&raptor,"track/raptor/vertical",sprites);
+write_track_section(&context,&flat_to_gentle_up,&rmc,"track/rmc/flat_to_gentle_up",sprites);
+write_track_section(&context,&gentle_up_to_flat,&rmc,"track/rmc/gentle_to_flat_up",sprites);
+write_track_section(&context,&gentle,&rmc,"track/rmc/gentle",sprites);
+write_track_section(&context,&gentle_to_steep_up,&rmc,"track/rmc/gentle_to_steep_up",sprites);
+write_track_section(&context,&steep_to_gentle_up,&rmc,"track/rmc/steep_to_gentle_up",sprites);
+
+write_track_section(&context,&steep,&rmc,"track/rmc/steep",sprites);
+write_track_section(&context,&steep_to_vertical_up,&rmc,"track/rmc/steep_to_vertical_up",sprites);
+write_track_section(&context,&vertical_to_steep_up,&rmc,"track/rmc/vertical_to_steep_up",sprites);
+write_track_section(&context,&vertical,&rmc,"track/rmc/vertical",sprites);
 
 //Turns
-write_track_section(&small_turn_left,&raptor,"track/raptor/small_turn_left",sprites);
-write_track_section(&medium_turn_left,&raptor,"track/raptor/medium_turn_left",sprites);
-write_track_section(&large_turn_left_to_diag,&raptor,"track/raptor/large_turn_left_to_diag",sprites);
-write_track_section(&large_turn_right_to_diag,&raptor,"track/raptor/large_turn_right_to_diag",sprites);
+write_track_section(&context,&small_turn_left,&rmc,"track/rmc/small_turn_left",sprites);
+write_track_section(&context,&medium_turn_left,&rmc,"track/rmc/medium_turn_left",sprites);
+write_track_section(&context,&large_turn_left_to_diag,&rmc,"track/rmc/large_turn_left_to_diag",sprites);
+write_track_section(&context,&large_turn_right_to_diag,&rmc,"track/rmc/large_turn_right_to_diag",sprites);
 
 //Diagonals
-write_track_section(&flat_diag,&raptor,"track/raptor/flat_diag",sprites);
-write_track_section(&flat_to_gentle_up_diag,&raptor,"track/raptor/flat_to_gentle_up_diag",sprites);
-write_track_section(&gentle_to_flat_up_diag,&raptor,"track/raptor/gentle_to_flat_up_diag",sprites);
-write_track_section(&gentle_diag,&raptor,"track/raptor/gentle_diag",sprites);
-write_track_section(&gentle_to_steep_up_diag,&raptor,"track/raptor/gentle_to_steep_up_diag",sprites);
-write_track_section(&steep_to_gentle_up_diag,&raptor,"track/raptor/steep_to_gentle_up_diag",sprites);
-write_track_section(&steep_diag,&raptor,"track/raptor/steep_diag",sprites);
+write_track_section(&context,&flat_diag,&rmc,"track/rmc/flat_diag",sprites);
+write_track_section(&context,&flat_to_gentle_up_diag,&rmc,"track/rmc/flat_to_gentle_up_diag",sprites);
+write_track_section(&context,&gentle_to_flat_up_diag,&rmc,"track/rmc/gentle_to_flat_up_diag",sprites);
+write_track_section(&context,&gentle_diag,&rmc,"track/rmc/gentle_diag",sprites);
+write_track_section(&context,&gentle_to_steep_up_diag,&rmc,"track/rmc/gentle_to_steep_up_diag",sprites);
+write_track_section(&context,&steep_to_gentle_up_diag,&rmc,"track/rmc/steep_to_gentle_up_diag",sprites);
+write_track_section(&context,&steep_diag,&rmc,"track/rmc/steep_diag",sprites);
 
 //Banked turns
-write_track_section(&flat_to_left_bank,&raptor,"track/raptor/flat_to_left_bank",sprites);
-write_track_section(&flat_to_right_bank,&raptor,"track/raptor/flat_to_right_bank",sprites);
-write_track_section(&left_bank_to_gentle_up,&raptor,"track/raptor/left_bank_to_gentle_up",sprites);
-write_track_section(&right_bank_to_gentle_up,&raptor,"track/raptor/right_bank_to_gentle_up",sprites);
-write_track_section(&gentle_up_to_left_bank,&raptor,"track/raptor/gentle_up_to_left_bank",sprites);
-write_track_section(&gentle_up_to_right_bank,&raptor,"track/raptor/gentle_up_to_right_bank",sprites);
-write_track_section(&left_bank,&raptor,"track/raptor/left_bank",sprites);
-write_track_section(&flat_to_left_bank_diag,&raptor,"track/raptor/flat_to_left_bank_diag",sprites);
-write_track_section(&flat_to_right_bank_diag,&raptor,"track/raptor/flat_to_right_bank_diag",sprites);
-write_track_section(&left_bank_to_gentle_up_diag,&raptor,"track/raptor/left_bank_to_gentle_up_diag",sprites);
-write_track_section(&right_bank_to_gentle_up_diag,&raptor,"track/raptor/right_bank_to_gentle_up_diag",sprites);
-write_track_section(&gentle_up_to_left_bank_diag,&raptor,"track/raptor/gentle_up_to_left_bank_diag",sprites);
-write_track_section(&gentle_up_to_right_bank_diag,&raptor,"track/raptor/gentle_up_to_right_bank_diag",sprites);
-write_track_section(&left_bank_diag,&raptor,"track/raptor/left_bank_diag",sprites);
-write_track_section(&small_turn_left_bank,&raptor,"track/raptor/small_turn_left_bank",sprites);
-write_track_section(&medium_turn_left_bank,&raptor,"track/raptor/medium_turn_left_bank",sprites);
-write_track_section(&large_turn_left_to_diag_bank,&raptor,"track/raptor/large_turn_left_to_diag_bank",sprites);
-write_track_section(&large_turn_right_to_diag_bank,&raptor,"track/raptor/large_turn_right_to_diag_bank",sprites);
-
+write_track_section(&context,&flat_to_left_bank,&rmc,"track/rmc/flat_to_left_bank",sprites);
+write_track_section(&context,&flat_to_right_bank,&rmc,"track/rmc/flat_to_right_bank",sprites);
+write_track_section(&context,&left_bank_to_gentle_up,&rmc,"track/rmc/left_bank_to_gentle_up",sprites);
+write_track_section(&context,&right_bank_to_gentle_up,&rmc,"track/rmc/right_bank_to_gentle_up",sprites);
+write_track_section(&context,&gentle_up_to_left_bank,&rmc,"track/rmc/gentle_up_to_left_bank",sprites);
+write_track_section(&context,&gentle_up_to_right_bank,&rmc,"track/rmc/gentle_up_to_right_bank",sprites);
+write_track_section(&context,&left_bank,&rmc,"track/rmc/left_bank",sprites);
+write_track_section(&context,&flat_to_left_bank_diag,&rmc,"track/rmc/flat_to_left_bank_diag",sprites);
+write_track_section(&context,&flat_to_right_bank_diag,&rmc,"track/rmc/flat_to_right_bank_diag",sprites);
+write_track_section(&context,&left_bank_to_gentle_up_diag,&rmc,"track/rmc/left_bank_to_gentle_up_diag",sprites);
+write_track_section(&context,&right_bank_to_gentle_up_diag,&rmc,"track/rmc/right_bank_to_gentle_up_diag",sprites);
+write_track_section(&context,&gentle_up_to_left_bank_diag,&rmc,"track/rmc/gentle_up_to_left_bank_diag",sprites);
+write_track_section(&context,&gentle_up_to_right_bank_diag,&rmc,"track/rmc/gentle_up_to_right_bank_diag",sprites);
+write_track_section(&context,&left_bank_diag,&rmc,"track/rmc/left_bank_diag",sprites);
+write_track_section(&context,&small_turn_left_bank,&rmc,"track/rmc/small_turn_left_bank",sprites);
+write_track_section(&context,&medium_turn_left_bank,&rmc,"track/rmc/medium_turn_left_bank",sprites);
+write_track_section(&context,&large_turn_left_to_diag_bank,&rmc,"track/rmc/large_turn_left_to_diag_bank",sprites);
+write_track_section(&context,&large_turn_right_to_diag_bank,&rmc,"track/rmc/large_turn_right_to_diag_bank",sprites);
 
 //Sloped turns
-write_track_section(&small_turn_left_gentle_up,&raptor,"track/raptor/small_turn_left_gentle_up",sprites);
-write_track_section(&small_turn_right_gentle_up,&raptor,"track/raptor/small_turn_right_gentle_up",sprites);
-write_track_section(&medium_turn_left_gentle_up,&raptor,"track/raptor/medium_turn_left_gentle_up",sprites);
-write_track_section(&medium_turn_right_gentle_up,&raptor,"track/raptor/medium_turn_right_gentle_up",sprites);
-write_track_section(&very_small_turn_left_steep_up,&raptor,"track/raptor/very_small_turn_left_steep_up",sprites);
-write_track_section(&very_small_turn_right_steep_up,&raptor,"track/raptor/very_small_turn_right_steep_up",sprites);
-write_track_section(&vertical_twist_left_up,&raptor,"track/raptor/vertical_twist_left_up",sprites);
-write_track_section(&vertical_twist_right_up,&raptor,"track/raptor/vertical_twist_right_up",sprites);
+write_track_section(&context,&small_turn_left_gentle_up,&rmc,"track/rmc/small_turn_left_gentle_up",sprites);
+write_track_section(&context,&small_turn_right_gentle_up,&rmc,"track/rmc/small_turn_right_gentle_up",sprites);
+write_track_section(&context,&medium_turn_left_gentle_up,&rmc,"track/rmc/medium_turn_left_gentle_up",sprites);
+write_track_section(&context,&medium_turn_right_gentle_up,&rmc,"track/rmc/medium_turn_right_gentle_up",sprites);
+write_track_section(&context,&very_small_turn_left_steep_up,&rmc,"track/rmc/very_small_turn_left_steep_up",sprites);
+write_track_section(&context,&very_small_turn_right_steep_up,&rmc,"track/rmc/very_small_turn_right_steep_up",sprites);
+write_track_section(&context,&vertical_twist_left_up,&rmc,"track/rmc/vertical_twist_left_up",sprites);
+write_track_section(&context,&vertical_twist_right_up,&rmc,"track/rmc/vertical_twist_right_up",sprites);
 
 
 //Sloped banked turns
-write_track_section(&gentle_up_to_gentle_up_left_bank,&raptor,"track/raptor/gentle_up_to_gentle_up_left_bank",sprites);
-write_track_section(&gentle_up_to_gentle_up_right_bank,&raptor,"track/raptor/gentle_up_to_gentle_up_right_bank",sprites);
-write_track_section(&gentle_up_left_bank_to_gentle_up,&raptor,"track/raptor/gentle_up_left_bank_to_gentle_up",sprites);
-write_track_section(&gentle_up_right_bank_to_gentle_up,&raptor,"track/raptor/gentle_up_right_bank_to_gentle_up",sprites);
-write_track_section(&left_bank_to_gentle_up_left_bank,&raptor,"track/raptor/left_bank_to_gentle_up_left_bank",sprites);
-write_track_section(&right_bank_to_gentle_up_right_bank,&raptor,"track/raptor/right_bank_to_gentle_up_right_bank",sprites);
-write_track_section(&gentle_up_left_bank_to_left_bank,&raptor,"track/raptor/gentle_up_left_bank_to_left_bank",sprites);
-write_track_section(&gentle_up_right_bank_to_right_bank,&raptor,"track/raptor/gentle_up_right_bank_to_right_bank",sprites);
-write_track_section(&gentle_up_left_bank,&raptor,"track/raptor/gentle_up_left_bank",sprites);
-write_track_section(&gentle_up_right_bank,&raptor,"track/raptor/gentle_up_right_bank",sprites);
-write_track_section(&flat_to_gentle_up_left_bank,&raptor,"track/raptor/flat_to_gentle_up_left_bank",sprites);
-write_track_section(&flat_to_gentle_up_right_bank,&raptor,"track/raptor/flat_to_gentle_up_right_bank",sprites);
-write_track_section(&gentle_up_left_bank_to_flat,&raptor,"track/raptor/gentle_up_left_bank_to_flat",sprites);
-write_track_section(&gentle_up_right_bank_to_flat,&raptor,"track/raptor/gentle_up_right_bank_to_flat",sprites);
-write_track_section(&small_turn_left_bank_gentle_up,&raptor,"track/raptor/small_turn_left_bank_gentle_up",sprites);
-write_track_section(&small_turn_right_bank_gentle_up,&raptor,"track/raptor/small_turn_right_bank_gentle_up",sprites);
-write_track_section(&medium_turn_left_bank_gentle_up,&raptor,"track/raptor/medium_turn_left_bank_gentle_up",sprites);
-write_track_section(&medium_turn_right_bank_gentle_up,&raptor,"track/raptor/medium_turn_right_bank_gentle_up",sprites);
+write_track_section(&context,&gentle_up_to_gentle_up_left_bank,&rmc,"track/rmc/gentle_up_to_gentle_up_left_bank",sprites);
+write_track_section(&context,&gentle_up_to_gentle_up_right_bank,&rmc,"track/rmc/gentle_up_to_gentle_up_right_bank",sprites);
+write_track_section(&context,&gentle_up_left_bank_to_gentle_up,&rmc,"track/rmc/gentle_up_left_bank_to_gentle_up",sprites);
+write_track_section(&context,&gentle_up_right_bank_to_gentle_up,&rmc,"track/rmc/gentle_up_right_bank_to_gentle_up",sprites);
+write_track_section(&context,&left_bank_to_gentle_up_left_bank,&rmc,"track/rmc/left_bank_to_gentle_up_left_bank",sprites);
+write_track_section(&context,&right_bank_to_gentle_up_right_bank,&rmc,"track/rmc/right_bank_to_gentle_up_right_bank",sprites);
+write_track_section(&context,&gentle_up_left_bank_to_left_bank,&rmc,"track/rmc/gentle_up_left_bank_to_left_bank",sprites);
+write_track_section(&context,&gentle_up_right_bank_to_right_bank,&rmc,"track/rmc/gentle_up_right_bank_to_right_bank",sprites);
+write_track_section(&context,&gentle_up_left_bank,&rmc,"track/rmc/gentle_up_left_bank",sprites);
+write_track_section(&context,&gentle_up_right_bank,&rmc,"track/rmc/gentle_up_right_bank",sprites);
+write_track_section(&context,&flat_to_gentle_up_left_bank,&rmc,"track/rmc/flat_to_gentle_up_left_bank",sprites);
+write_track_section(&context,&flat_to_gentle_up_right_bank,&rmc,"track/rmc/flat_to_gentle_up_right_bank",sprites);
+write_track_section(&context,&gentle_up_left_bank_to_flat,&rmc,"track/rmc/gentle_up_left_bank_to_flat",sprites);
+write_track_section(&context,&gentle_up_right_bank_to_flat,&rmc,"track/rmc/gentle_up_right_bank_to_flat",sprites);
+write_track_section(&context,&small_turn_left_bank_gentle_up,&rmc,"track/rmc/small_turn_left_bank_gentle_up",sprites);
+write_track_section(&context,&small_turn_right_bank_gentle_up,&rmc,"track/rmc/small_turn_right_bank_gentle_up",sprites);
+write_track_section(&context,&medium_turn_left_bank_gentle_up,&rmc,"track/rmc/medium_turn_left_bank_gentle_up",sprites);
+write_track_section(&context,&medium_turn_right_bank_gentle_up,&rmc,"track/rmc/medium_turn_right_bank_gentle_up",sprites);
 
 //Miscellaneous
-write_track_section(&s_bend_left,&raptor,"track/raptor/s_bend_left",sprites);
-write_track_section(&s_bend_right,&raptor,"track/raptor/s_bend_right",sprites);
-write_track_section(&small_helix_left_up,&raptor,"track/raptor/small_helix_left_up",sprites);
-write_track_section(&small_helix_right_up,&raptor,"track/raptor/small_helix_right_up",sprites);
-write_track_section(&medium_helix_left_up,&raptor,"track/raptor/medium_helix_left_up",sprites);
-write_track_section(&medium_helix_right_up,&raptor,"track/raptor/medium_helix_right_up",sprites);
+write_track_section(&context,&s_bend_left,&rmc,"track/rmc/s_bend_left",sprites);
+write_track_section(&context,&s_bend_right,&rmc,"track/rmc/s_bend_right",sprites);
+write_track_section(&context,&small_helix_left_up,&rmc,"track/rmc/small_helix_left_up",sprites);
+write_track_section(&context,&small_helix_right_up,&rmc,"track/rmc/small_helix_right_up",sprites);
+write_track_section(&context,&medium_helix_left_up,&rmc,"track/rmc/medium_helix_left_up",sprites);
+write_track_section(&context,&medium_helix_right_up,&rmc,"track/rmc/medium_helix_right_up",sprites);
 
 
 //Lift pieces
+write_track_section(&context,&flat,&rmc_lift,"track/rmc/flat_lift",sprites); 
+write_track_section(&context,&flat_to_gentle_up,&rmc_lift,"track/rmc/flat_to_gentle_up_lift",sprites);
+write_track_section(&context,&gentle_up_to_flat,&rmc_lift,"track/rmc/gentle_to_flat_up_lift",sprites);
+write_track_section(&context,&gentle,&rmc_lift,"track/rmc/gentle_lift",sprites);
+write_track_section(&context,&gentle_to_steep_up,&rmc_lift,"track/rmc/gentle_to_steep_up_lift",sprites);
+write_track_section(&context,&steep_to_gentle_up,&rmc_lift,"track/rmc/steep_to_gentle_up_lift",sprites);
+write_track_section(&context,&steep,&rmc_lift,"track/rmc/steep_lift",sprites);
 
-write_track_section(&flat,&raptor_lift,"track/raptor/flat_lift",sprites); 
-write_track_section(&flat_to_gentle_up,&raptor_lift,"track/raptor/flat_to_gentle_up_lift",sprites);
-write_track_section(&gentle_up_to_flat,&raptor_lift,"track/raptor/gentle_to_flat_up_lift",sprites);
-write_track_section(&gentle,&raptor_lift,"track/raptor/gentle_lift",sprites);
-write_track_section(&gentle_to_steep_up,&raptor_lift,"track/raptor/gentle_to_steep_up_lift",sprites);
-write_track_section(&steep_to_gentle_up,&raptor_lift,"track/raptor/steep_to_gentle_up_lift",sprites);
-write_track_section(&steep,&raptor_lift,"track/raptor/steep_lift",sprites);
-
-write_track_section(&flat_diag,&raptor_lift,"track/raptor/flat_diag_lift",sprites);
-write_track_section(&flat_to_gentle_up_diag,&raptor_lift,"track/raptor/flat_to_gentle_up_diag_lift",sprites);
-write_track_section(&gentle_to_flat_up_diag,&raptor_lift,"track/raptor/gentle_to_flat_up_diag_lift",sprites);
-write_track_section(&gentle_diag,&raptor_lift,"track/raptor/gentle_diag_lift",sprites);
-write_track_section(&gentle_to_steep_up_diag,&raptor_lift,"track/raptor/gentle_to_steep_up_diag_lift",sprites);
-write_track_section(&steep_to_gentle_up_diag,&raptor_lift,"track/raptor/steep_to_gentle_up_diag_lift",sprites);
-write_track_section(&steep_diag,&raptor_lift,"track/raptor/steep_diag_lift",sprites);
+write_track_section(&context,&flat_diag,&rmc_lift,"track/rmc/flat_diag_lift",sprites);
+write_track_section(&context,&flat_to_gentle_up_diag,&rmc_lift,"track/rmc/flat_to_gentle_up_diag_lift",sprites);
+write_track_section(&context,&gentle_to_flat_up_diag,&rmc_lift,"track/rmc/gentle_to_flat_up_diag_lift",sprites);
+write_track_section(&context,&gentle_diag,&rmc_lift,"track/rmc/gentle_diag_lift",sprites);
+write_track_section(&context,&gentle_to_steep_up_diag,&rmc_lift,"track/rmc/gentle_to_steep_up_diag_lift",sprites);
+write_track_section(&context,&steep_to_gentle_up_diag,&rmc_lift,"track/rmc/steep_to_gentle_up_diag_lift",sprites);
+write_track_section(&context,&steep_diag,&rmc_lift,"track/rmc/steep_diag_lift",sprites);
 
 //Inversions
-write_track_section(&barrel_roll_left,&raptor,"track/raptor/barrel_roll_left",sprites);
-write_track_section(&barrel_roll_right,&raptor,"track/raptor/barrel_roll_right",sprites);
-write_track_section(&half_loop,&raptor,"track/raptor/half_loop",sprites);
+write_track_section(&context,&barrel_roll_left,&rmc,"track/rmc/barrel_roll_left",sprites);
+write_track_section(&context,&barrel_roll_right,&rmc,"track/rmc/barrel_roll_right",sprites);
+write_track_section(&context,&half_loop,&rmc,"track/rmc/half_loop",sprites);
 
-write_track_section(&flat_to_steep_up,&raptor,"track/raptor/flat_to_steep_up",sprites);
-write_track_section(&steep_to_flat_up,&raptor,"track/raptor/steep_to_flat_up",sprites);
-write_track_section(&quarter_loop_up,&raptor,"track/raptor/quarter_loop_up",sprites);
+write_track_section(&context,&flat_to_steep_up,&rmc,"track/rmc/flat_to_steep_up",sprites);
+write_track_section(&context,&steep_to_flat_up,&rmc,"track/rmc/steep_to_flat_up",sprites);
+write_track_section(&context,&quarter_loop_up,&rmc,"track/rmc/quarter_loop_up",sprites);
 
-json_dump_file(sprites,"/home/edward/Programming/RCT2/OpenRCT2/resources/g2/sprites.json",JSON_INDENT(4));
+json_dump_file(sprites,"/home/edward/RCT2Prog/OpenRCT2/resources/g2/sprites.json",JSON_INDENT(4));
 
+context_destroy(&context);
 return 0;
 }
-
 
