@@ -26,9 +26,10 @@ return 0;
 
 context_t get_context()
 {
-light_t light={vector3_normalize(vector3(1.0,-atan(3.141592658979/9.0),0.0)),0.25,0.72};
+light_t lights[6]={{LIGHT_HEMI,vector3(0.0,1.0,0.0),0.176},{LIGHT_DIFFUSE,vector3(0.671641,0.38733586252,-0.631561),0.9},{LIGHT_SPECULAR,vector3(0.671641,0.38733586252,-0.631561),0.3},{LIGHT_DIFFUSE,vector3(0.259037,0.03967,-0.965052),0.4},{LIGHT_DIFFUSE,vector3(-0.904066,0.412439,-0.112069),0.15},{LIGHT_DIFFUSE,vector3(0.50718,0.517623,0.689083),0.1}};
+
 context_t context;
-context_init(&context,light,palette_rct2(),TILE_SIZE);
+context_init(&context,lights,6,palette_rct2(),TILE_SIZE);
 context.palette.colors[0].r=0;
 context.palette.colors[0].g=0;
 context.palette.colors[0].b=0;
