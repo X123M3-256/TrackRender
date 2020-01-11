@@ -1,28 +1,9 @@
 #include <stdlib.h>
 #include <stdio.h>
+#include <assert.h>
 #include <string.h>
 #include <math.h>
-#include <jansson.h>
-#include <renderer.h>
-#include <model.h>
-#include <image.h>
-#include <vectormath.h>
 #include "track.h"
-
-
-int load_file(const char* filename,uint8_t** data,uint32_t* length)
-{
-FILE* file=fopen(filename,"r");
-	if(file==NULL)return 1;
-fseek(file,0,SEEK_END);
-*length=ftell(file);
-fseek(file,0,SEEK_SET);
-*data=malloc(*length);
-	if(fread(*data,1,*length,file)!=*length)return 2;
-fclose(file);
-return 0;
-}
-
 
 context_t get_context(light_t* lights,uint32_t num_lights)
 {
@@ -35,152 +16,260 @@ return context;
 }
 
 
-int is_in_mask(int x,int y,mask_t* mask)
+int load_model(mesh_t* model,json_t* json,const char* name)
 {
-	for(int i=0;i<mask->num_rects;i++)
+json_t* mesh=json_object_get(json,name);
+	if(mesh!=NULL)
 	{
-		if(x>=mask->rects[i].x_lower&&x<mask->rects[i].x_upper&&y>=mask->rects[i].y_lower&&y<mask->rects[i].y_upper)return 1;
+		if(json_is_string(mesh))
+		{
+		if(mesh_load(model,json_string_value(mesh)))
+			{
+			printf("Failed to load model \"%s\"\n",json_string_value(mesh));
+			return 1;
+			}
+		return 0;
+		}
+	printf("Error: Property \"%s\" not found or is not an object\n",name);
+	return 1;
 	}
+return 2;
+}
+
+int load_groups(json_t* json,uint32_t* out)
+{
+//Load track sections
+uint32_t groups=0;
+	for(int i=0;i<json_array_size(json);i++)
+	{
+	json_t* group_name=json_array_get(json,i);
+	assert(group_name!=NULL);
+		if(!json_is_string(group_name))
+		{
+		printf("Error: Array \"sections\" contains non-string value\n");
+		return 1;
+		}
+		if(strcmp(json_string_value(group_name),"brakes")==0)groups|=TRACK_GROUP_BRAKES;
+		else if(strcmp(json_string_value(group_name),"turns")==0)groups|=TRACK_GROUP_TURNS;
+		else if(strcmp(json_string_value(group_name),"gentle_slopes")==0)groups|=TRACK_GROUP_GENTLE_SLOPES;
+		else if(strcmp(json_string_value(group_name),"steep_slopes")==0)groups|=TRACK_GROUP_STEEP_SLOPES|TRACK_GROUP_GENTLE_SLOPES;
+		else if(strcmp(json_string_value(group_name),"vertical_slopes")==0)groups|=TRACK_GROUP_VERTICAL_SLOPES|TRACK_GROUP_STEEP_SLOPES|TRACK_GROUP_GENTLE_SLOPES;
+		else if(strcmp(json_string_value(group_name),"diagonals")==0)groups|=TRACK_GROUP_DIAGONALS;
+		else if(strcmp(json_string_value(group_name),"sloped_turns")==0)groups|=TRACK_GROUP_SLOPED_TURNS|TRACK_GROUP_GENTLE_SLOPES|TRACK_GROUP_TURNS;
+		else if(strcmp(json_string_value(group_name),"banked_turns")==0)groups|=TRACK_GROUP_BANKED_TURNS|TRACK_GROUP_TURNS;
+		else if(strcmp(json_string_value(group_name),"banked_sloped_turns")==0)groups|=TRACK_GROUP_BANKED_SLOPED_TURNS|TRACK_GROUP_GENTLE_SLOPES|TRACK_GROUP_TURNS|TRACK_GROUP_BANKED_TURNS;
+		else if(strcmp(json_string_value(group_name),"s_bends")==0)groups|=TRACK_GROUP_S_BENDS;
+		else if(strcmp(json_string_value(group_name),"helices")==0)groups|=TRACK_GROUP_HELICES|TRACK_GROUP_BANKED_TURNS|TRACK_GROUP_TURNS;
+		else if(strcmp(json_string_value(group_name),"large_slope_transitions")==0)groups|=TRACK_GROUP_LARGE_SLOPE_TRANSITIONS|TRACK_GROUP_STEEP_SLOPES|TRACK_GROUP_GENTLE_SLOPES;
+		else if(strcmp(json_string_value(group_name),"barrel_rolls")==0)groups|=TRACK_GROUP_BARREL_ROLLS;
+		else if(strcmp(json_string_value(group_name),"quarter_loops")==0)groups|=TRACK_GROUP_QUARTER_LOOPS|TRACK_GROUP_VERTICAL_SLOPES|TRACK_GROUP_STEEP_SLOPES|TRACK_GROUP_GENTLE_SLOPES;
+		else if(strcmp(json_string_value(group_name),"half_loops")==0)groups|=TRACK_GROUP_HALF_LOOPS;
+		else
+		{
+		printf("Error: Unrecognized section group \"%s\"\n",json_string_value(group_name));
+		return 1;
+		}
+	}
+*out=groups;
 return 0;
 }
-/*
-void render_track_sprite(image_t* image,int angle,int sprite,track_section_t* track_section,track_type_t* track_type)
+
+
+
+int load_track_type(track_type_t* track_type,json_t* json)
 {
-context_t context=get_context();
-	for(int i=0;i<angle;i++)context_rotate(&context);
-
-view_t* view=track_section->views+angle;
-framebuffer_t framebuffer;
-framebuffer_render_track_section(&framebuffer,&context,track_section,track_type,(track_section->flags&TRACK_EXTRUDE_BEHIND)&&(angle%2==0));
-image_from_framebuffer(image,&framebuffer,&(context.palette));
-
-	if(view->masks!=NULL)
+//Load track flags
+track_type->flags=0;
+json_t* flags=json_object_get(json,"flags");
+	if(flags!=NULL)
 	{
-	printf("%d %d\n",image->x_offset,image->y_offset);
-		for(int x=0;x<image->width;x++)
-		for(int y=0;y<image->height;y++)
+		if(!json_is_array(flags))
 		{
-			if(!is_in_mask(x+image->x_offset,y+image->y_offset,view->masks+sprite))
+		printf("Error: Property \"flags\" is not an array\n");
+		return 1;
+		}
+		for(int i=0;i<json_array_size(flags);i++)
+		{
+		json_t* flag_name=json_array_get(flags,i);
+		assert(flag_name!=NULL);
+			if(!json_is_string(flag_name))
 			{
-			image->pixels[x+image->width*y]=0;
+			printf("Error: Array \"flags\" contains non-string value\n");
+			return 1;
+			}
+			if(strcmp(json_string_value(flag_name),"has_lift")==0)track_type->flags|=TRACK_HAS_LIFT;
+			else if(strcmp(json_string_value(flag_name),"has_supports")==0)track_type->flags|=TRACK_HAS_SUPPORTS;
+			else
+			{
+			printf("Error: Unrecognized flag \"%s\"\n",json_string_value(flag_name));
+			return 1;
 			}
 		}
-	image->x_offset+=view->masks[sprite].x_offset;
-	image->y_offset+=view->masks[sprite].y_offset;
-	}	
-}
-*/
-
-void write_track_section(context_t* context,track_section_t* track_section,track_type_t* track_type,const char* filename,json_t* sprites)
-{
-image_t full_sprites[4];
-	if(track_section->flags&TRACK_EXTRUDE_BEHIND)
-	{
-	printf("Test\n");
-	render_track_section(context,track_section,track_type,1,0,0x5,full_sprites);
-	render_track_section(context,track_section,track_type,0,0,0xA,full_sprites);
 	}
-	else render_track_section(context,track_section,track_type,0,0,0xF,full_sprites);
 
-image_t track_masks[4];
-int track_mask_views=0;
-	for(int i=0;i<4;i++)track_mask_views|=(track_section->views[i].flags&VIEW_NEEDS_TRACK_MASK?1:0)<<i;
-	if(track_mask_views!=0)render_track_section(context,track_section,track_type,0,1,track_mask_views,track_masks);
-
-	for(int angle=0;angle<4;angle++)
+json_t* groups=json_object_get(json,"sections");
+	if(groups!=NULL)
 	{
-		if(track_section->views[angle].num_sprites==0)continue;
-
-	view_t* view=track_section->views+angle;
-
-		
-		for(int sprite=0;sprite<view->num_sprites;sprite++)
+		if(!json_is_array(groups))
 		{
-		char final_filename[255];
-		char relative_filename[255];
-			if(view->num_sprites==1)sprintf(relative_filename,"%s_%d.png",filename,angle+1);
-			else sprintf(relative_filename,"%s_%d_%d.png",filename,angle+1,sprite+1);
-		sprintf(final_filename,"/home/edward/RCT2Prog/OpenRCT2/resources/g2/%s",relative_filename);
-		printf("%s\n",final_filename);
-
-		image_t part_sprite;
-		image_copy(full_sprites+angle,&part_sprite);
-
-			if(view->masks!=NULL)
-			{
-				for(int x=0;x<full_sprites[angle].width;x++)
-				for(int y=0;y<full_sprites[angle].height;y++)
-				{
-				int in_mask=is_in_mask(x+full_sprites[angle].x_offset,y+full_sprites[angle].y_offset,view->masks+sprite);
-
-					if(view->masks[sprite].track_mask_op!=TRACK_MASK_NONE)
-					{
-					int mask_x=(x+full_sprites[angle].x_offset)-track_masks[angle].x_offset;
-					int mask_y=(y+full_sprites[angle].y_offset)-track_masks[angle].y_offset;
-					int in_track_mask=mask_x>=0&&mask_y>=0&&mask_x<track_masks[angle].width&&mask_y<track_masks[angle].height&&track_masks[angle].pixels[mask_x+mask_y*track_masks[angle].width]!=0;
-						if(in_track_mask)part_sprite.pixels[x+part_sprite.width*y]=50;
-						switch(view->masks[sprite].track_mask_op)
-						{
-						case TRACK_MASK_DIFFERENCE:
-						in_mask=in_mask&&!in_track_mask;
-						break;
-						case TRACK_MASK_INTERSECT:
-						in_mask=in_mask&&in_track_mask;
-						break;
-						case TRACK_MASK_UNION:
-						in_mask=in_mask||in_track_mask;
-						break;
-						}
-					}
-					if(view->flags&VIEW_ENFORCE_NON_OVERLAPPING)
-					{
-						for(int i=0;i<sprite;i++)
-						{
-							if(is_in_mask(x+full_sprites[angle].x_offset,y+full_sprites[angle].y_offset,view->masks+i))in_mask=0;
-						}
-					}
-
-					if(in_mask)
-					{
-					part_sprite.pixels[x+part_sprite.width*y]=full_sprites[angle].pixels[x+full_sprites[angle].width*y];
-					}
-					else
-					{
-					part_sprite.pixels[x+part_sprite.width*y]=0;
-					}
-				}
-			part_sprite.x_offset+=view->masks[sprite].x_offset;
-			part_sprite.y_offset+=view->masks[sprite].y_offset;
-			}
-
+		printf("Error: Property \"sections\" is not an array\n");
+		return 1;
+		}
+		if(load_groups(groups,&(track_type->groups)))return 1;
+	}
 	
-		FILE* file=fopen(final_filename,"w");
-			if(file==NULL)
+	if(track_type->flags&TRACK_HAS_LIFT)
+	{
+	json_t* groups=json_object_get(json,"lift_sections");
+		if(groups!=NULL)
+		{
+			if(!json_is_array(groups))
 			{
-			printf("Error: could not open %s for writing\n",final_filename);
-			exit(1);
+			printf("Error: Property \"lift_sections\" is not an array\n");
+			return 1;
 			}
-		image_write_png(&part_sprite,file);
-		fclose(file);	
-
-		json_t* sprite_entry=json_object();
-		json_object_set(sprite_entry,"path",json_string(relative_filename));
-		json_object_set(sprite_entry,"x_offset",json_integer(part_sprite.x_offset));
-		json_object_set(sprite_entry,"y_offset",json_integer(part_sprite.y_offset));
-		json_array_append(sprites,sprite_entry);
-		image_destroy(&part_sprite);
+			if(load_groups(groups,&(track_type->lift_groups)))return 1;
 		}
-
-		if(view->flags&VIEW_NEEDS_TRACK_MASK)image_destroy(track_masks+angle);
-	image_destroy(full_sprites+angle);
 	}
+
+
+//Load length
+json_t* length=json_object_get(json,"length");
+	if(length!=NULL&&json_is_number(length))track_type->length=json_number_value(length)*TILE_SIZE;
+	else
+	{
+	printf("Error: Property \"length\" not found or is not a number\n");
+	return 1;
+	}
+
+//Load Z offset
+json_t* z_offset=json_object_get(json,"z_offset");
+	if(z_offset!=NULL&&json_is_number(z_offset))track_type->z_offset=json_number_value(z_offset);
+	else
+	{
+	printf("Error: Property \"z_offset\" not found or is not a number\n");
+	return 1;
+	}
+
+//Load support_spacing
+json_t* support_spacing=json_object_get(json,"support_spacing");
+	if(support_spacing!=NULL)
+	{
+		if(json_is_number(support_spacing))track_type->support_spacing=json_number_value(support_spacing)*TILE_SIZE;
+		else
+		{
+		printf("Error: Property \"support_spacing\" not found or is not a number\n");
+		return 1;
+		}
+	}
+
+//Load models
+json_t* models=json_object_get(json,"models");
+	if(models==NULL||!json_is_object(models))
+	{
+	printf("Error: Property \"models\" not found or is not an object\n");
+	return 1;
+	}
+	
+	if(load_model(&(track_type->mesh),models,"track"))return 1;
+
+	if(load_model(&(track_type->mask),models,"mask"))
+	{
+	mesh_destroy(&(track_type->mesh));
+	return 1;
+	}
+
+	if(track_type->flags&TRACK_HAS_LIFT)
+	{
+		if(load_model(&(track_type->lift_mesh),models,"lift"))
+		{
+		mesh_destroy(&(track_type->mesh));
+		mesh_destroy(&(track_type->mask));
+		return 1;
+		}
+	}
+
+const char* support_model_names[NUM_SUPPORT_MODELS]={"support_flat","support_bank_half","support_bank","support_base","support_steep_to_vertical","support_vertical_to_steep","support_vertical","support_vertical_twist"};
+
+track_type->models_loaded|=0;
+	for(int i=0;i<NUM_SUPPORT_MODELS;i++)
+	{
+	int result=load_model(&(track_type->supports[i]),models,support_model_names[i]);
+		if(result==0)track_type->models_loaded|=1<<i;
+		else if(result==1)
+		{
+		mesh_destroy(&(track_type->mesh));
+		mesh_destroy(&(track_type->mask));
+			if(track_type->flags&TRACK_HAS_LIFT)mesh_destroy(&(track_type->lift_mesh));
+			for(int j=0;j<i;j++)mesh_destroy(&(track_type->supports[j]));
+		return 1;
+		}
+	}
+
+
+/*
+mesh_load(&(rmc.supports[SUPPORT_FLAT]),"tracks/rmc/rmc_support.obj");
+mesh_load(&(rmc.supports[SUPPORT_BANK_HALF]),"tracks/rmc/rmc_support_bank_half.obj");
+mesh_load(&(rmc.supports[SUPPORT_BANK]),"tracks/rmc/rmc_support_bank.obj");
+mesh_load(&(rmc.supports[SUPPORT_BASE]),"tracks/rmc/rmc_support_base.obj");
+mesh_load(&(rmc.supports[SUPPORT_SPECIAL_VERTICAL]),"tracks/rmc/rmc_support_vertical.obj");
+mesh_load(&(rmc.supports[SUPPORT_SPECIAL_STEEP_TO_VERTICAL]),"tracks/rmc/rmc_support_steep_to_vertical.obj");
+mesh_load(&(rmc.supports[SUPPORT_SPECIAL_VERTICAL_TO_STEEP]),"tracks/rmc/rmc_support_vertical_to_steep.obj");
+mesh_load(&(rmc.supports[SUPPORT_SPECIAL_VERTICAL_TWIST]),"tracks/rmc/rmc_support_vertical_twist.obj");
+*/
+return 0;
 }
-
-
-
 
 int main(int argc,char** argv)
 {
+	if(argc!=2)
+	{
+	printf("Usage: TrackRender <file>\n");
+	return 1;
+	}
+	
+json_error_t error;
+json_t* track=json_load_file(argv[1],0,&error);
+	if(track==NULL)
+	{
+	printf("Error: %s at line %d column %d\n",error.text,error.line,error.column);
+	return 1;
+	}
+
+const char* base_dir=NULL;
+json_t* json_base_dir=json_object_get(track,"base_directory");
+	if(json_base_dir!=NULL&&json_is_string(json_base_dir))base_dir=json_string_value(json_base_dir);
+	else printf("Error: No property \"base_directory\" found\n");
+
+const char* sprite_dir=NULL;
+json_t* json_sprite_dir=json_object_get(track,"sprite_directory");
+	if(json_sprite_dir!=NULL&&json_is_string(json_sprite_dir))sprite_dir=json_string_value(json_sprite_dir);
+	else printf("Error: No property \"sprite_directory\" found\n");
+
+const char* spritefile_in=NULL;
+json_t* json_spritefile_in=json_object_get(track,"spritefile_in");
+	if(json_spritefile_in!=NULL&&json_is_string(json_spritefile_in))spritefile_in=json_string_value(json_spritefile_in);
+	else printf("Error: No property \"spritefile_in\" found\n");
+
+const char* spritefile_out=NULL;
+json_t* json_spritefile_out=json_object_get(track,"spritefile_out");
+	if(json_spritefile_out!=NULL&&json_is_string(json_spritefile_out))spritefile_out=json_string_value(json_spritefile_out);
+	else printf("Error: No property \"spritefile_out\" found\n");
+
+
+track_type_t track_type;
+
+	if(load_track_type(&track_type,track))return 1;
+
+char full_path[256];
+snprintf(full_path,256,"%s%s",base_dir,spritefile_in);
+json_t* sprites=json_load_file(full_path,0,&error);
+	if(sprites==NULL)
+	{
+	printf("Error: %s in file %s line %d column %d\n",error.text,error.source,error.line,error.column);
+	return 1;
+	}
+
 light_t lights[6]={
 {LIGHT_SPECULAR,vector3(0.671641,0.38733586252,-0.631561),0.35},
 {LIGHT_DIFFUSE,vector3(0.0,1.0,0.0),0.044},
@@ -190,189 +279,14 @@ light_t lights[6]={
 {LIGHT_DIFFUSE,vector3_normalize(vector3(-1.0,1.0,-1.0)),0.045},
 };
 
-//light_t lights[6]={{LIGHT_HEMI,{0.0,1.0,0.0},0.176},{LIGHT_DIFFUSE,{0.671641,0.38733586252,-0.631561},0.9},{LIGHT_SPECULAR,{0.671641,0.38733586252,-0.631561},0.3},{LIGHT_DIFFUSE,{0.259037,0.03967,-0.965052},0.4},{LIGHT_DIFFUSE,{-0.904066,0.412439,-0.112069},0.15},{LIGHT_DIFFUSE,{0.50718,0.517623,0.689083},0.1}};
 context_t context=get_context(lights,6);
 
-/*
-track_type_t intamindouble;
-mesh_load_obj(&(intamindouble.mesh),"models/intamindouble/intamindouble.obj");
-mesh_load_obj(&(intamindouble.mask),"models/intamindouble/intamindouble_mask.obj");
-intamindouble.length=TILE_SIZE*0.5;
+write_track_type(&context,&track_type,sprites,base_dir,sprite_dir);
 
-track_type_t intamindouble_lift;
-mesh_load_obj(&(intamindouble_lift.mesh),"models/intamindouble/intamindouble_lift.obj");
-mesh_load_obj(&(intamindouble_lift.mask),"models/intamindouble/intamindouble_mask.obj");
-intamindouble_lift.length=TILE_SIZE*0.5;
-*/
-/*
-track_type_t intamin;
-mesh_load_obj(&(intamin.mesh),"models/intamin.obj");
-mesh_load_obj(&(intamin.mask),"models/intamindouble/intamindouble_mask.obj");
-intamin.length=TILE_SIZE*0.5;
-*/
-track_type_t rmc;
-rmc.flags=TRACK_HAS_SUPPORTS;
-mesh_load(&(rmc.mesh),"rmc.obj");
-mesh_load(&(rmc.mask),"rmc_mask.obj");
-mesh_load(&(rmc.supports[SUPPORT_FLAT]),"rmc_support.obj");
-mesh_load(&(rmc.supports[SUPPORT_BANK_HALF]),"rmc_support_bank_half.obj");
-mesh_load(&(rmc.supports[SUPPORT_BANK]),"rmc_support_bank.obj");
-mesh_load(&(rmc.supports[SUPPORT_BASE]),"rmc_support_base.obj");
-mesh_load(&(rmc.supports[SUPPORT_SPECIAL_VERTICAL]),"rmc_support_vertical.obj");
-mesh_load(&(rmc.supports[SUPPORT_SPECIAL_STEEP_TO_VERTICAL]),"rmc_support_steep_to_vertical.obj");
-mesh_load(&(rmc.supports[SUPPORT_SPECIAL_VERTICAL_TO_STEEP]),"rmc_support_vertical_to_steep.obj");
-mesh_load(&(rmc.supports[SUPPORT_SPECIAL_VERTICAL_TWIST]),"rmc_support_vertical_twist.obj");
-rmc.length=TILE_SIZE*0.5;
-
-track_type_t rmc_lift;
-rmc_lift.flags=TRACK_HAS_SUPPORTS;
-mesh_load(&(rmc_lift.mesh),"rmc_lift.obj");
-mesh_load(&(rmc_lift.mask),"rmc_mask.obj");
-mesh_load(&(rmc_lift.supports[SUPPORT_FLAT]),"rmc_support.obj");
-mesh_load(&(rmc_lift.supports[SUPPORT_BANK_HALF]),"rmc_support_bank_half.obj");
-mesh_load(&(rmc_lift.supports[SUPPORT_BANK]),"rmc_support_bank.obj");
-mesh_load(&(rmc_lift.supports[SUPPORT_BASE]),"rmc_support_base.obj");
-rmc_lift.length=TILE_SIZE*0.5;
-/*
-track_type_t raptor;
-mesh_load(&(raptor.mesh),"raptor.obj");
-mesh_load(&(raptor.mask),"raptor_mask.obj");
-raptor.length=0.5*TILE_SIZE;
-
-track_type_t raptor_lift;
-mesh_load(&(raptor_lift.mesh),"raptor_lift.obj");
-mesh_load(&(raptor_lift.mask),"raptor_mask.obj");
-raptor_lift.length=0.5*TILE_SIZE;
-*/
-
-json_t* sprites=json_load_file("/home/edward/RCT2Prog/OpenRCT2/resources/g2/sprites_old.json",0,NULL);
-
-/*write_track_section(&steep_to_vertical_up,&intamin,"track/intamin/steep_to_vertical_up",sprites);
-write_track_section(&steep_to_vertical_down,&intamin,"track/intamin/steep_to_vertical_down",sprites);
-write_track_section(&vertical,&intamin,"track/intamin/vertical",sprites);
-write_track_section(&vertical_twist_left_up,&intamin,"track/intamin/vertical_twist_left_up",sprites);
-write_track_section(&vertical_twist_right_up,&intamin,"track/intamin/vertical_twist_right_up",sprites);*/
-
-//Flat
-write_track_section(&context,&flat,&rmc,"track/rmc/flat",sprites);
-write_track_section(&context,&flat,&rmc_lift,"track/rmc/brake",sprites);//TODO actual sprites for these
-
-//Slopes
-write_track_section(&context,&flat_to_gentle_up,&rmc,"track/rmc/flat_to_gentle_up",sprites);
-write_track_section(&context,&gentle_up_to_flat,&rmc,"track/rmc/gentle_to_flat_up",sprites);
-write_track_section(&context,&gentle,&rmc,"track/rmc/gentle",sprites);
-write_track_section(&context,&gentle_to_steep_up,&rmc,"track/rmc/gentle_to_steep_up",sprites);
-write_track_section(&context,&steep_to_gentle_up,&rmc,"track/rmc/steep_to_gentle_up",sprites);
-
-write_track_section(&context,&steep,&rmc,"track/rmc/steep",sprites);
-write_track_section(&context,&steep_to_vertical_up,&rmc,"track/rmc/steep_to_vertical_up",sprites);
-write_track_section(&context,&vertical_to_steep_up,&rmc,"track/rmc/vertical_to_steep_up",sprites);
-write_track_section(&context,&vertical,&rmc,"track/rmc/vertical",sprites);
-
-//Turns
-write_track_section(&context,&small_turn_left,&rmc,"track/rmc/small_turn_left",sprites);
-write_track_section(&context,&medium_turn_left,&rmc,"track/rmc/medium_turn_left",sprites);
-write_track_section(&context,&large_turn_left_to_diag,&rmc,"track/rmc/large_turn_left_to_diag",sprites);
-write_track_section(&context,&large_turn_right_to_diag,&rmc,"track/rmc/large_turn_right_to_diag",sprites);
-
-//Diagonals
-write_track_section(&context,&flat_diag,&rmc,"track/rmc/flat_diag",sprites);
-write_track_section(&context,&flat_to_gentle_up_diag,&rmc,"track/rmc/flat_to_gentle_up_diag",sprites);
-write_track_section(&context,&gentle_to_flat_up_diag,&rmc,"track/rmc/gentle_to_flat_up_diag",sprites);
-write_track_section(&context,&gentle_diag,&rmc,"track/rmc/gentle_diag",sprites);
-write_track_section(&context,&gentle_to_steep_up_diag,&rmc,"track/rmc/gentle_to_steep_up_diag",sprites);
-write_track_section(&context,&steep_to_gentle_up_diag,&rmc,"track/rmc/steep_to_gentle_up_diag",sprites);
-write_track_section(&context,&steep_diag,&rmc,"track/rmc/steep_diag",sprites);
-
-//Banked turns
-write_track_section(&context,&flat_to_left_bank,&rmc,"track/rmc/flat_to_left_bank",sprites);
-write_track_section(&context,&flat_to_right_bank,&rmc,"track/rmc/flat_to_right_bank",sprites);
-write_track_section(&context,&left_bank_to_gentle_up,&rmc,"track/rmc/left_bank_to_gentle_up",sprites);
-write_track_section(&context,&right_bank_to_gentle_up,&rmc,"track/rmc/right_bank_to_gentle_up",sprites);
-write_track_section(&context,&gentle_up_to_left_bank,&rmc,"track/rmc/gentle_up_to_left_bank",sprites);
-write_track_section(&context,&gentle_up_to_right_bank,&rmc,"track/rmc/gentle_up_to_right_bank",sprites);
-write_track_section(&context,&left_bank,&rmc,"track/rmc/left_bank",sprites);
-write_track_section(&context,&flat_to_left_bank_diag,&rmc,"track/rmc/flat_to_left_bank_diag",sprites);
-write_track_section(&context,&flat_to_right_bank_diag,&rmc,"track/rmc/flat_to_right_bank_diag",sprites);
-write_track_section(&context,&left_bank_to_gentle_up_diag,&rmc,"track/rmc/left_bank_to_gentle_up_diag",sprites);
-write_track_section(&context,&right_bank_to_gentle_up_diag,&rmc,"track/rmc/right_bank_to_gentle_up_diag",sprites);
-write_track_section(&context,&gentle_up_to_left_bank_diag,&rmc,"track/rmc/gentle_up_to_left_bank_diag",sprites);
-write_track_section(&context,&gentle_up_to_right_bank_diag,&rmc,"track/rmc/gentle_up_to_right_bank_diag",sprites);
-write_track_section(&context,&left_bank_diag,&rmc,"track/rmc/left_bank_diag",sprites);
-write_track_section(&context,&small_turn_left_bank,&rmc,"track/rmc/small_turn_left_bank",sprites);
-write_track_section(&context,&medium_turn_left_bank,&rmc,"track/rmc/medium_turn_left_bank",sprites);
-write_track_section(&context,&large_turn_left_to_diag_bank,&rmc,"track/rmc/large_turn_left_to_diag_bank",sprites);
-write_track_section(&context,&large_turn_right_to_diag_bank,&rmc,"track/rmc/large_turn_right_to_diag_bank",sprites);
-
-//Sloped turns
-write_track_section(&context,&small_turn_left_gentle_up,&rmc,"track/rmc/small_turn_left_gentle_up",sprites);
-write_track_section(&context,&small_turn_right_gentle_up,&rmc,"track/rmc/small_turn_right_gentle_up",sprites);
-write_track_section(&context,&medium_turn_left_gentle_up,&rmc,"track/rmc/medium_turn_left_gentle_up",sprites);
-write_track_section(&context,&medium_turn_right_gentle_up,&rmc,"track/rmc/medium_turn_right_gentle_up",sprites);
-write_track_section(&context,&very_small_turn_left_steep_up,&rmc,"track/rmc/very_small_turn_left_steep_up",sprites);
-write_track_section(&context,&very_small_turn_right_steep_up,&rmc,"track/rmc/very_small_turn_right_steep_up",sprites);
-write_track_section(&context,&vertical_twist_left_up,&rmc,"track/rmc/vertical_twist_left_up",sprites);
-write_track_section(&context,&vertical_twist_right_up,&rmc,"track/rmc/vertical_twist_right_up",sprites);
-
-
-//Sloped banked turns
-write_track_section(&context,&gentle_up_to_gentle_up_left_bank,&rmc,"track/rmc/gentle_up_to_gentle_up_left_bank",sprites);
-write_track_section(&context,&gentle_up_to_gentle_up_right_bank,&rmc,"track/rmc/gentle_up_to_gentle_up_right_bank",sprites);
-write_track_section(&context,&gentle_up_left_bank_to_gentle_up,&rmc,"track/rmc/gentle_up_left_bank_to_gentle_up",sprites);
-write_track_section(&context,&gentle_up_right_bank_to_gentle_up,&rmc,"track/rmc/gentle_up_right_bank_to_gentle_up",sprites);
-write_track_section(&context,&left_bank_to_gentle_up_left_bank,&rmc,"track/rmc/left_bank_to_gentle_up_left_bank",sprites);
-write_track_section(&context,&right_bank_to_gentle_up_right_bank,&rmc,"track/rmc/right_bank_to_gentle_up_right_bank",sprites);
-write_track_section(&context,&gentle_up_left_bank_to_left_bank,&rmc,"track/rmc/gentle_up_left_bank_to_left_bank",sprites);
-write_track_section(&context,&gentle_up_right_bank_to_right_bank,&rmc,"track/rmc/gentle_up_right_bank_to_right_bank",sprites);
-write_track_section(&context,&gentle_up_left_bank,&rmc,"track/rmc/gentle_up_left_bank",sprites);
-write_track_section(&context,&gentle_up_right_bank,&rmc,"track/rmc/gentle_up_right_bank",sprites);
-write_track_section(&context,&flat_to_gentle_up_left_bank,&rmc,"track/rmc/flat_to_gentle_up_left_bank",sprites);
-write_track_section(&context,&flat_to_gentle_up_right_bank,&rmc,"track/rmc/flat_to_gentle_up_right_bank",sprites);
-write_track_section(&context,&gentle_up_left_bank_to_flat,&rmc,"track/rmc/gentle_up_left_bank_to_flat",sprites);
-write_track_section(&context,&gentle_up_right_bank_to_flat,&rmc,"track/rmc/gentle_up_right_bank_to_flat",sprites);
-write_track_section(&context,&small_turn_left_bank_gentle_up,&rmc,"track/rmc/small_turn_left_bank_gentle_up",sprites);
-write_track_section(&context,&small_turn_right_bank_gentle_up,&rmc,"track/rmc/small_turn_right_bank_gentle_up",sprites);
-write_track_section(&context,&medium_turn_left_bank_gentle_up,&rmc,"track/rmc/medium_turn_left_bank_gentle_up",sprites);
-write_track_section(&context,&medium_turn_right_bank_gentle_up,&rmc,"track/rmc/medium_turn_right_bank_gentle_up",sprites);
-
-//Miscellaneous
-write_track_section(&context,&s_bend_left,&rmc,"track/rmc/s_bend_left",sprites);
-write_track_section(&context,&s_bend_right,&rmc,"track/rmc/s_bend_right",sprites);
-write_track_section(&context,&small_helix_left_up,&rmc,"track/rmc/small_helix_left_up",sprites);
-write_track_section(&context,&small_helix_right_up,&rmc,"track/rmc/small_helix_right_up",sprites);
-write_track_section(&context,&medium_helix_left_up,&rmc,"track/rmc/medium_helix_left_up",sprites);
-write_track_section(&context,&medium_helix_right_up,&rmc,"track/rmc/medium_helix_right_up",sprites);
-
-
-//Lift pieces
-write_track_section(&context,&flat,&rmc_lift,"track/rmc/flat_lift",sprites); 
-write_track_section(&context,&flat_to_gentle_up,&rmc_lift,"track/rmc/flat_to_gentle_up_lift",sprites);
-write_track_section(&context,&gentle_up_to_flat,&rmc_lift,"track/rmc/gentle_to_flat_up_lift",sprites);
-write_track_section(&context,&gentle,&rmc_lift,"track/rmc/gentle_lift",sprites);
-write_track_section(&context,&gentle_to_steep_up,&rmc_lift,"track/rmc/gentle_to_steep_up_lift",sprites);
-write_track_section(&context,&steep_to_gentle_up,&rmc_lift,"track/rmc/steep_to_gentle_up_lift",sprites);
-write_track_section(&context,&steep,&rmc_lift,"track/rmc/steep_lift",sprites);
-
-write_track_section(&context,&flat_diag,&rmc_lift,"track/rmc/flat_diag_lift",sprites);
-write_track_section(&context,&flat_to_gentle_up_diag,&rmc_lift,"track/rmc/flat_to_gentle_up_diag_lift",sprites);
-write_track_section(&context,&gentle_to_flat_up_diag,&rmc_lift,"track/rmc/gentle_to_flat_up_diag_lift",sprites);
-write_track_section(&context,&gentle_diag,&rmc_lift,"track/rmc/gentle_diag_lift",sprites);
-write_track_section(&context,&gentle_to_steep_up_diag,&rmc_lift,"track/rmc/gentle_to_steep_up_diag_lift",sprites);
-write_track_section(&context,&steep_to_gentle_up_diag,&rmc_lift,"track/rmc/steep_to_gentle_up_diag_lift",sprites);
-write_track_section(&context,&steep_diag,&rmc_lift,"track/rmc/steep_diag_lift",sprites);
-
-//Inversions
-write_track_section(&context,&barrel_roll_left,&rmc,"track/rmc/barrel_roll_left",sprites);
-write_track_section(&context,&barrel_roll_right,&rmc,"track/rmc/barrel_roll_right",sprites);
-write_track_section(&context,&half_loop,&rmc,"track/rmc/half_loop",sprites);
-
-write_track_section(&context,&flat_to_steep_up,&rmc,"track/rmc/flat_to_steep_up",sprites);
-write_track_section(&context,&steep_to_flat_up,&rmc,"track/rmc/steep_to_flat_up",sprites);
-write_track_section(&context,&quarter_loop_up,&rmc,"track/rmc/quarter_loop_up",sprites);
-
-json_dump_file(sprites,"/home/edward/RCT2Prog/OpenRCT2/resources/g2/sprites.json",JSON_INDENT(4));
-
+snprintf(full_path,256,"%s%s",base_dir,spritefile_out);
+json_dump_file(sprites,full_path,JSON_INDENT(4));
 context_destroy(&context);
+
 return 0;
 }
 

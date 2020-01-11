@@ -1,5 +1,7 @@
+#include <jansson.h>
 #include <renderer.h>
 #include <model.h>
+
 
 #define TILE_SIZE 3.67423461417477
 
@@ -41,8 +43,36 @@ TRACK_MASK_UNION
 
 enum track_flags
 {
-TRACK_HAS_SUPPORTS=1
+TRACK_HAS_LIFT=1,
+TRACK_HAS_SUPPORTS=2
 };
+
+enum track_subtypes
+{
+TRACK_SUBTYPE_DEFAULT=0,
+TRACK_SUBTYPE_LIFT=1
+};
+
+enum track_groups
+{
+TRACK_GROUP_BRAKES=1,
+TRACK_GROUP_GENTLE_SLOPES=2,
+TRACK_GROUP_STEEP_SLOPES=4,
+TRACK_GROUP_VERTICAL_SLOPES=8,
+TRACK_GROUP_TURNS=16,
+TRACK_GROUP_SLOPED_TURNS=32,
+TRACK_GROUP_DIAGONALS=64,
+TRACK_GROUP_BANKED_TURNS=128,
+TRACK_GROUP_BANKED_SLOPED_TURNS=256,
+TRACK_GROUP_S_BENDS=512,
+TRACK_GROUP_HELICES=1024,
+TRACK_GROUP_LARGE_SLOPE_TRANSITIONS=2048,
+TRACK_GROUP_BARREL_ROLLS=4096,
+TRACK_GROUP_HALF_LOOPS=8192,
+TRACK_GROUP_QUARTER_LOOPS=16384
+};
+
+
 
 enum supports
 {
@@ -58,16 +88,22 @@ SUPPORT_SPECIAL_BARREL_ROLL=8,
 SUPPORT_SPECIAL_HALF_LOOP=10,
 SUPPORT_SPECIAL_QUARTER_LOOP=11
 };
-#define NUM_SUPPORT_MODELS 10
+#define NUM_SUPPORT_MODELS 12
 #define SUPPORT_SPECIAL_START SUPPORT_SPECIAL_STEEP_TO_VERTICAL
 
 typedef struct
 {
 uint32_t flags;
+uint32_t groups;
+uint32_t lift_groups;
+uint32_t models_loaded;
 mesh_t mesh;
+mesh_t lift_mesh;
 mesh_t mask;
 mesh_t supports[NUM_SUPPORT_MODELS];
 float length;
+float z_offset;
+float support_spacing;
 }track_type_t;
 
 typedef struct
@@ -106,8 +142,7 @@ view_t views[4];
 }track_section_t;
 
 
-void render_track_section(context_t* context,track_section_t* track_section,track_type_t* track_type,int extrude_behind,int track_mask,int views,image_t* image);
-
+int write_track_type(context_t* context,track_type_t* track_type,json_t* sprites,const char* base_dir,const char* output_dir);
 
 extern track_section_t flat;
 extern track_section_t flat_to_gentle_up;
