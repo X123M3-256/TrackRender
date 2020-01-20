@@ -189,7 +189,7 @@ json_t* models=json_object_get(json,"models");
 		}
 	}
 
-const char* support_model_names[NUM_SUPPORT_MODELS]={"support_flat","support_bank_half","support_bank","support_base","support_steep_to_vertical","support_vertical_to_steep","support_vertical","support_vertical_twist"};
+const char* support_model_names[NUM_SUPPORT_MODELS]={"support_flat","support_bank_half","support_bank","support_base","support_steep_to_vertical","support_vertical_to_steep","support_vertical","support_vertical_twist","support_barrel_roll","support_half_loop","support_quarter_loop"};
 
 track_type->models_loaded|=0;
 	for(int i=0;i<NUM_SUPPORT_MODELS;i++)
@@ -269,17 +269,19 @@ json_t* sprites=json_load_file(full_path,0,&error);
 	printf("Error: %s in file %s line %d column %d\n",error.text,error.source,error.line,error.column);
 	return 1;
 	}
-
-light_t lights[6]={
-{LIGHT_SPECULAR,vector3(0.671641,0.38733586252,-0.631561),0.35},
-{LIGHT_DIFFUSE,vector3(0.0,1.0,0.0),0.044},
-{LIGHT_DIFFUSE,vector3_normalize(vector3(-1.0,1.0,0.0)),0.19},
-{LIGHT_DIFFUSE,vector3_normalize(vector3(0.0,1.0,1.0)),0.04},
-{LIGHT_DIFFUSE,vector3_normalize(vector3(0.5,0.816,-0.5000000)),0.17},
-{LIGHT_DIFFUSE,vector3_normalize(vector3(-1.0,1.0,-1.0)),0.045},
+light_t lights[9]={
+	{LIGHT_DIFFUSE,0,vector3_normalize(vector3(0.0,-1.0,0.0)),0.25},
+	{LIGHT_DIFFUSE,0,vector3_normalize(vector3(1.0,0.3,0.0)),0.32},
+	{LIGHT_SPECULAR,0,vector3_normalize(vector3(1,1,-1)),1.0},
+	{LIGHT_DIFFUSE,0,vector3_normalize(vector3(1,0.65,-1)),0.8},
+	{LIGHT_DIFFUSE,0,vector3(0.0,1.0,0.0),0.174},
+	{LIGHT_DIFFUSE,0,vector3_normalize(vector3(-1.0,0.0,0.0)),0.15},
+	{LIGHT_DIFFUSE,0,vector3_normalize(vector3(0.0,1.0,1.0)),0.2},
+	{LIGHT_DIFFUSE,0,vector3_normalize(vector3(0.65,0.816,-0.65000000)),0.25},
+	{LIGHT_DIFFUSE,0,vector3_normalize(vector3(-1.0,0.0,-1.0)),0.25},
 };
 
-context_t context=get_context(lights,6);
+context_t context=get_context(lights,9);
 
 write_track_type(&context,&track_type,sprites,base_dir,sprite_dir);
 
