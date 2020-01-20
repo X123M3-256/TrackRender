@@ -19,20 +19,26 @@ typedef struct
 	float scale;
 	float offset;
 	float z_offset;
+	float length;
 	int flags;
 	}track_transform_args_t;
 
-track_point_t get_track_point(track_point_t (*curve)(float distance),int flags,float z_offset,float u)
+track_point_t get_track_point(track_point_t (*curve)(float distance),int flags,float z_offset,float length,float u)
 {
 track_point_t track_point;
-	if(u>=0)
-	{
-	track_point=curve(u);
-	}
-	else
+	if(u<0)
 	{
 	track_point=curve(0);
 	track_point.position=vector3_add(track_point.position,vector3_mult(track_point.tangent,u));
+	}
+	else if(u>length)
+	{
+	track_point=curve(length);
+	track_point.position=vector3_add(track_point.position,vector3_mult(track_point.tangent,(u-length)));
+	}
+	else
+	{
+	track_point=curve(u);
 	}
 
 	if(flags&TRACK_DIAGONAL)track_point.position.x+=0.75*sqrt(6);
@@ -57,7 +63,7 @@ track_transform_args_t args=*((track_transform_args_t*)data);
 
 vertex.z=args.scale*vertex.z+args.offset;
 
-track_point_t track_point=get_track_point(args.track_curve,args.flags,args.z_offset,vertex.z);	
+track_point_t track_point=get_track_point(args.track_curve,args.flags,args.z_offset,args.length,vertex.z);	
 
 vertex_t out;
 out.vertex=change_coordinates(vector3_add(track_point.position,vector3_add(vector3_mult(track_point.normal,vertex.y),vector3_mult(track_point.binormal,vertex.x))));
@@ -71,7 +77,7 @@ track_transform_args_t args=*((track_transform_args_t*)data);
 
 vertex.z=args.scale*vertex.z+args.offset;
 
-track_point_t track_point=get_track_point(args.track_curve,args.flags,args.z_offset,vertex.z);	
+track_point_t track_point=get_track_point(args.track_curve,args.flags,args.z_offset,args.length,vertex.z);	
 
 track_point.binormal=vector3_normalize(vector3_cross(vector3(0,1,0),track_point.tangent));
 track_point.normal=vector3_normalize(vector3_cross(track_point.tangent,track_point.binormal));
@@ -147,6 +153,22 @@ float z_offset=((track_type->z_offset/8.0)*0.75);
 #define DENOM 2
 
 context_begin_render(context);
+
+
+     	if(track_mask)
+	{
+	track_transform_args_t args;
+	args.scale=scale;
+	args.offset=-length;
+	args.z_offset=z_offset;
+	args.track_curve=track_section->curve;
+	args.flags=track_section->flags;
+	args.length=track_section->length;
+	context_add_model_transformed(context,&(track_type->mask),track_transform,&args,0);
+	args.offset=track_section->length;
+	context_add_model_transformed(context,&(track_type->mask),track_transform,&args,0);
+	}
+
 	for(int i=0;i<num_meshes;i++)
 	{
 	track_transform_args_t args;
@@ -155,6 +177,7 @@ context_begin_render(context);
 	args.z_offset=z_offset;
 	args.track_curve=track_section->curve;
 	args.flags=track_section->flags;
+	args.length=track_section->length;
      		if(track_mask)context_add_model_transformed(context,&(track_type->mask),track_transform,&args,0);
 		switch(subtype)
 		{
@@ -174,13 +197,13 @@ context_begin_render(context);
 		if(track_type->models_loaded&(1<<index))
 		{
 		matrix_t mat=views[3];
-			if((track_section->flags&TRACK_SPECIAL_MASK)!=TRACK_SPECIAL_VERTICAL_TWIST_RIGHT)
+			if((track_section->flags&TRACK_SPECIAL_MASK)!=TRACK_SPECIAL_VERTICAL_TWIST_RIGHT&&(track_section->flags&TRACK_SPECIAL_MASK)!=TRACK_SPECIAL_BARREL_ROLL_RIGHT)
 			{
 			mat.entries[6]*=-1;
 			mat.entries[7]*=-1;
 			mat.entries[8]*=-1;
 			}
-		context_add_model(context,&(track_type->supports[index]),transform(mat,vector3(0.0,z_offset-1.5,0.0)),track_mask); 
+		context_add_model(context,&(track_type->supports[index]),transform(mat,vector3(index==SUPPORT_SPECIAL_BARREL_ROLL?-0.5*TILE_SIZE:0,z_offset-1.5,0)),track_mask); 
 		}
 	}
 
@@ -204,7 +227,7 @@ context_begin_render(context);
 		int u=(i*DENOM)/num_supports;
 		int bank_angle=(entry*(DENOM-u)+(exit*u))/DENOM;
 
-		track_point_t track_point=only_yaw(get_track_point(track_section->curve,track_section->flags,z_offset,i*support_step));
+		track_point_t track_point=only_yaw(get_track_point(track_section->curve,track_section->flags,z_offset,track_section->length,i*support_step));
 		matrix_t rotation=matrix(track_point.binormal.x,track_point.normal.x,track_point.tangent.x,track_point.binormal.y,track_point.normal.y,track_point.tangent.y,track_point.binormal.z,track_point.normal.z,track_point.tangent.z);
 			if(bank_angle<0)rotation=matrix_mult(views[2],rotation);
 		context_add_model(context,&(track_type->supports[get_support_index(bank_angle)]),transform(rotation,change_coordinates(track_point.position)),track_mask); 
@@ -236,6 +259,8 @@ return 0;
 
 void write_track_section(context_t* context,track_section_t* track_section,track_type_t* track_type,const char* base_directory,const char* filename,json_t* sprites,int subtype)
 {
+int z_offset=(int)(track_type->z_offset+0.499999);
+
 image_t full_sprites[4];
 	if(track_section->flags&TRACK_EXTRUDE_BEHIND)
 	{
@@ -273,14 +298,14 @@ int track_mask_views=0;
 				for(int x=0;x<full_sprites[angle].width;x++)
 				for(int y=0;y<full_sprites[angle].height;y++)
 				{
-				int in_mask=is_in_mask(x+full_sprites[angle].x_offset,y+full_sprites[angle].y_offset,view->masks+sprite);
+				int in_mask=is_in_mask(x+full_sprites[angle].x_offset,y+full_sprites[angle].y_offset+((track_section->flags&TRACK_OFFSET_SPRITE_MASK)?(z_offset-8):0),view->masks+sprite);
 
 					if(view->masks[sprite].track_mask_op!=TRACK_MASK_NONE)
 					{
 					int mask_x=(x+full_sprites[angle].x_offset)-track_masks[angle].x_offset;
 					int mask_y=(y+full_sprites[angle].y_offset)-track_masks[angle].y_offset;
 					int in_track_mask=mask_x>=0&&mask_y>=0&&mask_x<track_masks[angle].width&&mask_y<track_masks[angle].height&&track_masks[angle].pixels[mask_x+mask_y*track_masks[angle].width]!=0;
-						if(in_track_mask)part_sprite.pixels[x+part_sprite.width*y]=50;
+
 						switch(view->masks[sprite].track_mask_op)
 						{
 						case TRACK_MASK_DIFFERENCE:
@@ -298,7 +323,7 @@ int track_mask_views=0;
 					{
 						for(int i=0;i<sprite;i++)
 						{
-							if(is_in_mask(x+full_sprites[angle].x_offset,y+full_sprites[angle].y_offset,view->masks+i))in_mask=0;
+							if(is_in_mask(x+full_sprites[angle].x_offset,y+full_sprites[angle].y_offset+((track_section->flags&TRACK_OFFSET_SPRITE_MASK)?(z_offset-8):0),view->masks+i))in_mask=0;//Note z offset untested
 						}
 					}
 
@@ -322,6 +347,7 @@ int track_mask_views=0;
 			printf("Error: could not open %s for writing\n",final_filename);
 			exit(1);
 			}
+		//if(view->flags&VIEW_NEEDS_TRACK_MASK)image_write_png(&(track_masks[angle]),file);
 		image_write_png(&part_sprite,file);
 		fclose(file);	
 
@@ -363,6 +389,7 @@ write_track_section(context,&flat,track_type,base_dir,output_path,sprites,subtyp
 	{
 	write_track_section(context,&flat,track_type,base_dir,output_path,sprites,subtype);
 	}
+
 //Slopes
 	if(groups&TRACK_GROUP_GENTLE_SLOPES)
 	{
@@ -423,6 +450,7 @@ write_track_section(context,&flat,track_type,base_dir,output_path,sprites,subtyp
 	sprintf(output_path,"%.255ssteep_diag%s",output_dir,suffix);
 	write_track_section(context,&steep_diag,track_type,base_dir,output_path,sprites,subtype);
 	}
+
 //Banked turns
 	if(groups&TRACK_GROUP_BANKED_TURNS)
 	{
@@ -438,31 +466,38 @@ write_track_section(context,&flat,track_type,base_dir,output_path,sprites,subtyp
 	write_track_section(context,&gentle_up_to_left_bank,track_type,base_dir,output_path,sprites,subtype);
 	sprintf(output_path,"%.255sgentle_up_to_right_bank%s",output_dir,suffix);
 	write_track_section(context,&gentle_up_to_right_bank,track_type,base_dir,output_path,sprites,subtype);
+	
 	sprintf(output_path,"%.255sleft_bank%s",output_dir,suffix);
-	write_track_section(context,&left_bank,track_type,base_dir,output_path,sprites,subtype);
-	sprintf(output_path,"%.255sflat_to_left_bank_diag%s",output_dir,suffix);
-	write_track_section(context,&flat_to_left_bank_diag,track_type,base_dir,output_path,sprites,subtype);
-	sprintf(output_path,"%.255sflat_to_right_bank_diag%s",output_dir,suffix);
-	write_track_section(context,&flat_to_right_bank_diag,track_type,base_dir,output_path,sprites,subtype);
-	sprintf(output_path,"%.255sleft_bank_to_gentle_up_diag%s",output_dir,suffix);
-	write_track_section(context,&left_bank_to_gentle_up_diag,track_type,base_dir,output_path,sprites,subtype);
-	sprintf(output_path,"%.255sright_bank_to_gentle_up_diag%s",output_dir,suffix);
-	write_track_section(context,&right_bank_to_gentle_up_diag,track_type,base_dir,output_path,sprites,subtype);
-	sprintf(output_path,"%.255sgentle_up_to_left_bank_diag%s",output_dir,suffix);
-	write_track_section(context,&gentle_up_to_left_bank_diag,track_type,base_dir,output_path,sprites,subtype);
-	sprintf(output_path,"%.255sgentle_up_to_right_bank_diag%s",output_dir,suffix);
-	write_track_section(context,&gentle_up_to_right_bank_diag,track_type,base_dir,output_path,sprites,subtype);
-	sprintf(output_path,"%.255sleft_bank_diag%s",output_dir,suffix);
-	write_track_section(context,&left_bank_diag,track_type,base_dir,output_path,sprites,subtype);
+	write_track_section(context,&semi_split_left_bank,track_type,base_dir,output_path,sprites,subtype);
+
+		if(groups&TRACK_GROUP_DIAGONALS)
+		{
+		sprintf(output_path,"%.255sflat_to_left_bank_diag%s",output_dir,suffix);
+		write_track_section(context,&flat_to_left_bank_diag,track_type,base_dir,output_path,sprites,subtype);
+		sprintf(output_path,"%.255sflat_to_right_bank_diag%s",output_dir,suffix);
+		write_track_section(context,&flat_to_right_bank_diag,track_type,base_dir,output_path,sprites,subtype);
+		sprintf(output_path,"%.255sleft_bank_to_gentle_up_diag%s",output_dir,suffix);
+		write_track_section(context,&left_bank_to_gentle_up_diag,track_type,base_dir,output_path,sprites,subtype);
+		sprintf(output_path,"%.255sright_bank_to_gentle_up_diag%s",output_dir,suffix);
+		write_track_section(context,&right_bank_to_gentle_up_diag,track_type,base_dir,output_path,sprites,subtype);
+		sprintf(output_path,"%.255sgentle_up_to_left_bank_diag%s",output_dir,suffix);
+		write_track_section(context,&gentle_up_to_left_bank_diag,track_type,base_dir,output_path,sprites,subtype);
+		sprintf(output_path,"%.255sgentle_up_to_right_bank_diag%s",output_dir,suffix);
+		write_track_section(context,&gentle_up_to_right_bank_diag,track_type,base_dir,output_path,sprites,subtype);
+		sprintf(output_path,"%.255sleft_bank_diag%s",output_dir,suffix);
+		write_track_section(context,&semi_split_left_bank_diag,track_type,base_dir,output_path,sprites,subtype);
+		}
+
 	sprintf(output_path,"%.255ssmall_turn_left_bank%s",output_dir,suffix);
-	write_track_section(context,&small_turn_left_bank,track_type,base_dir,output_path,sprites,subtype);
+	write_track_section(context,&semi_split_small_turn_left_bank,track_type,base_dir,output_path,sprites,subtype);
 	sprintf(output_path,"%.255smedium_turn_left_bank%s",output_dir,suffix);
-	write_track_section(context,&medium_turn_left_bank,track_type,base_dir,output_path,sprites,subtype);
+	write_track_section(context,&semi_split_medium_turn_left_bank,track_type,base_dir,output_path,sprites,subtype);
 	sprintf(output_path,"%.255slarge_turn_left_to_diag_bank%s",output_dir,suffix);
-	write_track_section(context,&large_turn_left_to_diag_bank,track_type,base_dir,output_path,sprites,subtype);
+	write_track_section(context,&semi_split_large_turn_left_to_diag_bank,track_type,base_dir,output_path,sprites,subtype);
 	sprintf(output_path,"%.255slarge_turn_right_to_diag_bank%s",output_dir,suffix);
-	write_track_section(context,&large_turn_right_to_diag_bank,track_type,base_dir,output_path,sprites,subtype);
+	write_track_section(context,&semi_split_large_turn_right_to_diag_bank,track_type,base_dir,output_path,sprites,subtype);
 	}
+
 //Sloped turns
 	if(groups&TRACK_GROUP_SLOPED_TURNS)
 	{
@@ -491,6 +526,7 @@ write_track_section(context,&flat,track_type,base_dir,output_path,sprites,subtyp
 	}
 
 //Sloped banked turns
+
 	if(groups&TRACK_GROUP_BANKED_SLOPED_TURNS)
 	{
 	sprintf(output_path,"%.255sgentle_up_to_gentle_up_left_bank%s",output_dir,suffix);
@@ -502,14 +538,13 @@ write_track_section(context,&flat,track_type,base_dir,output_path,sprites,subtyp
 	sprintf(output_path,"%.255sgentle_up_right_bank_to_gentle_up%s",output_dir,suffix);
 	write_track_section(context,&gentle_up_right_bank_to_gentle_up,track_type,base_dir,output_path,sprites,subtype);
 	sprintf(output_path,"%.255sleft_bank_to_gentle_up_left_bank%s",output_dir,suffix);
-	write_track_section(context,&left_bank_to_gentle_up_left_bank,track_type,base_dir,output_path,sprites,subtype);
+	write_track_section(context,&semi_split_left_bank_to_gentle_up_left_bank,track_type,base_dir,output_path,sprites,subtype);
 	sprintf(output_path,"%.255sright_bank_to_gentle_up_right_bank%s",output_dir,suffix);
-	write_track_section(context,&right_bank_to_gentle_up_right_bank,track_type,base_dir,output_path,sprites,subtype);
-
+	write_track_section(context,&semi_split_right_bank_to_gentle_up_right_bank,track_type,base_dir,output_path,sprites,subtype);
 	sprintf(output_path,"%.255sgentle_up_left_bank_to_left_bank%s",output_dir,suffix);
-	write_track_section(context,&gentle_up_left_bank_to_left_bank,track_type,base_dir,output_path,sprites,subtype);
+	write_track_section(context,&semi_split_gentle_up_left_bank_to_left_bank,track_type,base_dir,output_path,sprites,subtype);
 	sprintf(output_path,"%.255sgentle_up_right_bank_to_right_bank%s",output_dir,suffix);
-	write_track_section(context,&gentle_up_right_bank_to_right_bank,track_type,base_dir,output_path,sprites,subtype);
+	write_track_section(context,&semi_split_gentle_up_right_bank_to_right_bank,track_type,base_dir,output_path,sprites,subtype);
 	sprintf(output_path,"%.255sgentle_up_left_bank%s",output_dir,suffix);
 	write_track_section(context,&gentle_up_left_bank,track_type,base_dir,output_path,sprites,subtype);
 	sprintf(output_path,"%.255sgentle_up_right_bank%s",output_dir,suffix);
@@ -522,15 +557,15 @@ write_track_section(context,&flat,track_type,base_dir,output_path,sprites,subtyp
 	write_track_section(context,&gentle_up_left_bank_to_flat,track_type,base_dir,output_path,sprites,subtype);
 	sprintf(output_path,"%.255sgentle_up_right_bank_to_flat%s",output_dir,suffix);
 	write_track_section(context,&gentle_up_right_bank_to_flat,track_type,base_dir,output_path,sprites,subtype);
-
+	
 	sprintf(output_path,"%.255ssmall_turn_left_bank_gentle_up%s",output_dir,suffix);
-	write_track_section(context,&small_turn_left_bank_gentle_up,track_type,base_dir,output_path,sprites,subtype);
+	write_track_section(context,&semi_split_small_turn_left_bank_gentle_up,track_type,base_dir,output_path,sprites,subtype);
 	sprintf(output_path,"%.255ssmall_turn_right_bank_gentle_up%s",output_dir,suffix);
-	write_track_section(context,&small_turn_right_bank_gentle_up,track_type,base_dir,output_path,sprites,subtype);
+	write_track_section(context,&semi_split_small_turn_right_bank_gentle_up,track_type,base_dir,output_path,sprites,subtype);
 	sprintf(output_path,"%.255smedium_turn_left_bank_gentle_up%s",output_dir,suffix);
-	write_track_section(context,&medium_turn_left_bank_gentle_up,track_type,base_dir,output_path,sprites,subtype);
+	write_track_section(context,&semi_split_medium_turn_left_bank_gentle_up,track_type,base_dir,output_path,sprites,subtype);
 	sprintf(output_path,"%.255smedium_turn_right_bank_gentle_up%s",output_dir,suffix);
-	write_track_section(context,&medium_turn_right_bank_gentle_up,track_type,base_dir,output_path,sprites,subtype);
+	write_track_section(context,&semi_split_medium_turn_right_bank_gentle_up,track_type,base_dir,output_path,sprites,subtype);
 	}
 
 //Miscellaneous
@@ -552,7 +587,6 @@ write_track_section(context,&flat,track_type,base_dir,output_path,sprites,subtyp
 	sprintf(output_path,"%.255smedium_helix_right_up%s",output_dir,suffix);
 	write_track_section(context,&medium_helix_right_up,track_type,base_dir,output_path,sprites,subtype);
 	}
-
 //Inversions
 	if(groups&TRACK_GROUP_BARREL_ROLLS)
 	{
@@ -578,6 +612,7 @@ write_track_section(context,&flat,track_type,base_dir,output_path,sprites,subtyp
 	sprintf(output_path,"%.255squarter_loop_up%s",output_dir,suffix);
 	write_track_section(context,&quarter_loop_up,track_type,base_dir,output_path,sprites,subtype);
 	}
+
 return 0;
 }
 

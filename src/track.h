@@ -14,6 +14,7 @@ TRACK_ENTRY_BANK_RIGHT=16,
 TRACK_EXIT_BANK_LEFT=32,
 TRACK_EXIT_BANK_RIGHT=64,
 TRACK_NO_SUPPORTS=128,
+TRACK_OFFSET_SPRITE_MASK=256,
 TRACK_SPECIAL_STEEP_TO_VERTICAL=0x01000000,
 TRACK_SPECIAL_VERTICAL_TO_STEEP=0x02000000,
 TRACK_SPECIAL_VERTICAL=0x03000000,
@@ -85,10 +86,10 @@ SUPPORT_SPECIAL_VERTICAL_TO_STEEP=5,
 SUPPORT_SPECIAL_VERTICAL=6,
 SUPPORT_SPECIAL_VERTICAL_TWIST=7,
 SUPPORT_SPECIAL_BARREL_ROLL=8,
-SUPPORT_SPECIAL_HALF_LOOP=10,
-SUPPORT_SPECIAL_QUARTER_LOOP=11
+SUPPORT_SPECIAL_HALF_LOOP=9,
+SUPPORT_SPECIAL_QUARTER_LOOP=10
 };
-#define NUM_SUPPORT_MODELS 12
+#define NUM_SUPPORT_MODELS 11
 #define SUPPORT_SPECIAL_START SUPPORT_SPECIAL_STEEP_TO_VERTICAL
 
 typedef struct
@@ -240,3 +241,21 @@ extern track_section_t flat_to_steep_up;
 extern track_section_t steep_to_flat_up;
 
 extern track_section_t quarter_loop_up;
+
+
+extern track_section_t semi_split_left_bank;
+extern track_section_t semi_split_left_bank_diag;
+extern track_section_t semi_split_small_turn_left_bank;
+extern track_section_t semi_split_medium_turn_left_bank;
+extern track_section_t semi_split_large_turn_left_to_diag_bank;
+extern track_section_t semi_split_large_turn_right_to_diag_bank;
+
+extern track_section_t semi_split_left_bank_to_gentle_up_left_bank;
+extern track_section_t semi_split_right_bank_to_gentle_up_right_bank;
+extern track_section_t semi_split_gentle_up_left_bank_to_left_bank;
+extern track_section_t semi_split_gentle_up_right_bank_to_right_bank;
+
+extern track_section_t semi_split_small_turn_left_bank_gentle_up;
+extern track_section_t semi_split_small_turn_right_bank_gentle_up;
+extern track_section_t semi_split_medium_turn_left_bank_gentle_up;
+extern track_section_t semi_split_medium_turn_right_bank_gentle_up;
