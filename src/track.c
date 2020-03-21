@@ -5,7 +5,9 @@
 #include "track.h"
 
 
-//#define Z_OFFSET ((12.0/8.0)*0.75)
+const float track_base=12.375*0.0254;
+const float support_top=18*0.0254;
+const float pivot=0.5*(track_base+support_top);
 
 vector3_t change_coordinates(vector3_t a)
 {
@@ -41,9 +43,9 @@ track_point_t track_point;
 	track_point=curve(u);
 	}
 
-	if(flags&TRACK_DIAGONAL)track_point.position.x+=0.75*sqrt(6);
-track_point.position.y+=z_offset-1.5;
-	if(!(flags&TRACK_VERTICAL))track_point.position.z-=0.75*sqrt(6);
+	if(flags&TRACK_DIAGONAL)track_point.position.x+=0.5*TILE_SIZE;
+track_point.position.y+=z_offset-2*CLEARANCE_HEIGHT;
+	if(!(flags&TRACK_VERTICAL))track_point.position.z-=0.5*TILE_SIZE;
 return track_point;
 }
 
@@ -148,7 +150,24 @@ float scale=track_section->length/(num_meshes*track_type->length);
 
 float length=scale*track_type->length;
 	if(extrude_behind)num_meshes++;//TODO make extruded section straight
-float z_offset=((track_type->z_offset/8.0)*0.75);
+float z_offset=((track_type->z_offset/8.0)*CLEARANCE_HEIGHT);
+
+
+mesh_t* mesh;
+		switch(subtype)
+		{
+		case TRACK_SUBTYPE_DEFAULT:
+			mesh=&(track_type->mesh);
+		break;	
+		case TRACK_SUBTYPE_LIFT:
+			mesh=&(track_type->lift_mesh);
+		break;
+		default:
+			assert(0);
+		break;
+		}
+
+
 
 #define DENOM 2
 
@@ -165,8 +184,10 @@ context_begin_render(context);
 	args.flags=track_section->flags;
 	args.length=track_section->length;
 	context_add_model_transformed(context,&(track_type->mask),track_transform,&args,0);
+	context_add_model_transformed(context,mesh,track_transform,&args,0);
 	args.offset=track_section->length;
 	context_add_model_transformed(context,&(track_type->mask),track_transform,&args,0);
+	context_add_model_transformed(context,mesh,track_transform,&args,0);
 	}
 
 	for(int i=0;i<num_meshes;i++)
@@ -178,17 +199,11 @@ context_begin_render(context);
 	args.track_curve=track_section->curve;
 	args.flags=track_section->flags;
 	args.length=track_section->length;
+		
      		if(track_mask)context_add_model_transformed(context,&(track_type->mask),track_transform,&args,0);
-		switch(subtype)
-		{
-		case TRACK_SUBTYPE_DEFAULT:
-		context_add_model_transformed(context,&(track_type->mesh),track_transform,&args,track_mask); 
-		break;	
-		case TRACK_SUBTYPE_LIFT:
-		context_add_model_transformed(context,&(track_type->lift_mesh),track_transform,&args,track_mask); 
-		break;
-		}
+	context_add_model_transformed(context,mesh,track_transform,&args,track_mask); 
 		if((track_type->flags&TRACK_HAS_SUPPORTS)&&!(track_section->flags&TRACK_NO_SUPPORTS))context_add_model_transformed(context,&(track_type->supports[SUPPORT_BASE]),base_transform,&args,track_mask); 
+	
 	}
 
 	if(track_section->flags&TRACK_SPECIAL_MASK)
@@ -203,7 +218,7 @@ context_begin_render(context);
 			mat.entries[7]*=-1;
 			mat.entries[8]*=-1;
 			}
-		context_add_model(context,&(track_type->supports[index]),transform(mat,vector3(index==SUPPORT_SPECIAL_BARREL_ROLL?-0.5*TILE_SIZE:0,z_offset-1.5,0)),track_mask); 
+		context_add_model(context,&(track_type->supports[index]),transform(mat,vector3(index==SUPPORT_SPECIAL_BARREL_ROLL?-0.5*TILE_SIZE:0,z_offset-2*CLEARANCE_HEIGHT,0)),track_mask); 
 		}
 	}
 
@@ -227,10 +242,17 @@ context_begin_render(context);
 		int u=(i*DENOM)/num_supports;
 		int bank_angle=(entry*(DENOM-u)+(exit*u))/DENOM;
 
-		track_point_t track_point=only_yaw(get_track_point(track_section->curve,track_section->flags,z_offset,track_section->length,i*support_step));
-		matrix_t rotation=matrix(track_point.binormal.x,track_point.normal.x,track_point.tangent.x,track_point.binormal.y,track_point.normal.y,track_point.tangent.y,track_point.binormal.z,track_point.normal.z,track_point.tangent.z);
+		track_point_t track_point=get_track_point(track_section->curve,track_section->flags,z_offset,track_section->length,i*support_step);
+
+		track_point_t support_point=only_yaw(track_point);
+
+		matrix_t rotation=matrix(support_point.binormal.x,support_point.normal.x,support_point.tangent.x,support_point.binormal.y,support_point.normal.y,support_point.tangent.y,support_point.binormal.z,support_point.normal.z,support_point.tangent.z);
 			if(bank_angle<0)rotation=matrix_mult(views[2],rotation);
-		context_add_model(context,&(track_type->supports[get_support_index(bank_angle)]),transform(rotation,change_coordinates(track_point.position)),track_mask); 
+
+		vector3_t translation=change_coordinates(support_point.position);
+		translation.y-=pivot/sqrt(track_point.tangent.x*track_point.tangent.x+track_point.tangent.z*track_point.tangent.z)-pivot;
+
+		context_add_model(context,&(track_type->supports[get_support_index(bank_angle)]),transform(rotation,translation),track_mask); 
 		}
 	}
 
@@ -497,7 +519,6 @@ write_track_section(context,&flat,track_type,base_dir,output_path,sprites,subtyp
 	sprintf(output_path,"%.255slarge_turn_right_to_diag_bank%s",output_dir,suffix);
 	write_track_section(context,&semi_split_large_turn_right_to_diag_bank,track_type,base_dir,output_path,sprites,subtype);
 	}
-
 //Sloped turns
 	if(groups&TRACK_GROUP_SLOPED_TURNS)
 	{
@@ -576,17 +597,19 @@ write_track_section(context,&flat,track_type,base_dir,output_path,sprites,subtyp
 	sprintf(output_path,"%.255ss_bend_right%s",output_dir,suffix);
 	write_track_section(context,&s_bend_right,track_type,base_dir,output_path,sprites,subtype);
 	}
+
 	if(groups&TRACK_GROUP_HELICES)
 	{
 	sprintf(output_path,"%.255ssmall_helix_left_up%s",output_dir,suffix);
-	write_track_section(context,&small_helix_left_up,track_type,base_dir,output_path,sprites,subtype);
+	write_track_section(context,&semi_split_small_helix_left_up,track_type,base_dir,output_path,sprites,subtype);
 	sprintf(output_path,"%.255ssmall_helix_right_up%s",output_dir,suffix);
-	write_track_section(context,&small_helix_right_up,track_type,base_dir,output_path,sprites,subtype);
+	write_track_section(context,&semi_split_small_helix_right_up,track_type,base_dir,output_path,sprites,subtype);
 	sprintf(output_path,"%.255smedium_helix_left_up%s",output_dir,suffix);
-	write_track_section(context,&medium_helix_left_up,track_type,base_dir,output_path,sprites,subtype);
+	write_track_section(context,&semi_split_medium_helix_left_up,track_type,base_dir,output_path,sprites,subtype);
 	sprintf(output_path,"%.255smedium_helix_right_up%s",output_dir,suffix);
-	write_track_section(context,&medium_helix_right_up,track_type,base_dir,output_path,sprites,subtype);
+	write_track_section(context,&semi_split_medium_helix_right_up,track_type,base_dir,output_path,sprites,subtype);
 	}
+
 //Inversions
 	if(groups&TRACK_GROUP_BARREL_ROLLS)
 	{
@@ -612,7 +635,6 @@ write_track_section(context,&flat,track_type,base_dir,output_path,sprites,subtyp
 	sprintf(output_path,"%.255squarter_loop_up%s",output_dir,suffix);
 	write_track_section(context,&quarter_loop_up,track_type,base_dir,output_path,sprites,subtype);
 	}
-
 return 0;
 }
 

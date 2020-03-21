@@ -8,7 +8,7 @@
 context_t get_context(light_t* lights,uint32_t num_lights)
 {
 context_t context;
-context_init(&context,lights,num_lights,palette_rct2(),1.5*sqrt(6));
+context_init(&context,lights,num_lights,palette_rct2(),TILE_SIZE);
 //context.palette.colors[0].r=0;
 //context.palette.colors[0].g=0;
 //context.palette.colors[0].b=0;

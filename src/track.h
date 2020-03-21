@@ -3,7 +3,9 @@
 #include <model.h>
 
 
-#define TILE_SIZE 3.67423461417477
+#define TILE_SIZE 3.3//3.67423461417477
+#define CLEARANCE_HEIGHT (0.20412414523*TILE_SIZE)
+
 
 enum {
 TRACK_DIAGONAL=1,
@@ -259,3 +261,8 @@ extern track_section_t semi_split_small_turn_left_bank_gentle_up;
 extern track_section_t semi_split_small_turn_right_bank_gentle_up;
 extern track_section_t semi_split_medium_turn_left_bank_gentle_up;
 extern track_section_t semi_split_medium_turn_right_bank_gentle_up;
+
+extern track_section_t semi_split_small_helix_left_up;
+extern track_section_t semi_split_small_helix_right_up;
+extern track_section_t semi_split_medium_helix_left_up;
+extern track_section_t semi_split_medium_helix_right_up;
