@@ -64,6 +64,8 @@ uint32_t groups=0;
 		else if(strcmp(json_string_value(group_name),"barrel_rolls")==0)groups|=TRACK_GROUP_BARREL_ROLLS;
 		else if(strcmp(json_string_value(group_name),"quarter_loops")==0)groups|=TRACK_GROUP_QUARTER_LOOPS|TRACK_GROUP_VERTICAL_SLOPES|TRACK_GROUP_STEEP_SLOPES|TRACK_GROUP_GENTLE_SLOPES;
 		else if(strcmp(json_string_value(group_name),"half_loops")==0)groups|=TRACK_GROUP_HALF_LOOPS;
+		else if(strcmp(json_string_value(group_name),"boosters")==0)groups|=TRACK_GROUP_BOOSTERS;
+		else if(strcmp(json_string_value(group_name),"launched_lifts")==0)groups|=TRACK_GROUP_LAUNCHED_LIFTS;
 		else
 		{
 		printf("Error: Unrecognized section group \"%s\"\n",json_string_value(group_name));
@@ -191,7 +193,7 @@ json_t* models=json_object_get(json,"models");
 
 const char* support_model_names[NUM_SUPPORT_MODELS]={"support_flat","support_bank_half","support_bank","support_base","support_steep_to_vertical","support_vertical_to_steep","support_vertical","support_vertical_twist","support_barrel_roll","support_half_loop","support_quarter_loop"};
 
-track_type->models_loaded|=0;
+track_type->models_loaded=0;
 	for(int i=0;i<NUM_SUPPORT_MODELS;i++)
 	{
 	int result=load_model(&(track_type->supports[i]),models,support_model_names[i]);

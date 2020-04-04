@@ -72,7 +72,9 @@ TRACK_GROUP_HELICES=1024,
 TRACK_GROUP_LARGE_SLOPE_TRANSITIONS=2048,
 TRACK_GROUP_BARREL_ROLLS=4096,
 TRACK_GROUP_HALF_LOOPS=8192,
-TRACK_GROUP_QUARTER_LOOPS=16384
+TRACK_GROUP_QUARTER_LOOPS=16384,
+TRACK_GROUP_BOOSTERS=32768,
+TRACK_GROUP_LAUNCHED_LIFTS=65536
 };
 
 
@@ -266,3 +268,5 @@ extern track_section_t semi_split_small_helix_left_up;
 extern track_section_t semi_split_small_helix_right_up;
 extern track_section_t semi_split_medium_helix_left_up;
 extern track_section_t semi_split_medium_helix_right_up;
+
+extern track_section_t semi_split_quarter_loop_up;

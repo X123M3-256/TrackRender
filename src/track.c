@@ -258,6 +258,8 @@ context_begin_render(context);
 
 
 context_finalize_render(context);
+
+
 	for(int i=0;i<4;i++)
 	{
 		if(rendered_views&(1<<i))
@@ -282,7 +284,6 @@ return 0;
 void write_track_section(context_t* context,track_section_t* track_section,track_type_t* track_type,const char* base_directory,const char* filename,json_t* sprites,int subtype)
 {
 int z_offset=(int)(track_type->z_offset+0.499999);
-
 image_t full_sprites[4];
 	if(track_section->flags&TRACK_EXTRUDE_BEHIND)
 	{
@@ -295,6 +296,9 @@ image_t track_masks[4];
 int track_mask_views=0;
 	for(int i=0;i<4;i++)track_mask_views|=(track_section->views[i].flags&VIEW_NEEDS_TRACK_MASK?1:0)<<i;
 	if(track_mask_views!=0)render_track_section(context,track_section,track_type,0,1,track_mask_views,track_masks,subtype);
+
+
+
 
 	for(int angle=0;angle<4;angle++)
 	{
@@ -409,6 +413,14 @@ sprintf(output_path,"%.255sflat%s",output_dir,suffix);
 write_track_section(context,&flat,track_type,base_dir,output_path,sprites,subtype);
 	if(groups&TRACK_GROUP_BRAKES)
 	{
+	sprintf(output_path,"%.255sbrake%s",output_dir,suffix);
+	write_track_section(context,&flat,track_type,base_dir,output_path,sprites,subtype);
+	sprintf(output_path,"%.255sblock_brake%s",output_dir,suffix);
+	write_track_section(context,&flat,track_type,base_dir,output_path,sprites,subtype);
+	}
+	if(groups&TRACK_GROUP_BOOSTERS)
+	{
+	sprintf(output_path,"%.255sbooster%s",output_dir,suffix);
 	write_track_section(context,&flat,track_type,base_dir,output_path,sprites,subtype);
 	}
 
@@ -519,6 +531,7 @@ write_track_section(context,&flat,track_type,base_dir,output_path,sprites,subtyp
 	sprintf(output_path,"%.255slarge_turn_right_to_diag_bank%s",output_dir,suffix);
 	write_track_section(context,&semi_split_large_turn_right_to_diag_bank,track_type,base_dir,output_path,sprites,subtype);
 	}
+
 //Sloped turns
 	if(groups&TRACK_GROUP_SLOPED_TURNS)
 	{
@@ -633,7 +646,14 @@ write_track_section(context,&flat,track_type,base_dir,output_path,sprites,subtyp
 	if(groups&TRACK_GROUP_QUARTER_LOOPS)
 	{
 	sprintf(output_path,"%.255squarter_loop_up%s",output_dir,suffix);
-	write_track_section(context,&quarter_loop_up,track_type,base_dir,output_path,sprites,subtype);
+	write_track_section(context,&semi_split_quarter_loop_up,track_type,base_dir,output_path,sprites,subtype);
+	}
+
+//Launched lift
+	if(groups&TRACK_GROUP_LAUNCHED_LIFTS)
+	{
+	sprintf(output_path,"%.255spowered_lift%s",output_dir,suffix);
+	write_track_section(context,&gentle,track_type,base_dir,output_path,sprites,subtype);
 	}
 return 0;
 }
