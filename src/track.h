@@ -150,6 +150,7 @@ view_t views[4];
 int write_track_type(context_t* context,track_type_t* track_type,json_t* sprites,const char* base_dir,const char* output_dir);
 
 extern track_section_t flat;
+extern track_section_t flat_asymmetric;
 extern track_section_t flat_to_gentle_up;
 extern track_section_t flat_to_gentle_down;
 extern track_section_t gentle_up_to_flat;
