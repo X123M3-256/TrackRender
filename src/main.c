@@ -174,7 +174,6 @@ json_t* models=json_object_get(json,"models");
 	}
 	
 	if(load_model(&(track_type->mesh),models,"track"))return 1;
-
 	if(load_model(&(track_type->mask),models,"mask"))
 	{
 	mesh_destroy(&(track_type->mesh));
@@ -191,19 +190,19 @@ json_t* models=json_object_get(json,"models");
 		}
 	}
 
-const char* support_model_names[NUM_SUPPORT_MODELS]={"support_flat","support_bank_half","support_bank","support_base","support_steep_to_vertical","support_vertical_to_steep","support_vertical","support_vertical_twist","support_barrel_roll","support_half_loop","support_quarter_loop"};
+const char* support_model_names[NUM_MODELS]={"support_flat","support_bank_half","support_bank","support_base","brake","block_brake","support_steep_to_vertical","support_vertical_to_steep","support_vertical","support_vertical_twist","support_barrel_roll","support_half_loop","support_quarter_loop"};
 
 track_type->models_loaded=0;
-	for(int i=0;i<NUM_SUPPORT_MODELS;i++)
+	for(int i=0;i<NUM_MODELS;i++)
 	{
-	int result=load_model(&(track_type->supports[i]),models,support_model_names[i]);
+	int result=load_model(&(track_type->models[i]),models,support_model_names[i]);
 		if(result==0)track_type->models_loaded|=1<<i;
 		else if(result==1)
 		{
 		mesh_destroy(&(track_type->mesh));
 		mesh_destroy(&(track_type->mask));
 			if(track_type->flags&TRACK_HAS_LIFT)mesh_destroy(&(track_type->lift_mesh));
-			for(int j=0;j<i;j++)mesh_destroy(&(track_type->supports[j]));
+			for(int j=0;j<i;j++)mesh_destroy(&(track_type->models[j]));
 		return 1;
 		}
 	}

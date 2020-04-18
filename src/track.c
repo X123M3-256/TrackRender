@@ -97,18 +97,18 @@ int get_support_index(int bank)
 	switch(bank)
 	{
 	case 0:
-	return SUPPORT_FLAT;
+	return MODEL_FLAT;
 	break;
 	case -1:
 	case 1:
-	return SUPPORT_BANK_HALF;
+	return MODEL_BANK_HALF;
 	break;
 	case -2:
 	case 2:
-	return SUPPORT_BANK;
+	return MODEL_BANK;
 	break;
 	}
-return SUPPORT_FLAT;
+return MODEL_FLAT;
 }
 
 int get_special_index(int flags)
@@ -116,27 +116,33 @@ int get_special_index(int flags)
 	switch(flags&TRACK_SPECIAL_MASK)
 	{
 	case TRACK_SPECIAL_STEEP_TO_VERTICAL:
-		return SUPPORT_SPECIAL_STEEP_TO_VERTICAL;
+		return MODEL_SPECIAL_STEEP_TO_VERTICAL;
 	break;
 	case TRACK_SPECIAL_VERTICAL_TO_STEEP:
-		return SUPPORT_SPECIAL_VERTICAL_TO_STEEP;
+		return MODEL_SPECIAL_VERTICAL_TO_STEEP;
 	break;
 	case TRACK_SPECIAL_VERTICAL:
-		return SUPPORT_SPECIAL_VERTICAL;
+		return MODEL_SPECIAL_VERTICAL;
 	break;
 	case TRACK_SPECIAL_VERTICAL_TWIST_LEFT:
 	case TRACK_SPECIAL_VERTICAL_TWIST_RIGHT:
-		return SUPPORT_SPECIAL_VERTICAL_TWIST;
+		return MODEL_SPECIAL_VERTICAL_TWIST;
 	break;
 	case TRACK_SPECIAL_BARREL_ROLL_LEFT:
 	case TRACK_SPECIAL_BARREL_ROLL_RIGHT:
-		return SUPPORT_SPECIAL_BARREL_ROLL;
+		return MODEL_SPECIAL_BARREL_ROLL;
 	break;
 	case TRACK_SPECIAL_HALF_LOOP:
-		return SUPPORT_SPECIAL_HALF_LOOP;
+		return MODEL_SPECIAL_HALF_LOOP;
 	break;
 	case TRACK_SPECIAL_QUARTER_LOOP:
-		return SUPPORT_SPECIAL_QUARTER_LOOP;
+		return MODEL_SPECIAL_QUARTER_LOOP;
+	break;
+	case TRACK_SPECIAL_BRAKE:
+		return MODEL_SPECIAL_BRAKE;
+	break;
+	case TRACK_SPECIAL_BLOCK_BRAKE:
+		return MODEL_SPECIAL_BLOCK_BRAKE;
 	break;
 	}
 assert(0);
@@ -202,7 +208,7 @@ context_begin_render(context);
 		
      		if(track_mask)context_add_model_transformed(context,&(track_type->mask),track_transform,&args,0);
 	context_add_model_transformed(context,mesh,track_transform,&args,track_mask); 
-		if((track_type->models_loaded&(1<<SUPPORT_BASE))&&(track_type->flags&TRACK_HAS_SUPPORTS)&&!(track_section->flags&TRACK_NO_SUPPORTS))context_add_model_transformed(context,&(track_type->supports[SUPPORT_BASE]),base_transform,&args,track_mask); 
+		if((track_type->models_loaded&(1<<MODEL_BASE))&&(track_type->flags&TRACK_HAS_SUPPORTS)&&!(track_section->flags&TRACK_NO_SUPPORTS))context_add_model_transformed(context,&(track_type->models[MODEL_BASE]),base_transform,&args,track_mask); 
 	
 	}
 
@@ -218,7 +224,7 @@ context_begin_render(context);
 			mat.entries[7]*=-1;
 			mat.entries[8]*=-1;
 			}
-		context_add_model(context,&(track_type->supports[index]),transform(mat,vector3(index==SUPPORT_SPECIAL_BARREL_ROLL?-0.5*TILE_SIZE:0,z_offset-2*CLEARANCE_HEIGHT,0)),track_mask); 
+		context_add_model(context,&(track_type->models[index]),transform(mat,vector3(!(track_section->flags&TRACK_VERTICAL)?-0.5*TILE_SIZE:0,z_offset-2*CLEARANCE_HEIGHT,0)),track_mask); 
 		}
 	}
 
@@ -252,7 +258,7 @@ context_begin_render(context);
 		vector3_t translation=change_coordinates(support_point.position);
 		translation.y-=pivot/sqrt(track_point.tangent.x*track_point.tangent.x+track_point.tangent.z*track_point.tangent.z)-pivot;
 
-		context_add_model(context,&(track_type->supports[get_support_index(bank_angle)]),transform(rotation,translation),track_mask); 
+		context_add_model(context,&(track_type->models[get_support_index(bank_angle)]),transform(rotation,translation),track_mask); 
 		}
 	}
 
@@ -423,9 +429,9 @@ sprintf(output_path,"%.255sflat%s",output_dir,suffix);
 	if(groups&TRACK_GROUP_BRAKES)
 	{
 	sprintf(output_path,"%.255sbrake%s",output_dir,suffix);
-	write_track_section(context,&flat,track_type,base_dir,output_path,sprites,subtype,NULL);
+	write_track_section(context,&brake,track_type,base_dir,output_path,sprites,subtype,NULL);
 	sprintf(output_path,"%.255sblock_brake%s",output_dir,suffix);
-	write_track_section(context,&flat,track_type,base_dir,output_path,sprites,subtype,NULL);
+	write_track_section(context,&block_brake,track_type,base_dir,output_path,sprites,subtype,NULL);
 	}
 	if(groups&TRACK_GROUP_BOOSTERS)
 	{
