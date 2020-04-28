@@ -63,9 +63,11 @@ uint32_t groups=0;
 		else if(strcmp(json_string_value(group_name),"large_slope_transitions")==0)groups|=TRACK_GROUP_LARGE_SLOPE_TRANSITIONS|TRACK_GROUP_STEEP_SLOPES|TRACK_GROUP_GENTLE_SLOPES;
 		else if(strcmp(json_string_value(group_name),"barrel_rolls")==0)groups|=TRACK_GROUP_BARREL_ROLLS;
 		else if(strcmp(json_string_value(group_name),"quarter_loops")==0)groups|=TRACK_GROUP_QUARTER_LOOPS|TRACK_GROUP_VERTICAL_SLOPES|TRACK_GROUP_STEEP_SLOPES|TRACK_GROUP_GENTLE_SLOPES;
+		else if(strcmp(json_string_value(group_name),"corkscrews")==0)groups|=TRACK_GROUP_CORKSCREWS;
 		else if(strcmp(json_string_value(group_name),"half_loops")==0)groups|=TRACK_GROUP_HALF_LOOPS;
 		else if(strcmp(json_string_value(group_name),"boosters")==0)groups|=TRACK_GROUP_BOOSTERS;
 		else if(strcmp(json_string_value(group_name),"launched_lifts")==0)groups|=TRACK_GROUP_LAUNCHED_LIFTS;
+		else if(strcmp(json_string_value(group_name),"turn_bank_transitions")==0)groups|=TRACK_GROUP_TURN_BANK_TRANSITIONS;
 		else
 		{
 		printf("Error: Unrecognized section group \"%s\"\n",json_string_value(group_name));
@@ -190,7 +192,7 @@ json_t* models=json_object_get(json,"models");
 		}
 	}
 
-const char* support_model_names[NUM_MODELS]={"support_flat","support_bank_half","support_bank","support_base","brake","block_brake","support_steep_to_vertical","support_vertical_to_steep","support_vertical","support_vertical_twist","support_barrel_roll","support_half_loop","support_quarter_loop"};
+const char* support_model_names[NUM_MODELS]={"support_flat","support_bank_sixth","support_bank_third","support_bank_half","support_bank_two_thirds","support_bank_five_sixths","support_bank","support_base","brake","block_brake","support_steep_to_vertical","support_vertical_to_steep","support_vertical","support_vertical_twist","support_barrel_roll","support_half_loop","support_quarter_loop"};
 
 track_type->models_loaded=0;
 	for(int i=0;i<NUM_MODELS;i++)

@@ -91,6 +91,7 @@ out.normal=change_coordinates(vector3_add(vector3_mult(track_point.tangent,norma
 return out;
 }
 
+#define DENOM 6
 
 int get_support_index(int bank)
 {
@@ -101,10 +102,24 @@ int get_support_index(int bank)
 	break;
 	case -1:
 	case 1:
-	return MODEL_BANK_HALF;
+	return MODEL_BANK_SIXTH;
 	break;
 	case -2:
 	case 2:
+	return MODEL_BANK_THIRD;
+	case -3:
+	case 3:
+	return MODEL_BANK_HALF;
+	break;
+	case -4:
+	case 4:
+	return MODEL_BANK_TWO_THIRDS;
+	break;
+	case -5:
+	case 5:
+	return MODEL_BANK_FIVE_SIXTHS;
+	case -6:
+	case 6:
 	return MODEL_BANK;
 	break;
 	}
@@ -175,7 +190,6 @@ mesh_t* mesh;
 
 
 
-#define DENOM 2
 
 context_begin_render(context);
 
@@ -190,10 +204,10 @@ context_begin_render(context);
 	args.flags=track_section->flags;
 	args.length=track_section->length;
 	context_add_model_transformed(context,&(track_type->mask),track_transform,&args,0);
-	context_add_model_transformed(context,mesh,track_transform,&args,0);
+	//context_add_model_transformed(context,mesh,track_transform,&args,0);
 	args.offset=track_section->length;
 	context_add_model_transformed(context,&(track_type->mask),track_transform,&args,0);
-	context_add_model_transformed(context,mesh,track_transform,&args,0);
+	//context_add_model_transformed(context,mesh,track_transform,&args,0);
 	}
 
 	for(int i=0;i<num_meshes;i++)
@@ -356,7 +370,11 @@ int track_mask_views=0;
 						in_mask=in_mask||in_track_mask;
 						break;
 						}
+
+						if(sprite<view->num_sprites-1&&(view->masks[sprite].track_mask_op&TRACK_MASK_TRANSFER_NEXT)&&in_track_mask&&is_in_mask(x+full_sprites[angle].x_offset,y+full_sprites[angle].y_offset+((track_section->flags&TRACK_OFFSET_SPRITE_MASK)?(z_offset-8):0),view->masks+sprite+1))in_mask=1;
+						
 					}
+
 					if(view->flags&VIEW_ENFORCE_NON_OVERLAPPING)
 					{
 						for(int i=0;i<sprite;i++)
@@ -662,6 +680,20 @@ sprintf(output_path,"%.255sflat%s",output_dir,suffix);
 	{
 	sprintf(output_path,"%.255squarter_loop_up%s",output_dir,suffix);
 	write_track_section(context,&semi_split_quarter_loop_up,track_type,base_dir,output_path,sprites,subtype,NULL);
+	}
+	if(groups&TRACK_GROUP_CORKSCREWS)
+	{
+	sprintf(output_path,"%.255scorkscrew_left%s",output_dir,suffix);
+	write_track_section(context,&corkscrew_left,track_type,base_dir,output_path,sprites,subtype,NULL);
+	sprintf(output_path,"%.255scorkscrew_right%s",output_dir,suffix);
+	write_track_section(context,&corkscrew_right,track_type,base_dir,output_path,sprites,subtype,NULL);
+	}
+	if(groups&TRACK_GROUP_TURN_BANK_TRANSITIONS)
+	{
+	sprintf(output_path,"%.255ssmall_turn_left_bank_to_gentle_up%s",output_dir,suffix);
+	write_track_section(context,&small_turn_left_bank_to_gentle_up,track_type,base_dir,output_path,sprites,subtype,NULL);
+	sprintf(output_path,"%.255ssmall_turn_right_bank_to_gentle_up%s",output_dir,suffix);
+	write_track_section(context,&small_turn_right_bank_to_gentle_up,track_type,base_dir,output_path,sprites,subtype,NULL);
 	}
 
 //Launched lift
