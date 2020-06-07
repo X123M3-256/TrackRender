@@ -153,11 +153,18 @@ int get_special_index(int flags)
 	case TRACK_SPECIAL_QUARTER_LOOP:
 		return MODEL_SPECIAL_QUARTER_LOOP;
 	break;
+	case TRACK_SPECIAL_CORKSCREW_LEFT:
+	case TRACK_SPECIAL_CORKSCREW_RIGHT:
+		return MODEL_SPECIAL_CORKSCREW;
+	break;
 	case TRACK_SPECIAL_BRAKE:
 		return MODEL_SPECIAL_BRAKE;
 	break;
 	case TRACK_SPECIAL_BLOCK_BRAKE:
 		return MODEL_SPECIAL_BLOCK_BRAKE;
+	break;
+	case TRACK_SPECIAL_BOOSTER:
+		return MODEL_SPECIAL_BOOSTER;
 	break;
 	}
 assert(0);
@@ -232,7 +239,7 @@ context_begin_render(context);
 		if(track_type->models_loaded&(1<<index))
 		{
 		matrix_t mat=views[3];
-			if((track_section->flags&TRACK_SPECIAL_MASK)!=TRACK_SPECIAL_VERTICAL_TWIST_RIGHT&&(track_section->flags&TRACK_SPECIAL_MASK)!=TRACK_SPECIAL_BARREL_ROLL_RIGHT)
+			if((track_section->flags&TRACK_SPECIAL_MASK)!=TRACK_SPECIAL_VERTICAL_TWIST_RIGHT&&(track_section->flags&TRACK_SPECIAL_MASK)!=TRACK_SPECIAL_BARREL_ROLL_RIGHT&&(track_section->flags&TRACK_SPECIAL_MASK)!=TRACK_SPECIAL_CORKSCREW_RIGHT)
 			{
 			mat.entries[6]*=-1;
 			mat.entries[7]*=-1;
@@ -454,7 +461,7 @@ sprintf(output_path,"%.255sflat%s",output_dir,suffix);
 	if(groups&TRACK_GROUP_BOOSTERS)
 	{
 	sprintf(output_path,"%.255sbooster%s",output_dir,suffix);
-	write_track_section(context,&flat,track_type,base_dir,output_path,sprites,subtype,NULL);
+	write_track_section(context,&booster,track_type,base_dir,output_path,sprites,subtype,NULL);
 	}
 
 //Slopes

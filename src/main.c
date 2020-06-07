@@ -192,7 +192,7 @@ json_t* models=json_object_get(json,"models");
 		}
 	}
 
-const char* support_model_names[NUM_MODELS]={"support_flat","support_bank_sixth","support_bank_third","support_bank_half","support_bank_two_thirds","support_bank_five_sixths","support_bank","support_base","brake","block_brake","support_steep_to_vertical","support_vertical_to_steep","support_vertical","support_vertical_twist","support_barrel_roll","support_half_loop","support_quarter_loop"};
+const char* support_model_names[NUM_MODELS]={"support_flat","support_bank_sixth","support_bank_third","support_bank_half","support_bank_two_thirds","support_bank_five_sixths","support_bank","support_base","brake","block_brake","booster","support_steep_to_vertical","support_vertical_to_steep","support_vertical","support_vertical_twist","support_barrel_roll","support_half_loop","support_quarter_loop","support_corkscrew"};
 
 track_type->models_loaded=0;
 	for(int i=0;i<NUM_MODELS;i++)

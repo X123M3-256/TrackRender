@@ -679,7 +679,7 @@ mask_t corkscrew_left_masks[]={
 {0,21,0,0,corkscrew_left_rects+235},{TRACK_MASK_TRANSFER_NEXT,21,32,40,corkscrew_left_rects+256},{TRACK_MASK_DIFFERENCE,1,64,48,corkscrew_left_rects+277},
 };
 
-track_section_t corkscrew_left={TRACK_NO_SUPPORTS|TRACK_OFFSET_SPRITE_MASK,corkscrew_left_curve,CORKSCREW_LENGTH,{{VIEW_NEEDS_TRACK_MASK,3,corkscrew_left_masks},{VIEW_NEEDS_TRACK_MASK,3,corkscrew_left_masks+3},{VIEW_NEEDS_TRACK_MASK,3,corkscrew_left_masks+6},{VIEW_NEEDS_TRACK_MASK,3,corkscrew_left_masks+9}}};
+track_section_t corkscrew_left={TRACK_NO_SUPPORTS|TRACK_OFFSET_SPRITE_MASK|TRACK_SPECIAL_CORKSCREW_LEFT,corkscrew_left_curve,CORKSCREW_LENGTH,{{VIEW_NEEDS_TRACK_MASK,3,corkscrew_left_masks},{VIEW_NEEDS_TRACK_MASK,3,corkscrew_left_masks+3},{0,3,corkscrew_left_masks+6},{VIEW_NEEDS_TRACK_MASK,3,corkscrew_left_masks+9}}};
 
 rect_t corkscrew_right_rects[]=
 {
@@ -702,19 +702,20 @@ rect_t corkscrew_right_rects[]=
 };
 
 mask_t corkscrew_right_masks[]={
-{0,21,0,0,corkscrew_right_rects},{0,21,-32,40,corkscrew_right_rects+21},{0,1,-64,48,corkscrew_right_rects+42},
+{0,21,0,0,corkscrew_right_rects},{TRACK_MASK_TRANSFER_NEXT,21,-32,40,corkscrew_right_rects+21},{TRACK_MASK_DIFFERENCE,1,-64,48,corkscrew_right_rects+42},
 {0,33,0,0,corkscrew_right_rects+43},{0,33,-32,8,corkscrew_right_rects+76},{0,1,0,16,corkscrew_right_rects+109},
-{0,1,0,0,corkscrew_right_rects+110},{0,33,32,8,corkscrew_right_rects+111},{0,33,64,48,corkscrew_right_rects+144},
-{0,28,0,0,corkscrew_right_rects+177},{0,47,32,40,corkscrew_right_rects+205},{0,22,0,80,corkscrew_right_rects+252},
+{TRACK_MASK_TRANSFER_NEXT,1,0,0,corkscrew_right_rects+110},{TRACK_MASK_DIFFERENCE,33,32,8,corkscrew_right_rects+111},{0,33,64,48,corkscrew_right_rects+144},
+{TRACK_MASK_TRANSFER_NEXT,28,0,0,corkscrew_right_rects+177},{TRACK_MASK_DIFFERENCE,47,32,40,corkscrew_right_rects+205},{0,22,0,80,corkscrew_right_rects+252},
 };
 
-track_section_t corkscrew_right={TRACK_NO_SUPPORTS|TRACK_OFFSET_SPRITE_MASK,corkscrew_right_curve,CORKSCREW_LENGTH,{{VIEW_NEEDS_TRACK_MASK,3,corkscrew_right_masks},{VIEW_NEEDS_TRACK_MASK,3,corkscrew_right_masks+3},{VIEW_NEEDS_TRACK_MASK,3,corkscrew_right_masks+6},{VIEW_NEEDS_TRACK_MASK,3,corkscrew_right_masks+9}}};
+track_section_t corkscrew_right={TRACK_NO_SUPPORTS|TRACK_OFFSET_SPRITE_MASK|TRACK_SPECIAL_CORKSCREW_RIGHT,corkscrew_right_curve,CORKSCREW_LENGTH,{{VIEW_NEEDS_TRACK_MASK,3,corkscrew_right_masks},{0,3,corkscrew_right_masks+3},{VIEW_NEEDS_TRACK_MASK,3,corkscrew_right_masks+6},{VIEW_NEEDS_TRACK_MASK,3,corkscrew_right_masks+9}}};
 
 //Slopes
 track_section_t flat={0,flat_curve,FLAT_LENGTH,{{0,1,NULL},{0,1,NULL},{0,0,NULL},{0,0,NULL}}};
 track_section_t flat_asymmetric={0,flat_curve,FLAT_LENGTH,{{0,1,NULL},{0,1,NULL},{0,1,NULL},{0,1,NULL}}};
 track_section_t brake={TRACK_SPECIAL_BRAKE,flat_curve,FLAT_LENGTH,{{0,1,NULL},{0,1,NULL},{0,0,NULL},{0,0,NULL}}};
 track_section_t block_brake={TRACK_SPECIAL_BLOCK_BRAKE,flat_curve,FLAT_LENGTH,{{0,1,NULL},{0,1,NULL},{0,0,NULL},{0,0,NULL}}};
+track_section_t booster={TRACK_SPECIAL_BOOSTER,flat_curve,FLAT_LENGTH,{{0,1,NULL},{0,1,NULL},{0,0,NULL},{0,0,NULL}}};
 track_section_t flat_to_gentle_up={0,flat_to_gentle_up_curve,FLAT_TO_GENTLE_LENGTH,{{0,1,NULL},{0,1,NULL},{0,1,NULL},{0,1,NULL}}};
 //track_section_t flat_to_gentle_down={0,flat_to_gentle_down_curve,TILE_SIZE,{{0,1,NULL},{0,1,NULL},{0,1,NULL},{0,1,NULL}}};
 track_section_t gentle_up_to_flat={0,gentle_up_to_flat_curve,FLAT_TO_GENTLE_LENGTH,{{0,1,NULL},{0,1,NULL},{0,1,NULL},{0,1,NULL}}};
