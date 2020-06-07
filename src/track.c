@@ -227,6 +227,7 @@ context_begin_render(context);
 	args.flags=track_section->flags;
 	args.length=track_section->length;
 		
+
      		if(track_mask)context_add_model_transformed(context,&(track_type->mask),track_transform,&args,0);
 	context_add_model_transformed(context,mesh,track_transform,&args,track_mask); 
 		if((track_type->models_loaded&(1<<MODEL_BASE))&&(track_type->flags&TRACK_HAS_SUPPORTS)&&!(track_section->flags&TRACK_NO_SUPPORTS))context_add_model_transformed(context,&(track_type->models[MODEL_BASE]),base_transform,&args,track_mask); 
@@ -321,7 +322,7 @@ image_t full_sprites[4];
 
 	if(overlay!=NULL)
 	{
-		for(int i=0;i<4;i++)image_blit(full_sprites+i,overlay+i,0,0);
+		for(int i=0;i<4;i++)image_blit(full_sprites+i,overlay+i,0,12-z_offset);
 	}
 
 image_t track_masks[4];
