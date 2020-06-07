@@ -8,7 +8,12 @@ link_directories(/usr/local/Cellar/jansson/2.12/lib/)
 
 if(MSVC) # assumes vcpkg
       find_package(jansson CONFIG REQUIRED)
+      find_package(PNG REQUIRED)
+      find_package(embree 3 REQUIRED)
+      find_package(assimp CONFIG REQUIRED)
+      link_directories(${EMBREE_ROOT_DIR}/lib)
       set(JANSSON jansson::jansson)
+      add_definitions(/D_USE_MATH_DEFINES /DNOMINMAX /wd4305 /wd4244 /wd4996)
 else()
       set(JANSSON jansson)
 endif()

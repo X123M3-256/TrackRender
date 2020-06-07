@@ -5,8 +5,8 @@
 #include "track.h"
 #include "sprites.h"
 
-const float track_base=12.375*0.0254;
-const float support_top=18*0.0254;
+#define track_base (12.375*0.0254)
+#define support_top (18*0.0254)
 const float pivot=0.5*(track_base+support_top);
 
 vector3_t change_coordinates(vector3_t a)
