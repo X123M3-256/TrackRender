@@ -103,6 +103,7 @@ json_t* flags=json_object_get(json,"flags");
 			}
 			if(strcmp(json_string_value(flag_name),"has_lift")==0)track_type->flags|=TRACK_HAS_LIFT;
 			else if(strcmp(json_string_value(flag_name),"has_supports")==0)track_type->flags|=TRACK_HAS_SUPPORTS;
+			else if(strcmp(json_string_value(flag_name),"semi_split")==0)track_type->flags|=TRACK_SEMI_SPLIT;
 			else
 			{
 			printf("Error: Unrecognized flag \"%s\"\n",json_string_value(flag_name));

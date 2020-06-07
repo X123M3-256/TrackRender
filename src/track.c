@@ -447,6 +447,8 @@ int groups=0;
 	break;
 	}
 
+int semi_split=track_type->flags&TRACK_SEMI_SPLIT;
+
 //Flat
 sprintf(output_path,"%.255sflat%s",output_dir,suffix);
 	if(subtype==TRACK_SUBTYPE_LIFT)write_track_section(context,&flat_asymmetric,track_type,base_dir,output_path,sprites,subtype,flat_chain);
@@ -543,7 +545,7 @@ sprintf(output_path,"%.255sflat%s",output_dir,suffix);
 	write_track_section(context,&gentle_up_to_right_bank,track_type,base_dir,output_path,sprites,subtype,NULL);
 	
 	sprintf(output_path,"%.255sleft_bank%s",output_dir,suffix);
-	write_track_section(context,&semi_split_left_bank,track_type,base_dir,output_path,sprites,subtype,NULL);
+	write_track_section(context,semi_split?&semi_split_left_bank:&left_bank,track_type,base_dir,output_path,sprites,subtype,NULL);
 
 		if(groups&TRACK_GROUP_DIAGONALS)
 		{
@@ -560,17 +562,17 @@ sprintf(output_path,"%.255sflat%s",output_dir,suffix);
 		sprintf(output_path,"%.255sgentle_up_to_right_bank_diag%s",output_dir,suffix);
 		write_track_section(context,&gentle_up_to_right_bank_diag,track_type,base_dir,output_path,sprites,subtype,NULL);
 		sprintf(output_path,"%.255sleft_bank_diag%s",output_dir,suffix);
-		write_track_section(context,&semi_split_left_bank_diag,track_type,base_dir,output_path,sprites,subtype,NULL);
+		write_track_section(context,semi_split?&semi_split_left_bank_diag:&left_bank_diag,track_type,base_dir,output_path,sprites,subtype,NULL);
 		}
 
 	sprintf(output_path,"%.255ssmall_turn_left_bank%s",output_dir,suffix);
-	write_track_section(context,&semi_split_small_turn_left_bank,track_type,base_dir,output_path,sprites,subtype,NULL);
+	write_track_section(context,semi_split?&semi_split_small_turn_left_bank:&small_turn_left_bank,track_type,base_dir,output_path,sprites,subtype,NULL);
 	sprintf(output_path,"%.255smedium_turn_left_bank%s",output_dir,suffix);
-	write_track_section(context,&semi_split_medium_turn_left_bank,track_type,base_dir,output_path,sprites,subtype,NULL);
+	write_track_section(context,semi_split?&semi_split_medium_turn_left_bank:&medium_turn_left_bank,track_type,base_dir,output_path,sprites,subtype,NULL);
 	sprintf(output_path,"%.255slarge_turn_left_to_diag_bank%s",output_dir,suffix);
-	write_track_section(context,&semi_split_large_turn_left_to_diag_bank,track_type,base_dir,output_path,sprites,subtype,NULL);
+	write_track_section(context,semi_split?&semi_split_large_turn_left_to_diag_bank:&large_turn_left_to_diag_bank,track_type,base_dir,output_path,sprites,subtype,NULL);
 	sprintf(output_path,"%.255slarge_turn_right_to_diag_bank%s",output_dir,suffix);
-	write_track_section(context,&semi_split_large_turn_right_to_diag_bank,track_type,base_dir,output_path,sprites,subtype,NULL);
+	write_track_section(context,semi_split?&semi_split_large_turn_right_to_diag_bank:&large_turn_right_to_diag_bank,track_type,base_dir,output_path,sprites,subtype,NULL);
 	}
 
 //Sloped turns
@@ -613,13 +615,13 @@ sprintf(output_path,"%.255sflat%s",output_dir,suffix);
 	sprintf(output_path,"%.255sgentle_up_right_bank_to_gentle_up%s",output_dir,suffix);
 	write_track_section(context,&gentle_up_right_bank_to_gentle_up,track_type,base_dir,output_path,sprites,subtype,NULL);
 	sprintf(output_path,"%.255sleft_bank_to_gentle_up_left_bank%s",output_dir,suffix);
-	write_track_section(context,&semi_split_left_bank_to_gentle_up_left_bank,track_type,base_dir,output_path,sprites,subtype,NULL);
+	write_track_section(context,semi_split?&semi_split_left_bank_to_gentle_up_left_bank:&left_bank_to_gentle_up_left_bank,track_type,base_dir,output_path,sprites,subtype,NULL);
 	sprintf(output_path,"%.255sright_bank_to_gentle_up_right_bank%s",output_dir,suffix);
-	write_track_section(context,&semi_split_right_bank_to_gentle_up_right_bank,track_type,base_dir,output_path,sprites,subtype,NULL);
+	write_track_section(context,semi_split?&semi_split_right_bank_to_gentle_up_right_bank:&right_bank_to_gentle_up_right_bank,track_type,base_dir,output_path,sprites,subtype,NULL);
 	sprintf(output_path,"%.255sgentle_up_left_bank_to_left_bank%s",output_dir,suffix);
-	write_track_section(context,&semi_split_gentle_up_left_bank_to_left_bank,track_type,base_dir,output_path,sprites,subtype,NULL);
+	write_track_section(context,semi_split?&semi_split_gentle_up_left_bank_to_left_bank:&gentle_up_left_bank_to_left_bank,track_type,base_dir,output_path,sprites,subtype,NULL);
 	sprintf(output_path,"%.255sgentle_up_right_bank_to_right_bank%s",output_dir,suffix);
-	write_track_section(context,&semi_split_gentle_up_right_bank_to_right_bank,track_type,base_dir,output_path,sprites,subtype,NULL);
+	write_track_section(context,semi_split?&semi_split_gentle_up_right_bank_to_right_bank:&gentle_up_right_bank_to_right_bank,track_type,base_dir,output_path,sprites,subtype,NULL);
 	sprintf(output_path,"%.255sgentle_up_left_bank%s",output_dir,suffix);
 	write_track_section(context,&gentle_up_left_bank,track_type,base_dir,output_path,sprites,subtype,NULL);
 	sprintf(output_path,"%.255sgentle_up_right_bank%s",output_dir,suffix);
@@ -634,13 +636,13 @@ sprintf(output_path,"%.255sflat%s",output_dir,suffix);
 	write_track_section(context,&gentle_up_right_bank_to_flat,track_type,base_dir,output_path,sprites,subtype,NULL);
 	
 	sprintf(output_path,"%.255ssmall_turn_left_bank_gentle_up%s",output_dir,suffix);
-	write_track_section(context,&semi_split_small_turn_left_bank_gentle_up,track_type,base_dir,output_path,sprites,subtype,NULL);
+	write_track_section(context,semi_split?&semi_split_small_turn_left_bank_gentle_up:&small_turn_left_bank_gentle_up,track_type,base_dir,output_path,sprites,subtype,NULL);
 	sprintf(output_path,"%.255ssmall_turn_right_bank_gentle_up%s",output_dir,suffix);
-	write_track_section(context,&semi_split_small_turn_right_bank_gentle_up,track_type,base_dir,output_path,sprites,subtype,NULL);
+	write_track_section(context,semi_split?&semi_split_small_turn_right_bank_gentle_up:&small_turn_right_bank_gentle_up,track_type,base_dir,output_path,sprites,subtype,NULL);
 	sprintf(output_path,"%.255smedium_turn_left_bank_gentle_up%s",output_dir,suffix);
-	write_track_section(context,&semi_split_medium_turn_left_bank_gentle_up,track_type,base_dir,output_path,sprites,subtype,NULL);
+	write_track_section(context,semi_split?&semi_split_medium_turn_left_bank_gentle_up:&medium_turn_left_bank_gentle_up,track_type,base_dir,output_path,sprites,subtype,NULL);
 	sprintf(output_path,"%.255smedium_turn_right_bank_gentle_up%s",output_dir,suffix);
-	write_track_section(context,&semi_split_medium_turn_right_bank_gentle_up,track_type,base_dir,output_path,sprites,subtype,NULL);
+	write_track_section(context,semi_split?&semi_split_medium_turn_right_bank_gentle_up:&medium_turn_right_bank_gentle_up,track_type,base_dir,output_path,sprites,subtype,NULL);
 	}
 
 //Miscellaneous
@@ -655,13 +657,13 @@ sprintf(output_path,"%.255sflat%s",output_dir,suffix);
 	if(groups&TRACK_GROUP_HELICES)
 	{
 	sprintf(output_path,"%.255ssmall_helix_left_up%s",output_dir,suffix);
-	write_track_section(context,&semi_split_small_helix_left_up,track_type,base_dir,output_path,sprites,subtype,NULL);
+	write_track_section(context,semi_split?&semi_split_small_helix_left_up:&small_helix_left_up,track_type,base_dir,output_path,sprites,subtype,NULL);
 	sprintf(output_path,"%.255ssmall_helix_right_up%s",output_dir,suffix);
-	write_track_section(context,&semi_split_small_helix_right_up,track_type,base_dir,output_path,sprites,subtype,NULL);
+	write_track_section(context,semi_split?&semi_split_small_helix_right_up:&small_helix_right_up,track_type,base_dir,output_path,sprites,subtype,NULL);
 	sprintf(output_path,"%.255smedium_helix_left_up%s",output_dir,suffix);
-	write_track_section(context,&semi_split_medium_helix_left_up,track_type,base_dir,output_path,sprites,subtype,NULL);
+	write_track_section(context,semi_split?&semi_split_medium_helix_left_up:&medium_helix_left_up,track_type,base_dir,output_path,sprites,subtype,NULL);
 	sprintf(output_path,"%.255smedium_helix_right_up%s",output_dir,suffix);
-	write_track_section(context,&semi_split_medium_helix_right_up,track_type,base_dir,output_path,sprites,subtype,NULL);
+	write_track_section(context,semi_split?&semi_split_medium_helix_right_up:&medium_helix_right_up,track_type,base_dir,output_path,sprites,subtype,NULL);
 	}
 
 //Inversions
@@ -687,7 +689,7 @@ sprintf(output_path,"%.255sflat%s",output_dir,suffix);
 	if(groups&TRACK_GROUP_QUARTER_LOOPS)
 	{
 	sprintf(output_path,"%.255squarter_loop_up%s",output_dir,suffix);
-	write_track_section(context,&semi_split_quarter_loop_up,track_type,base_dir,output_path,sprites,subtype,NULL);
+	write_track_section(context,semi_split?&semi_split_quarter_loop_up:&quarter_loop_up,track_type,base_dir,output_path,sprites,subtype,NULL);
 	}
 	if(groups&TRACK_GROUP_CORKSCREWS)
 	{
