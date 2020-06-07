@@ -61,9 +61,9 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: bin-${{ matrix.triplet }}
-          path: '**\\*.exe'
+          path: '${{ runner.workspace }}/build/**/*.exe'
       - name: Upload binary (libs)
         uses: actions/upload-artifact@v2
         with:
           name: bin-${{ matrix.triplet }}
-          path: '**\\*.dll'
+          path: '${{ runner.workspace }}/build/**/*.dll'
