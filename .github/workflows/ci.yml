@@ -8,11 +8,11 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - platform: Win32
-            triplet: x86-windows
-            generator: VS16Win32
-            arch: x86
-            vcpkgPackages: 'assimp embree3 libpng jansson'
+          # - platform: Win32
+          #  triplet: x86-windows
+          #  generator: VS16Win32
+          #  arch: x86
+          #  vcpkgPackages: 'assimp embree3 libpng jansson'
           - platform: x64
             generator: VS16Win64
             arch: x64
