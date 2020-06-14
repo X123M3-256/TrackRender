@@ -1,0 +1,69 @@
+name: CI
+on: [push, pull_request]
+jobs:
+  windows:
+    name: Windows
+    runs-on: windows-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # - platform: Win32
+          #  triplet: x86-windows
+          #  generator: VS16Win32
+          #  arch: x86
+          #  vcpkgPackages: 'assimp embree3 libpng jansson'
+          - platform: x64
+            generator: VS16Win64
+            arch: x64
+            triplet: x64-windows
+            vcpkgPackages: 'assimp embree3 libpng jansson'
+    env:
+      CONFIGURATION: Release
+      PLATFORM: ${{ matrix.platform }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Checkout libIsoRender
+        uses: actions/checkout@v2
+        with:
+          repository: 'X123M3-256/libIsoRender'
+          path: 'libIsoRender'
+      - name: Checkout libImage
+        uses: actions/checkout@v2
+        with:
+          repository: 'X123M3-256/libImage'
+          path: 'libIsoRender/libImage'
+      - name: Install vcpkg and packages
+        uses: lukka/run-vcpkg@v2
+        id: runvcpkg
+        with:
+          vcpkgGitCommitId: 2f7a104d4d6f1f3790db929f85a4086aa6973d7f
+          vcpkgTriplet: '${{ matrix.triplet }}'
+          vcpkgArguments: '${{ matrix.vcpkgPackages }}'
+      - name: Upload libs
+        uses: actions/upload-artifact@v2
+        with:
+          name: libs-${{ matrix.triplet }}
+          path: ${{ steps.runvcpkg.outputs.RUNVCPKG_VCPKG_ROOT_OUT }}\\installed\\${{ matrix.triplet }}
+      - name: 'Build with CMake'
+        uses: lukka/run-cmake@v2
+        with:
+          cmakeListsOrSettingsJson: CMakeListsTxtAdvanced
+          useVcpkgToolchainFile: true
+          buildDirectory: '${{ runner.workspace }}/build'
+          cmakeAppendedArgs: '-A ${{ matrix.platform }}'
+          vcpkgTriplet: ${{ matrix.triplet}}
+          cmakeBuildType: Release
+          cmakeGenerator: ${{ matrix.generator }}
+          buildWithCMakeArgs: '--config Release -j 2'
+      - name: Upload binary
+        uses: actions/upload-artifact@v2
+        with:
+          name: bin-${{ matrix.triplet }}
+          path: '${{ runner.workspace }}/build/**/*.exe'
+      - name: Upload binary (libs)
+        uses: actions/upload-artifact@v2
+        with:
+          name: bin-${{ matrix.triplet }}
+          path: '${{ runner.workspace }}/build/**/*.dll'
