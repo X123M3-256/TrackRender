@@ -980,11 +980,11 @@ mask_t small_turn_right_gentle_up_masks[]={
 track_section_t small_turn_right_gentle_up={TRACK_OFFSET_SPRITE_MASK|TRACK_SUPPORT_BASE,small_turn_right_gentle_up_curve,SMALL_TURN_GENTLE_LENGTH,{{0,2,small_turn_right_gentle_up_masks},{0,2,small_turn_right_gentle_up_masks+2},{0,2,small_turn_right_gentle_up_masks+4},{0,2,small_turn_right_gentle_up_masks+6}}};
 rect_t medium_turn_left_gentle_up_rects[]={
 //First angle
-{INT32_MIN,-46,0,-18},{INT32_MIN,-18,INT32_MAX,INT32_MAX},
-{0,-46,INT32_MAX,-18},
+{INT32_MIN,-46,0,-18},{INT32_MIN,-18,32,INT32_MAX},
+{0,-46,INT32_MAX,-18},{32,-18,INT32_MAX,INT32_MAX},
 {0,0,0,0},
-{0,-91,INT32_MAX,-46},
-{INT32_MIN,INT32_MIN,INT32_MAX,-91},{INT32_MIN,-91,0,-46},
+{32,INT32_MIN,INT32_MAX,-91},{0,-91,INT32_MAX,-46},
+{INT32_MIN,INT32_MIN,32,-91},{INT32_MIN,-91,0,-46},
 //Second angle
 {INT32_MIN,INT32_MIN,32,INT32_MAX},
 {32,INT32_MIN,64,INT32_MAX},
@@ -1004,10 +1004,10 @@ rect_t medium_turn_left_gentle_up_rects[]={
 {-126,INT32_MIN,-64,-92},{-126,-92,-65,-88},{-126,-88,-66,-85},{-126,-85,-67,-82},{-126,-82,-68,-78},{-126,-78,-69,-75},{-126,-75,-70,-72},{-126,-72,-71,-69},{-125,-69,-71,-68},{-125,-68,-72,-67},{-124,-67,-72,-65},{-123,-65,-73,-64},{-122,-64,-73,-62},{-121,-62,-74,-61},{-120,-61,-74,-59},{-119,-59,-74,-58},{-119,-58,-75,-57},{-118,-57,-75,-56},{-117,-56,-75,-55},{-117,-55,-76,-54},{-116,-54,-76,-53},{-115,-53,-76,-52},{-115,-52,-77,-51},{-114,-51,-77,-50},{-113,-50,-77,-48},{-112,-48,-78,-46},{-111,-46,-78,-45},{-111,-45,-79,-44},{-110,-44,-79,-43},{-109,-43,-79,-42},{-109,-42,-80,-41},{-108,-41,-80,-40},{-107,-40,-80,-38},{-106,-38,-81,-37},{-105,-37,-81,-35},{-104,-35,-82,-33},{-103,-33,-82,-32},{-102,-32,-83,-30},{-101,-30,-83,-29},{-100,-29,-83,-28},{-100,-28,-84,-27},{-99,-27,-84,-26},{-98,-26,-84,-25},{-98,-25,-85,-24},{-97,-24,-85,-22},{-96,-22,-86,-21},{-95,-21,-86,-19},{-94,-19,-86,-18},{-93,-18,-87,-16},{-92,-16,-87,-15},{-91,-15,-88,-13},{-90,-13,-88,-12},{-90,-12,-89,-11},
 {INT32_MIN,INT32_MIN,-126,-69},{INT32_MIN,-69,-125,-67},{INT32_MIN,-67,-124,-65},{INT32_MIN,-65,-123,-64},{INT32_MIN,-64,-122,-62},{INT32_MIN,-62,-121,-61},{INT32_MIN,-61,-120,-59},{INT32_MIN,-59,-119,-57},{INT32_MIN,-57,-118,-56},{INT32_MIN,-56,-117,-54},{INT32_MIN,-54,-116,-53},{INT32_MIN,-53,-115,-51},{INT32_MIN,-51,-114,-50},{INT32_MIN,-50,-113,-48},{INT32_MIN,-48,-112,-46},{INT32_MIN,-46,-111,-44},{INT32_MIN,-44,-110,-43},{INT32_MIN,-43,-109,-41},{INT32_MIN,-41,-108,-40},{INT32_MIN,-40,-107,-38},{INT32_MIN,-38,-106,-37},{INT32_MIN,-37,-105,-35},{INT32_MIN,-35,-104,-33},{INT32_MIN,-33,-103,-32},{INT32_MIN,-32,-102,-30},{INT32_MIN,-30,-101,-29},{INT32_MIN,-29,-100,-27},{INT32_MIN,-27,-99,-26},{INT32_MIN,-26,-98,-24},{INT32_MIN,-24,-97,-22},{INT32_MIN,-22,-96,-21},{INT32_MIN,-21,-95,-19},{INT32_MIN,-19,-94,-18},{INT32_MIN,-18,-93,-16},{INT32_MIN,-16,-92,-15},{INT32_MIN,-15,-91,-13},{INT32_MIN,-13,-90,-11},{INT32_MIN,-11,-89,-8},{INT32_MIN,-8,-90,-5},{INT32_MIN,-5,-91,-2},{INT32_MIN,-2,-92,2},{INT32_MIN,2,-93,5},{INT32_MIN,5,-94,9},{INT32_MIN,9,-95,12},{INT32_MIN,12,-96,INT32_MAX},};
 mask_t medium_turn_left_gentle_up_masks[]={
-{0,2,0,0,medium_turn_left_gentle_up_rects},{0,1,-32,32,medium_turn_left_gentle_up_rects+2},{0,1,0,0,medium_turn_left_gentle_up_rects+3},{0,1,-32,80,medium_turn_left_gentle_up_rects+4},{0,2,0,112,medium_turn_left_gentle_up_rects+5},
-{0,1,0,0,medium_turn_left_gentle_up_rects+7},{0,1,-32,0,medium_turn_left_gentle_up_rects+8},{0,32,-64,24,medium_turn_left_gentle_up_rects+9},{0,76,-96,16,medium_turn_left_gentle_up_rects+41},{0,65,-128,48,medium_turn_left_gentle_up_rects+117},
-{0,1,0,0,medium_turn_left_gentle_up_rects+182},{0,1,0,0,medium_turn_left_gentle_up_rects+183},{0,1,0,-8,medium_turn_left_gentle_up_rects+184},{0,1,0,0,medium_turn_left_gentle_up_rects+185},{0,2,0,-16,medium_turn_left_gentle_up_rects+186},
-{0,33,0,0,medium_turn_left_gentle_up_rects+188},{0,36,32,32,medium_turn_left_gentle_up_rects+221},{0,43,64,24,medium_turn_left_gentle_up_rects+257},{0,53,96,48,medium_turn_left_gentle_up_rects+300},{0,45,128,48,medium_turn_left_gentle_up_rects+353}
+{0,2,0,0,medium_turn_left_gentle_up_rects},{0,2,-32,32,medium_turn_left_gentle_up_rects+2},{0,1,0,0,medium_turn_left_gentle_up_rects+4},{0,2,-32,80,medium_turn_left_gentle_up_rects+5},{0,2,0,112,medium_turn_left_gentle_up_rects+7},
+{0,1,0,0,medium_turn_left_gentle_up_rects+9},{0,1,-32,0,medium_turn_left_gentle_up_rects+10},{0,32,-64,24,medium_turn_left_gentle_up_rects+11},{0,76,-96,16,medium_turn_left_gentle_up_rects+43},{0,65,-128,48,medium_turn_left_gentle_up_rects+119},
+{0,1,0,0,medium_turn_left_gentle_up_rects+184},{0,1,0,0,medium_turn_left_gentle_up_rects+185},{0,1,0,-8,medium_turn_left_gentle_up_rects+186},{0,1,0,0,medium_turn_left_gentle_up_rects+187},{0,2,0,-16,medium_turn_left_gentle_up_rects+188},
+{0,33,0,0,medium_turn_left_gentle_up_rects+190},{0,36,32,32,medium_turn_left_gentle_up_rects+223},{0,43,64,24,medium_turn_left_gentle_up_rects+259},{0,53,96,48,medium_turn_left_gentle_up_rects+302},{0,45,128,48,medium_turn_left_gentle_up_rects+355}
 };
 track_section_t medium_turn_left_gentle_up={TRACK_OFFSET_SPRITE_MASK|TRACK_SUPPORT_BASE,medium_turn_left_gentle_up_curve,MEDIUM_TURN_GENTLE_LENGTH,{{0,5,medium_turn_left_gentle_up_masks},{0,5,medium_turn_left_gentle_up_masks+5},{0,5,medium_turn_left_gentle_up_masks+10},{0,5,medium_turn_left_gentle_up_masks+15}}};
 rect_t medium_turn_right_gentle_up_rects[]={
@@ -1030,17 +1030,17 @@ rect_t medium_turn_right_gentle_up_rects[]={
 {-97,INT32_MIN,-64,-72},{-98,-72,-64,-70},{-99,-70,-64,-69},{-100,-69,-64,-67},{-101,-67,-64,-65},{-102,-65,-64,-64},{-103,-64,-64,-62},{-104,-62,-64,-60},{-105,-60,-64,-58},{-106,-58,-64,-57},{-107,-57,-64,-55},{-108,-55,-64,-54},{-108,-54,-79,-53},{-109,-53,-79,-52},{-110,-52,-79,-51},{-110,-51,-80,-50},{-111,-50,-80,-48},{-112,-48,-81,-47},{-113,-47,-81,-45},{-114,-45,-82,-43},{-115,-43,-82,-42},{-115,-42,-83,-41},{-116,-41,-83,-40},{-117,-40,-83,-39},{-117,-39,-84,-38},{-118,-38,-84,-36},{-119,-36,-85,-35},{-120,-35,-85,-33},{-121,-33,-86,-31},{-122,-31,-86,-30},{-123,-30,-87,-28},{-124,-28,-88,-26},{-125,-26,-88,-25},{-126,-25,-89,-23},{-127,-23,-89,-22},{-127,-22,-90,-21},{-128,-21,-90,-20},{-129,-20,-90,-19},{-130,-19,-91,-17},{-131,-17,-91,-16},{-131,-16,-92,-15},{-132,-15,-92,-14},{-133,-14,-92,-13},{-133,-13,-93,-12},{-134,-12,-93,-11},{-135,-11,-93,-10},{-135,-10,-94,-9},{-136,-9,-94,-7},{-136,-7,-95,-4},{-136,-4,-96,-1},{-136,-1,-97,2},{-136,2,-98,5},{-136,5,-99,INT32_MAX},
 {INT32_MIN,INT32_MIN,-97,-72},{INT32_MIN,-72,-98,-70},{INT32_MIN,-70,-99,-69},{INT32_MIN,-69,-100,-67},{INT32_MIN,-67,-101,-65},{INT32_MIN,-65,-102,-64},{INT32_MIN,-64,-103,-62},{INT32_MIN,-62,-104,-60},{INT32_MIN,-60,-105,-58},{INT32_MIN,-58,-106,-57},{INT32_MIN,-57,-107,-55},{INT32_MIN,-55,-108,-53},{INT32_MIN,-53,-109,-52},{INT32_MIN,-52,-110,-50},{INT32_MIN,-50,-111,-48},{INT32_MIN,-48,-112,-47},{INT32_MIN,-47,-113,-45},{INT32_MIN,-45,-114,-43},{INT32_MIN,-43,-115,-41},{INT32_MIN,-41,-116,-40},{INT32_MIN,-40,-117,-38},{INT32_MIN,-38,-118,-36},{INT32_MIN,-36,-119,-35},{INT32_MIN,-35,-120,-33},{INT32_MIN,-33,-121,-31},{INT32_MIN,-31,-122,-30},{INT32_MIN,-30,-123,-28},{INT32_MIN,-28,-124,-26},{INT32_MIN,-26,-125,-25},{INT32_MIN,-25,-126,-23},{INT32_MIN,-23,-127,-21},{INT32_MIN,-21,-128,-20},{INT32_MIN,-20,-129,-19},{INT32_MIN,-19,-130,-17},{INT32_MIN,-17,-131,-15},{INT32_MIN,-15,-132,-14},{INT32_MIN,-14,-133,-12},{INT32_MIN,-12,-134,-11},{INT32_MIN,-11,-135,-9},{INT32_MIN,-9,-136,INT32_MAX},
 //Fourth angle
-{0,-46,INT32_MAX,-16},{INT32_MIN,-16,INT32_MAX,INT32_MAX},
-{INT32_MIN,-46,0,-16},
+{0,-46,INT32_MAX,-16},{-32,-16,INT32_MAX,INT32_MAX},
+{INT32_MIN,-46,0,-16},{INT32_MIN,-16,-32,INT32_MAX},
 {0,0,0,0},
-{INT32_MIN,-90,0,-46},
-{INT32_MIN,INT32_MIN,INT32_MAX,-90},{0,-90,INT32_MAX,-46}
+{INT32_MIN,INT32_MIN,-32,-90},{INT32_MIN,-90,0,-46},
+{-32,INT32_MIN,INT32_MAX,-90},{0,-90,INT32_MAX,-46},
 };
 mask_t medium_turn_right_gentle_up_masks[]={
 {0,33,0,0,medium_turn_right_gentle_up_rects},{0,36,-32,32,medium_turn_right_gentle_up_rects+33},{0,43,-64,24,medium_turn_right_gentle_up_rects+69},{0,53,-96,48,medium_turn_right_gentle_up_rects+112},{0,45,-128,48,medium_turn_right_gentle_up_rects+165},
 {0,1,0,0,medium_turn_right_gentle_up_rects+210},{0,1,-32,0,medium_turn_right_gentle_up_rects+211},{0,1,0,-8,medium_turn_right_gentle_up_rects+212},{0,1,-32,-8,medium_turn_right_gentle_up_rects+213},{0,2,0,-16,medium_turn_right_gentle_up_rects+214},
 {0,1,0,0,medium_turn_right_gentle_up_rects+216},{0,1,32,0,medium_turn_right_gentle_up_rects+217},{0,21,64,24,medium_turn_right_gentle_up_rects+218},{0,53,96,16,medium_turn_right_gentle_up_rects+239},{0,40,128,48,medium_turn_right_gentle_up_rects+292},
-{0,2,0,0,medium_turn_right_gentle_up_rects+332},{0,1,32,32,medium_turn_right_gentle_up_rects+334},{0,1,0,56,medium_turn_right_gentle_up_rects+335},{0,1,32,80,medium_turn_right_gentle_up_rects+336},{0,2,0,112,medium_turn_right_gentle_up_rects+337}
+{0,2,0,0,medium_turn_right_gentle_up_rects+332},{0,2,32,32,medium_turn_right_gentle_up_rects+334},{0,1,0,56,medium_turn_right_gentle_up_rects+336},{0,2,32,80,medium_turn_right_gentle_up_rects+337},{0,2,0,112,medium_turn_right_gentle_up_rects+339}
 };
 track_section_t medium_turn_right_gentle_up={TRACK_OFFSET_SPRITE_MASK|TRACK_SUPPORT_BASE,medium_turn_right_gentle_up_curve,MEDIUM_TURN_GENTLE_LENGTH,{{0,5,medium_turn_right_gentle_up_masks},{0,5,medium_turn_right_gentle_up_masks+5},{0,5,medium_turn_right_gentle_up_masks+10},{0,5,medium_turn_right_gentle_up_masks+15}}};
 rect_t none={0,0,0,0};
@@ -1534,10 +1534,10 @@ track_section_t semi_split_small_turn_right_bank_gentle_up={TRACK_BANK_RIGHT|TRA
 
 
 mask_t semi_split_medium_turn_left_bank_gentle_up_masks[]={
-{0,2,0,0,medium_turn_left_gentle_up_rects},{0,1,-32,32,medium_turn_left_gentle_up_rects+2},{0,1,0,0,medium_turn_left_gentle_up_rects+3},{0,1,-32,80,medium_turn_left_gentle_up_rects+4},{0,2,0,112,medium_turn_left_gentle_up_rects+5},
-{TRACK_MASK_INTERSECT,1,0,0,medium_turn_left_gentle_up_rects+7},{TRACK_MASK_DIFFERENCE,1,0,0,medium_turn_left_gentle_up_rects+7},{TRACK_MASK_INTERSECT,1,-32,0,medium_turn_left_gentle_up_rects+8},{TRACK_MASK_DIFFERENCE,1,-32,0,medium_turn_left_gentle_up_rects+8},{TRACK_MASK_INTERSECT,32,-64,24,medium_turn_left_gentle_up_rects+9},{TRACK_MASK_DIFFERENCE,32,-64,24,medium_turn_left_gentle_up_rects+9},{TRACK_MASK_INTERSECT,76,-96,16,medium_turn_left_gentle_up_rects+41},{TRACK_MASK_DIFFERENCE,76,-96,16,medium_turn_left_gentle_up_rects+41},{TRACK_MASK_INTERSECT,65,-128,48,medium_turn_left_gentle_up_rects+117},{TRACK_MASK_DIFFERENCE,65,-128,48,medium_turn_left_gentle_up_rects+117},
-{0,1,0,0,medium_turn_left_gentle_up_rects+182},{0,1,0,0,medium_turn_left_gentle_up_rects+183},{0,1,0,-8,medium_turn_left_gentle_up_rects+184},{0,1,0,0,medium_turn_left_gentle_up_rects+185},{TRACK_MASK_INTERSECT,2,0,-16,medium_turn_left_gentle_up_rects+186},{TRACK_MASK_DIFFERENCE,2,0,-16,medium_turn_left_gentle_up_rects+186},
-{0,33,0,0,medium_turn_left_gentle_up_rects+188},{0,36,32,32,medium_turn_left_gentle_up_rects+221},{0,43,64,24,medium_turn_left_gentle_up_rects+257},{0,53,96,48,medium_turn_left_gentle_up_rects+300},{0,45,128,48,medium_turn_left_gentle_up_rects+353}
+{0,2,0,0,medium_turn_left_gentle_up_rects},{0,2,-32,32,medium_turn_left_gentle_up_rects+2},{0,1,0,0,medium_turn_left_gentle_up_rects+4},{0,2,-32,80,medium_turn_left_gentle_up_rects+5},{0,2,0,112,medium_turn_left_gentle_up_rects+7},
+{TRACK_MASK_INTERSECT,1,0,0,medium_turn_left_gentle_up_rects+9},{TRACK_MASK_DIFFERENCE,1,0,0,medium_turn_left_gentle_up_rects+9},{TRACK_MASK_INTERSECT,1,-32,0,medium_turn_left_gentle_up_rects+10},{TRACK_MASK_DIFFERENCE,1,-32,0,medium_turn_left_gentle_up_rects+10},{TRACK_MASK_INTERSECT,32,-64,24,medium_turn_left_gentle_up_rects+11},{TRACK_MASK_DIFFERENCE,32,-64,24,medium_turn_left_gentle_up_rects+11},{TRACK_MASK_INTERSECT,76,-96,16,medium_turn_left_gentle_up_rects+43},{TRACK_MASK_DIFFERENCE,76,-96,16,medium_turn_left_gentle_up_rects+43},{TRACK_MASK_INTERSECT,65,-128,48,medium_turn_left_gentle_up_rects+119},{TRACK_MASK_DIFFERENCE,65,-128,48,medium_turn_left_gentle_up_rects+119},
+{0,1,0,0,medium_turn_left_gentle_up_rects+184},{0,1,0,0,medium_turn_left_gentle_up_rects+185},{0,1,0,-8,medium_turn_left_gentle_up_rects+186},{0,1,0,0,medium_turn_left_gentle_up_rects+187},{TRACK_MASK_INTERSECT,2,0,-16,medium_turn_left_gentle_up_rects+188},{TRACK_MASK_DIFFERENCE,2,0,-16,medium_turn_left_gentle_up_rects+188},
+{0,33,0,0,medium_turn_left_gentle_up_rects+190},{0,36,32,32,medium_turn_left_gentle_up_rects+223},{0,43,64,24,medium_turn_left_gentle_up_rects+259},{0,53,96,48,medium_turn_left_gentle_up_rects+302},{0,45,128,48,medium_turn_left_gentle_up_rects+355}
 };
 
 track_section_t semi_split_medium_turn_left_bank_gentle_up={TRACK_BANK_LEFT|TRACK_OFFSET_SPRITE_MASK|TRACK_SUPPORT_BASE,medium_turn_left_bank_gentle_up_curve,MEDIUM_TURN_GENTLE_LENGTH,{{0,5,semi_split_medium_turn_left_bank_gentle_up_masks},{VIEW_NEEDS_TRACK_MASK,10,semi_split_medium_turn_left_bank_gentle_up_masks+5},{VIEW_NEEDS_TRACK_MASK,6,semi_split_medium_turn_left_bank_gentle_up_masks+15},{0,5,semi_split_medium_turn_left_bank_gentle_up_masks+21}}};
@@ -1546,7 +1546,7 @@ mask_t semi_split_medium_turn_right_bank_gentle_up_masks[]={
 {0,33,0,0,medium_turn_right_gentle_up_rects},{0,36,-32,32,medium_turn_right_gentle_up_rects+33},{0,43,-64,24,medium_turn_right_gentle_up_rects+69},{0,53,-96,48,medium_turn_right_gentle_up_rects+112},{0,45,-128,48,medium_turn_right_gentle_up_rects+165},
 {0,1,0,0,medium_turn_right_gentle_up_rects+210},{0,1,-32,0,medium_turn_right_gentle_up_rects+211},{0,1,0,-8,medium_turn_right_gentle_up_rects+212},{0,1,-32,-8,medium_turn_right_gentle_up_rects+213},{TRACK_MASK_INTERSECT,2,0,-16,medium_turn_right_gentle_up_rects+214},{TRACK_MASK_DIFFERENCE,2,0,-16,medium_turn_right_gentle_up_rects+214},
 {TRACK_MASK_INTERSECT,1,0,0,medium_turn_right_gentle_up_rects+216},{TRACK_MASK_DIFFERENCE,1,0,0,medium_turn_right_gentle_up_rects+216},{TRACK_MASK_INTERSECT,1,32,0,medium_turn_right_gentle_up_rects+217},{TRACK_MASK_DIFFERENCE,1,32,0,medium_turn_right_gentle_up_rects+217},{TRACK_MASK_INTERSECT,21,64,24,medium_turn_right_gentle_up_rects+218},{TRACK_MASK_DIFFERENCE,21,64,24,medium_turn_right_gentle_up_rects+218},{TRACK_MASK_INTERSECT,53,96,16,medium_turn_right_gentle_up_rects+239},{TRACK_MASK_DIFFERENCE,53,96,16,medium_turn_right_gentle_up_rects+239},{TRACK_MASK_INTERSECT,40,128,48,medium_turn_right_gentle_up_rects+292},{TRACK_MASK_DIFFERENCE,40,128,48,medium_turn_right_gentle_up_rects+292},
-{0,2,0,0,medium_turn_right_gentle_up_rects+332},{0,1,32,32,medium_turn_right_gentle_up_rects+334},{0,1,0,56,medium_turn_right_gentle_up_rects+335},{0,1,32,80,medium_turn_right_gentle_up_rects+336},{0,2,0,112,medium_turn_right_gentle_up_rects+337}
+{0,2,0,0,medium_turn_right_gentle_up_rects+332},{0,2,32,32,medium_turn_right_gentle_up_rects+334},{0,1,0,56,medium_turn_right_gentle_up_rects+336},{0,2,32,80,medium_turn_right_gentle_up_rects+337},{0,2,0,112,medium_turn_right_gentle_up_rects+339}
 };
 
 track_section_t semi_split_medium_turn_right_bank_gentle_up={TRACK_BANK_RIGHT|TRACK_OFFSET_SPRITE_MASK|TRACK_SUPPORT_BASE,medium_turn_right_bank_gentle_up_curve,MEDIUM_TURN_GENTLE_LENGTH,{{0,5,semi_split_medium_turn_right_bank_gentle_up_masks},{VIEW_NEEDS_TRACK_MASK,6,semi_split_medium_turn_right_bank_gentle_up_masks+5},{VIEW_NEEDS_TRACK_MASK,10,semi_split_medium_turn_right_bank_gentle_up_masks+11},{0,5,semi_split_medium_turn_right_bank_gentle_up_masks+21}}};
