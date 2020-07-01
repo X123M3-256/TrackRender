@@ -32,6 +32,7 @@ TRACK_SPECIAL_CORKSCREW_RIGHT=0x0B000000,
 TRACK_SPECIAL_BRAKE=0x0C000000,
 TRACK_SPECIAL_BLOCK_BRAKE=0x0D000000,
 TRACK_SPECIAL_BOOSTER=0x0E000000,
+TRACK_SPECIAL_LAUNCHED_LIFT=0x0F000000,
 TRACK_SPECIAL_MASK=0xFF000000
 };
 
@@ -272,6 +273,8 @@ extern track_section_t corkscrew_right;
 
 extern track_section_t small_turn_left_bank_to_gentle_up;
 extern track_section_t small_turn_right_bank_to_gentle_up;
+
+extern track_section_t launched_lift;
 
 extern track_section_t semi_split_left_bank;
 extern track_section_t semi_split_left_bank_diag;

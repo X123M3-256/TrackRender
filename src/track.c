@@ -164,6 +164,7 @@ int get_special_index(int flags)
 		return MODEL_SPECIAL_BLOCK_BRAKE;
 	break;
 	case TRACK_SPECIAL_BOOSTER:
+	case TRACK_SPECIAL_LAUNCHED_LIFT:
 		return MODEL_SPECIAL_BOOSTER;
 	break;
 	}
@@ -231,8 +232,10 @@ context_begin_render(context);
      		if(track_mask)context_add_model_transformed(context,&(track_type->mask),track_transform,&args,0);
 	context_add_model_transformed(context,mesh,track_transform,&args,track_mask); 
 		if((track_type->models_loaded&(1<<MODEL_BASE))&&(track_type->flags&TRACK_HAS_SUPPORTS)&&!(track_section->flags&TRACK_NO_SUPPORTS))context_add_model_transformed(context,&(track_type->models[MODEL_BASE]),base_transform,&args,track_mask); 
-	
 	}
+
+	
+
 
 	if(track_section->flags&TRACK_SPECIAL_MASK)
 	{
@@ -245,6 +248,11 @@ context_begin_render(context);
 			mat.entries[6]*=-1;
 			mat.entries[7]*=-1;
 			mat.entries[8]*=-1;
+			}
+			if((track_section->flags&TRACK_SPECIAL_MASK)==TRACK_SPECIAL_LAUNCHED_LIFT)
+			{
+			mat=matrix_mult(mat,rotate_x(0.387596687));
+			mat=matrix_mult(mat,matrix(1,0,0,0,1,0,0,0,1.080123));
 			}
 		context_add_model(context,&(track_type->models[index]),transform(mat,vector3(!(track_section->flags&TRACK_VERTICAL)?-0.5*TILE_SIZE:0,z_offset-2*CLEARANCE_HEIGHT,0)),track_mask); 
 		}
@@ -322,7 +330,7 @@ image_t full_sprites[4];
 
 	if(overlay!=NULL)
 	{
-		for(int i=0;i<4;i++)image_blit(full_sprites+i,overlay+i,0,12-z_offset);
+		for(int i=0;i<4;i++)image_blit(full_sprites+i,overlay+i,0,14-z_offset);
 	}
 
 image_t track_masks[4];
@@ -477,6 +485,7 @@ sprintf(output_path,"%.255sflat%s",output_dir,suffix);
 	sprintf(output_path,"%.255sgentle%s",output_dir,suffix);
 	write_track_section(context,&gentle,track_type,base_dir,output_path,sprites,subtype,subtype==TRACK_SUBTYPE_LIFT?gentle_chain:NULL);
 	}
+
 	if(groups&TRACK_GROUP_STEEP_SLOPES)
 	{
 	sprintf(output_path,"%.255sgentle_to_steep_up%s",output_dir,suffix);
@@ -710,7 +719,7 @@ sprintf(output_path,"%.255sflat%s",output_dir,suffix);
 	if(groups&TRACK_GROUP_LAUNCHED_LIFTS)
 	{
 	sprintf(output_path,"%.255spowered_lift%s",output_dir,suffix);
-	write_track_section(context,&gentle,track_type,base_dir,output_path,sprites,subtype,NULL);
+	write_track_section(context,&launched_lift,track_type,base_dir,output_path,sprites,subtype,NULL);
 	}
 return 0;
 }
