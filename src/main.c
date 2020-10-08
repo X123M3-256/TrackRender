@@ -274,15 +274,19 @@ json_t* sprites=json_load_file(full_path,0,&error);
 	return 1;
 	}
 light_t lights[9]={
-{LIGHT_DIFFUSE,0,vector3_normalize(vector3(0.0,-1.0,0.0)),0.25},//Bottom
-{LIGHT_DIFFUSE,0,vector3_normalize(vector3(1.0,0.3,0.0)),0.426},//Back right
-{LIGHT_SPECULAR,0,vector3_normalize(vector3(1,1,-1)),1.0},//Main specular
-{LIGHT_DIFFUSE,0,vector3_normalize(vector3(1,0.65,-1)),0.55},//Main light
-{LIGHT_DIFFUSE,0,vector3(0.0,1.0,0.0),0.256},//Top
-{LIGHT_DIFFUSE,0,vector3_normalize(vector3(-1.0,0.0,0.0)),0.15},//Left
-{LIGHT_DIFFUSE,0,vector3_normalize(vector3(0.0,1.0,1.0)),0.063},//Back left
-{LIGHT_DIFFUSE,0,vector3_normalize(vector3(0.65,1.0,-0.65000000)),0.325},//Front right
-{LIGHT_DIFFUSE,0,vector3_normalize(vector3(-1.0,0.0,-1.0)),0.25},//Front
+{LIGHT_DIFFUSE,0,vector3_normalize(vector3(0.0,-1.0,0.0)),0.25},
+{LIGHT_DIFFUSE,0,vector3_normalize(vector3(1.0,0.3,0.0)),0.32},
+{LIGHT_SPECULAR,0,vector3_normalize(vector3(1,1,-1)),1.0},
+{LIGHT_DIFFUSE,0,vector3_normalize(vector3(1,0.65,-1)),0.8},
+/*
+{LIGHT_SPECULAR,0,vector3_normalize(vector3(1,0.63,-1)),1.0},
+{LIGHT_DIFFUSE,0,vector3_normalize(vector3(1,0.63,-1)),0.8},
+*/
+{LIGHT_DIFFUSE,0,vector3(0.0,1.0,0.0),0.174},
+{LIGHT_DIFFUSE,0,vector3_normalize(vector3(-1.0,0.0,0.0)),0.15},
+{LIGHT_DIFFUSE,0,vector3_normalize(vector3(0.0,1.0,1.0)),0.2},
+{LIGHT_DIFFUSE,0,vector3_normalize(vector3(0.65,0.816,-0.65000000)),0.25},
+{LIGHT_DIFFUSE,0,vector3_normalize(vector3(-1.0,0.0,-1.0)),0.25},
 };
 
 context_t context=get_context(lights,9);
