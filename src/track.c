@@ -458,10 +458,12 @@ int groups=0;
 int semi_split=track_type->flags&TRACK_SEMI_SPLIT;
 
 //Flat
-sprintf(output_path,"%.255sflat%s",output_dir,suffix);
+	if(groups&TRACK_GROUP_FLAT)
+	{
+	sprintf(output_path,"%.255sflat%s",output_dir,suffix);
 	if(subtype==TRACK_SUBTYPE_LIFT)write_track_section(context,&flat_asymmetric,track_type,base_dir,output_path,sprites,subtype,flat_chain);
 	else write_track_section(context,&flat,track_type,base_dir,output_path,sprites,subtype,NULL);
-
+	}
 	if(groups&TRACK_GROUP_BRAKES)
 	{
 	sprintf(output_path,"%.255sbrake%s",output_dir,suffix);
