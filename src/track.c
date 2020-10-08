@@ -420,6 +420,7 @@ int track_mask_views=0;
 			exit(1);
 			}
 		//if(view->flags&VIEW_NEEDS_TRACK_MASK)image_write_png(&(track_masks[angle]),file);
+		image_crop(&part_sprite);
 		image_write_png(&part_sprite,file);
 		fclose(file);	
 
@@ -716,6 +717,15 @@ int semi_split=track_type->flags&TRACK_SEMI_SPLIT;
 	sprintf(output_path,"%.255ssmall_turn_right_bank_to_gentle_up%s",output_dir,suffix);
 	write_track_section(context,&small_turn_right_bank_to_gentle_up,track_type,base_dir,output_path,sprites,subtype,NULL);
 	}
+	
+	if(groups&TRACK_GROUP_LARGE_HALF_LOOPS)
+	{
+	sprintf(output_path,"%.255slarge_half_loop_left%s",output_dir,suffix);
+	write_track_section(context,&large_half_loop_left,track_type,base_dir,output_path,sprites,subtype,NULL);
+	sprintf(output_path,"%.255slarge_half_loop_right%s",output_dir,suffix);
+	write_track_section(context,&large_half_loop_right,track_type,base_dir,output_path,sprites,subtype,NULL);
+	}
+	
 
 //Launched lift
 	if(groups&TRACK_GROUP_LAUNCHED_LIFTS)
