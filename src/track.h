@@ -87,7 +87,8 @@ TRACK_GROUP_CORKSCREWS=0x10000,
 TRACK_GROUP_BOOSTERS=0x20000,
 TRACK_GROUP_LAUNCHED_LIFTS=0x40000,
 TRACK_GROUP_TURN_BANK_TRANSITIONS=0x80000,
-TRACK_GROUP_LARGE_HALF_LOOPS=0x100000
+TRACK_GROUP_LARGE_HALF_LOOPS=0x100000,
+TRACK_GROUP_SMALL_SLOPE_TRANSITIONS=0x200000
 };
 
 
@@ -270,6 +271,10 @@ extern track_section_t large_half_loop_right;
 
 extern track_section_t flat_to_steep_up;
 extern track_section_t steep_to_flat_up;
+extern track_section_t small_flat_to_steep_up;
+extern track_section_t small_steep_to_flat_up;
+extern track_section_t small_flat_to_steep_up_diag;
+extern track_section_t small_steep_to_flat_up_diag;
 
 extern track_section_t quarter_loop_up;
 extern track_section_t corkscrew_left;

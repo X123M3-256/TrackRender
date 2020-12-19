@@ -61,6 +61,7 @@ uint32_t groups=0;
 		else if(strcmp(json_string_value(group_name),"banked_sloped_turns")==0)groups|=TRACK_GROUP_BANKED_SLOPED_TURNS;
 		else if(strcmp(json_string_value(group_name),"s_bends")==0)groups|=TRACK_GROUP_S_BENDS;
 		else if(strcmp(json_string_value(group_name),"helices")==0)groups|=TRACK_GROUP_HELICES;
+		else if(strcmp(json_string_value(group_name),"small_slope_transitions")==0)groups|=TRACK_GROUP_SMALL_SLOPE_TRANSITIONS;
 		else if(strcmp(json_string_value(group_name),"large_slope_transitions")==0)groups|=TRACK_GROUP_LARGE_SLOPE_TRANSITIONS;
 		else if(strcmp(json_string_value(group_name),"barrel_rolls")==0)groups|=TRACK_GROUP_BARREL_ROLLS;
 		else if(strcmp(json_string_value(group_name),"quarter_loops")==0)groups|=TRACK_GROUP_QUARTER_LOOPS;
@@ -113,6 +114,7 @@ json_t* flags=json_object_get(json,"flags");
 			}
 		}
 	}
+printf("Here\n");
 
 json_t* groups=json_object_get(json,"sections");
 	if(groups!=NULL)
@@ -266,7 +268,6 @@ json_t* json_spritefile_out=json_object_get(track,"spritefile_out");
 track_type_t track_type;
 
 	if(load_track_type(&track_type,track))return 1;
-
 char full_path[256];
 snprintf(full_path,256,"%s%s",base_dir,spritefile_in);
 json_t* sprites=json_load_file(full_path,0,&error);
@@ -275,14 +276,28 @@ json_t* sprites=json_load_file(full_path,0,&error);
 	printf("Error: %s in file %s line %d column %d\n",error.text,error.source,error.line,error.column);
 	return 1;
 	}
+/*
+light_t lights[9]={
+{LIGHT_DIFFUSE,0,vector3_normalize(vector3(0.0,-1.0,0.0)),0.25},//Bottom
+{LIGHT_DIFFUSE,0,vector3_normalize(vector3(1.0,0.3,0.0)),0.426},//Back right
+{LIGHT_SPECULAR,0,vector3_normalize(vector3(1,1,-1)),1.0},//Main specular
+{LIGHT_DIFFUSE,0,vector3_normalize(vector3(1,0.65,-1)),0.55},//Main light
+{LIGHT_DIFFUSE,0,vector3(0.0,1.0,0.0),0.256},//Top
+{LIGHT_DIFFUSE,0,vector3_normalize(vector3(-1.0,0.0,0.0)),0.15},//Left
+{LIGHT_DIFFUSE,0,vector3_normalize(vector3(0.0,1.0,1.0)),0.063},//Back left
+{LIGHT_DIFFUSE,0,vector3_normalize(vector3(0.65,1.0,-0.65000000)),0.325},//Front right
+{LIGHT_DIFFUSE,0,vector3_normalize(vector3(-1.0,0.0,-1.0)),0.25},//Front
+};
+*/
+
 light_t lights[9]={
 {LIGHT_DIFFUSE,0,vector3_normalize(vector3(0.0,-1.0,0.0)),0.25},
 {LIGHT_DIFFUSE,0,vector3_normalize(vector3(1.0,0.3,0.0)),0.32},
 {LIGHT_SPECULAR,0,vector3_normalize(vector3(1,1,-1)),1.0},
 {LIGHT_DIFFUSE,0,vector3_normalize(vector3(1,0.65,-1)),0.8},
 /*
-{LIGHT_SPECULAR,0,vector3_normalize(vector3(1,0.63,-1)),1.0},
-{LIGHT_DIFFUSE,0,vector3_normalize(vector3(1,0.63,-1)),0.8},
+{LIGHT_SPECULAR,1,vector3_normalize(vector3(1,0.63,-1)),1.0},
+{LIGHT_DIFFUSE,1,vector3_normalize(vector3(1,0.63,-1)),0.8},
 */
 {LIGHT_DIFFUSE,0,vector3(0.0,1.0,0.0),0.174},
 {LIGHT_DIFFUSE,0,vector3_normalize(vector3(-1.0,0.0,0.0)),0.15},
@@ -290,6 +305,7 @@ light_t lights[9]={
 {LIGHT_DIFFUSE,0,vector3_normalize(vector3(0.65,0.816,-0.65000000)),0.25},
 {LIGHT_DIFFUSE,0,vector3_normalize(vector3(-1.0,0.0,-1.0)),0.25},
 };
+
 
 context_t context=get_context(lights,9);
 

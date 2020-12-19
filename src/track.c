@@ -330,7 +330,7 @@ image_t full_sprites[4];
 
 	if(overlay!=NULL)
 	{
-		for(int i=0;i<4;i++)image_blit(full_sprites+i,overlay+i,0,14-z_offset);
+		for(int i=0;i<4;i++)image_blit(full_sprites+i,overlay+i,0,13-z_offset);//RMC was 14, make this a parameter
 	}
 
 image_t track_masks[4];
@@ -726,6 +726,17 @@ int semi_split=track_type->flags&TRACK_SEMI_SPLIT;
 	write_track_section(context,&large_half_loop_right,track_type,base_dir,output_path,sprites,subtype,NULL);
 	}
 	
+	if(groups&TRACK_GROUP_SMALL_SLOPE_TRANSITIONS)
+	{
+	sprintf(output_path,"%.255ssmall_flat_to_steep_up%s",output_dir,suffix);
+	write_track_section(context,&small_flat_to_steep_up,track_type,base_dir,output_path,sprites,subtype,subtype==TRACK_SUBTYPE_LIFT?small_flat_to_steep_up_chain:NULL);
+	sprintf(output_path,"%.255ssmall_steep_to_flat_up%s",output_dir,suffix);
+	write_track_section(context,&small_steep_to_flat_up,track_type,base_dir,output_path,sprites,subtype,subtype==TRACK_SUBTYPE_LIFT?small_steep_to_flat_up_chain:NULL);
+	sprintf(output_path,"%.255ssmall_flat_to_steep_up_diag%s",output_dir,suffix);
+	write_track_section(context,&small_flat_to_steep_up_diag,track_type,base_dir,output_path,sprites,subtype,subtype==TRACK_SUBTYPE_LIFT?small_flat_to_steep_up_diag_chain:NULL);
+	sprintf(output_path,"%.255ssmall_steep_to_flat_up_diag%s",output_dir,suffix);
+	write_track_section(context,&small_steep_to_flat_up_diag,track_type,base_dir,output_path,sprites,subtype,subtype==TRACK_SUBTYPE_LIFT?small_steep_to_flat_up_diag_chain:NULL);
+	}
 
 //Launched lift
 	if(groups&TRACK_GROUP_LAUNCHED_LIFTS)
