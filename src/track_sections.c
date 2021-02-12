@@ -83,7 +83,7 @@ track_point_t point;
 point.position=position;
 point.tangent=tangent;
 point.normal=vector3(0.0,tangent.z,-tangent.y);
-point.binormal=vector3(1.0,0.0,0.0);
+point.binormal=vector3(-1.0,0.0,0.0);
 return point;
 }
 track_point_t plane_curve_vertical_diagonal(vector3_t position,vector3_t tangent)
@@ -92,7 +92,7 @@ track_point_t point;
 point.position=position;
 point.tangent=tangent;
 point.normal=vector3(tangent.y/sqrt(2),tangent.z*sqrt(2),-tangent.y/sqrt(2));
-point.binormal=vector3(sqrt(0.5),0.0,sqrt(0.5)); 
+point.binormal=vector3(-sqrt(0.5),0.0,-sqrt(0.5)); 
 return point;
 }
 track_point_t plane_curve_horizontal(vector3_t position,vector3_t tangent)
@@ -101,7 +101,7 @@ track_point_t point;
 point.position=position;
 point.tangent=tangent;
 point.normal=vector3(0.0,1.0,0.0);
-point.binormal=vector3(tangent.z,0.0,-tangent.x);
+point.binormal=vector3(-tangent.z,0.0,tangent.x);
 return point;
 }
 
@@ -130,8 +130,8 @@ track_point_t banked_curve(track_point_t unbanked_curve,float angle)
 track_point_t point;
 point.position=unbanked_curve.position;
 point.tangent=unbanked_curve.tangent;
-point.normal=vector3_add(vector3_mult(unbanked_curve.normal,cos(angle)),vector3_mult(unbanked_curve.binormal,sin(angle)));
-point.binormal=vector3_add(vector3_mult(unbanked_curve.normal,-sin(angle)),vector3_mult(unbanked_curve.binormal,cos(angle)));
+point.normal=vector3_add(vector3_mult(unbanked_curve.normal,cos(angle)),vector3_mult(unbanked_curve.binormal,-sin(angle)));
+point.binormal=vector3_add(vector3_mult(unbanked_curve.normal,sin(angle)),vector3_mult(unbanked_curve.binormal,cos(angle)));
 return point;
 }
 
@@ -189,7 +189,7 @@ track_point_t point;
 point.position=vector3(1.5*TILE_SIZE*(1.0-cos(angle)),0,1.5*TILE_SIZE*sin(angle));
 point.tangent=vector3(sin(angle),0.0,cos(angle));
 point.normal=vector3(0.0,1.0,0.0);
-point.binormal=vector3_cross(point.normal,point.tangent);
+point.binormal=vector3_cross(point.tangent,point.normal);
 return point;
 }
 track_point_t small_turn_right_curve(float distance)
@@ -199,7 +199,7 @@ track_point_t point;
 point.position=vector3(1.5*TILE_SIZE*(cos(angle)-1.0),0,1.5*TILE_SIZE*sin(angle));
 point.tangent=vector3(-sin(angle),0.0,cos(angle));
 point.normal=vector3(0.0,1.0,0.0);
-point.binormal=vector3_cross(point.tangent,point.normal);
+point.binormal=vector3_cross(point.normal,point.tangent);
 return point;
 }
 track_point_t medium_turn_left_curve(float distance)
@@ -209,7 +209,7 @@ track_point_t point;
 point.position=vector3(2.5*TILE_SIZE*(1.0-cos(angle)),0,2.5*TILE_SIZE*sin(angle));
 point.tangent=vector3(sin(angle),0.0,cos(angle));
 point.normal=vector3(0.0,1.0,0.0);
-point.binormal=vector3_cross(point.normal,point.tangent);
+point.binormal=vector3_cross(point.tangent,point.normal);
 return point;
 }
 track_point_t large_turn_left_to_diag_curve(float distance)
@@ -340,7 +340,7 @@ float tangent_z=1.0/sqrt(1+gradient*gradient);
 float tangent_y=gradient/sqrt(1+gradient*gradient);
 point.tangent=vector3_normalize(vector3(tangent_z*sin(angle),tangent_y,tangent_z*cos(angle)));
 point.normal=vector3_normalize(vector3(-tangent_y*sin(angle),tangent_z,-tangent_y*cos(angle)));
-point.binormal=vector3_cross(point.normal,point.tangent);
+point.binormal=vector3_cross(point.tangent,point.normal);
 return point;
 }
 track_point_t sloped_turn_right_curve(float radius,float gradient,float distance)
@@ -353,7 +353,7 @@ float tangent_z=1.0/sqrt(1+gradient*gradient);
 float tangent_y=gradient/sqrt(1+gradient*gradient);
 point.tangent=vector3_normalize(vector3(-tangent_z*sin(angle),tangent_y,tangent_z*cos(angle)));
 point.normal=vector3_normalize(vector3(tangent_y*sin(angle),tangent_z,-tangent_y*cos(angle)));
-point.binormal=vector3_cross(point.normal,point.tangent);
+point.binormal=vector3_cross(point.tangent,point.normal);
 return point;
 }
 track_point_t small_turn_left_gentle_up_curve(float distance)
@@ -578,7 +578,7 @@ float angle=cubic(ra,rb,rc,rd,u);
 track_point.position=point;
 track_point.tangent=tangent;
 track_point.normal=vector3_add(vector3_mult(normal,cos(angle)),vector3_mult(binormal,sin(angle)));
-track_point.binormal=vector3_add(vector3_mult(normal,-sin(angle)),vector3_mult(binormal,cos(angle)));
+track_point.binormal=vector3_add(vector3_mult(normal,sin(angle)),vector3_mult(binormal,-cos(angle)));
 return track_point;
 }
 
@@ -658,8 +658,8 @@ float b=0.8673472459416303;
 track_point_t point;
 point.position=vector3(radius*(1.0-cos(0.5*M_PI*u)),u*(a*u+b),radius*sin(0.5*M_PI*u));
 point.tangent=vector3_normalize(vector3(0.5*M_PI*radius*sin(0.5*M_PI*u),(2*a*u+b),0.5*M_PI*radius*cos(0.5*M_PI*u)));
-point.binormal=vector3_normalize(vector3_cross(vector3(0,1,0),point.tangent));
-point.normal=vector3_cross(point.tangent,point.binormal);
+point.binormal=vector3_normalize(vector3_cross(point.tangent,vector3(0,1,0)));
+point.normal=vector3_cross(point.binormal,point.tangent);
 return banked_curve(point,0.25*(1-u)*M_PI);
 }
 

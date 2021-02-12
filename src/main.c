@@ -114,7 +114,6 @@ json_t* flags=json_object_get(json,"flags");
 			}
 		}
 	}
-printf("Here\n");
 
 json_t* groups=json_object_get(json,"sections");
 	if(groups!=NULL)
@@ -293,12 +292,13 @@ light_t lights[9]={
 light_t lights[9]={
 {LIGHT_DIFFUSE,0,vector3_normalize(vector3(0.0,-1.0,0.0)),0.25},
 {LIGHT_DIFFUSE,0,vector3_normalize(vector3(1.0,0.3,0.0)),0.32},
+/*
 {LIGHT_SPECULAR,0,vector3_normalize(vector3(1,1,-1)),1.0},
 {LIGHT_DIFFUSE,0,vector3_normalize(vector3(1,0.65,-1)),0.8},
-/*
+*/
 {LIGHT_SPECULAR,1,vector3_normalize(vector3(1,0.63,-1)),1.0},
 {LIGHT_DIFFUSE,1,vector3_normalize(vector3(1,0.63,-1)),0.8},
-*/
+
 {LIGHT_DIFFUSE,0,vector3(0.0,1.0,0.0),0.174},
 {LIGHT_DIFFUSE,0,vector3_normalize(vector3(-1.0,0.0,0.0)),0.15},
 {LIGHT_DIFFUSE,0,vector3_normalize(vector3(0.0,1.0,1.0)),0.2},

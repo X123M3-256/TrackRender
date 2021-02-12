@@ -201,22 +201,19 @@ mesh_t* mesh;
 
 context_begin_render(context);
 
-
-     	if(track_mask)
-	{
-	track_transform_args_t args;
-	args.scale=scale;
-	args.offset=-length;
-	args.z_offset=z_offset;
-	args.track_curve=track_section->curve;
-	args.flags=track_section->flags;
-	args.length=track_section->length;
-	context_add_model_transformed(context,&(track_type->mask),track_transform,&args,0);
-	//context_add_model_transformed(context,mesh,track_transform,&args,0);
-	args.offset=track_section->length;
-	context_add_model_transformed(context,&(track_type->mask),track_transform,&args,0);
-	//context_add_model_transformed(context,mesh,track_transform,&args,0);
-	}
+//Add ghost models/track masks at start and end
+track_transform_args_t args;
+args.scale=scale;
+args.offset=-length-1e-5;
+args.z_offset=z_offset;
+args.track_curve=track_section->curve;
+args.flags=track_section->flags;
+args.length=track_section->length;
+	if(track_mask)context_add_model_transformed(context,&(track_type->mask),track_transform,&args,0);//);
+	else if(!extrude_behind)context_add_model_transformed(context,mesh,track_transform,&args,MESH_GHOST);
+args.offset=track_section->length+1e-5;
+	if(track_mask)context_add_model_transformed(context,&(track_type->mask),track_transform,&args,0);//track_mask?0:MESH_GHOST);
+	else context_add_model_transformed(context,mesh,track_transform,&args,MESH_GHOST);
 
 	for(int i=0;i<num_meshes;i++)
 	{
@@ -242,7 +239,8 @@ context_begin_render(context);
 	int index=get_special_index(track_section->flags);
 		if(track_type->models_loaded&(1<<index))
 		{
-		matrix_t mat=views[3];
+		matrix_t mat=views[1];
+		mat.entries[6]*=-1; //Flip so faces point the right way - TODO sort out the coordinate system
 			if((track_section->flags&TRACK_SPECIAL_MASK)!=TRACK_SPECIAL_VERTICAL_TWIST_RIGHT&&(track_section->flags&TRACK_SPECIAL_MASK)!=TRACK_SPECIAL_BARREL_ROLL_RIGHT&&(track_section->flags&TRACK_SPECIAL_MASK)!=TRACK_SPECIAL_CORKSCREW_RIGHT)
 			{
 			mat.entries[6]*=-1;
@@ -457,6 +455,7 @@ int groups=0;
 	}
 
 int semi_split=track_type->flags&TRACK_SEMI_SPLIT;
+
 
 //Flat
 	if(groups&TRACK_GROUP_FLAT)
@@ -744,6 +743,7 @@ int semi_split=track_type->flags&TRACK_SEMI_SPLIT;
 	sprintf(output_path,"%.255spowered_lift%s",output_dir,suffix);
 	write_track_section(context,&launched_lift,track_type,base_dir,output_path,sprites,subtype,NULL);
 	}
+
 return 0;
 }
 
