@@ -436,7 +436,7 @@ int track_mask_views=0;
 	}
 }
 
-int write_track_subtype(context_t* context,track_type_t* track_type,json_t* sprites,const char* base_dir,const char* output_dir,int subtype)
+int write_track_subtype(context_t* context,track_type_t* track_type,track_list_t track_list,json_t* sprites,const char* base_dir,const char* output_dir,int subtype)
 {
 char output_path[300];
 const char* suffix="";
@@ -454,163 +454,166 @@ int groups=0;
 	break;
 	}
 
-int semi_split=track_type->flags&TRACK_SEMI_SPLIT;
-
-
 //Flat
 	if(groups&TRACK_GROUP_FLAT)
 	{
 	sprintf(output_path,"%.255sflat%s",output_dir,suffix);
-	if(subtype==TRACK_SUBTYPE_LIFT)write_track_section(context,&flat_asymmetric,track_type,base_dir,output_path,sprites,subtype,flat_chain);
-	else write_track_section(context,&flat,track_type,base_dir,output_path,sprites,subtype,NULL);
+	if(subtype==TRACK_SUBTYPE_LIFT)write_track_section(context,&(track_list.flat_asymmetric),track_type,base_dir,output_path,sprites,subtype,flat_chain);
+	else write_track_section(context,&(track_list.flat),track_type,base_dir,output_path,sprites,subtype,NULL);
 	}
 	if(groups&TRACK_GROUP_BRAKES)
 	{
 	sprintf(output_path,"%.255sbrake%s",output_dir,suffix);
-	write_track_section(context,&brake,track_type,base_dir,output_path,sprites,subtype,NULL);
+	write_track_section(context,&(track_list.brake),track_type,base_dir,output_path,sprites,subtype,NULL);
 	sprintf(output_path,"%.255sblock_brake%s",output_dir,suffix);
-	write_track_section(context,&block_brake,track_type,base_dir,output_path,sprites,subtype,NULL);
+	write_track_section(context,&(track_list.block_brake),track_type,base_dir,output_path,sprites,subtype,NULL);
 	}
 	if(groups&TRACK_GROUP_BOOSTERS)
 	{
 	sprintf(output_path,"%.255sbooster%s",output_dir,suffix);
-	write_track_section(context,&booster,track_type,base_dir,output_path,sprites,subtype,NULL);
+	write_track_section(context,&(track_list.booster),track_type,base_dir,output_path,sprites,subtype,NULL);
 	}
 
 //Slopes
 	if(groups&TRACK_GROUP_GENTLE_SLOPES)
 	{
 	sprintf(output_path,"%.255sflat_to_gentle_up%s",output_dir,suffix);
-	write_track_section(context,&flat_to_gentle_up,track_type,base_dir,output_path,sprites,subtype,subtype==TRACK_SUBTYPE_LIFT?flat_to_gentle_up_chain:NULL);
+	write_track_section(context,&(track_list.flat_to_gentle_up),track_type,base_dir,output_path,sprites,subtype,subtype==TRACK_SUBTYPE_LIFT?flat_to_gentle_up_chain:NULL);
 	sprintf(output_path,"%.255sgentle_up_to_flat%s",output_dir,suffix);
-	write_track_section(context,&gentle_up_to_flat,track_type,base_dir,output_path,sprites,subtype,subtype==TRACK_SUBTYPE_LIFT?gentle_up_to_flat_chain:NULL);
+	write_track_section(context,&(track_list.gentle_up_to_flat),track_type,base_dir,output_path,sprites,subtype,subtype==TRACK_SUBTYPE_LIFT?gentle_up_to_flat_chain:NULL);
 	sprintf(output_path,"%.255sgentle%s",output_dir,suffix);
-	write_track_section(context,&gentle,track_type,base_dir,output_path,sprites,subtype,subtype==TRACK_SUBTYPE_LIFT?gentle_chain:NULL);
+	write_track_section(context,&(track_list.gentle),track_type,base_dir,output_path,sprites,subtype,subtype==TRACK_SUBTYPE_LIFT?gentle_chain:NULL);
 	}
 
 	if(groups&TRACK_GROUP_STEEP_SLOPES)
 	{
 	sprintf(output_path,"%.255sgentle_to_steep_up%s",output_dir,suffix);
-	write_track_section(context,&gentle_to_steep_up,track_type,base_dir,output_path,sprites,subtype,subtype==TRACK_SUBTYPE_LIFT?gentle_to_steep_up_chain:NULL);
+	write_track_section(context,&(track_list.gentle_to_steep_up),track_type,base_dir,output_path,sprites,subtype,subtype==TRACK_SUBTYPE_LIFT?gentle_to_steep_up_chain:NULL);
 	sprintf(output_path,"%.255ssteep_to_gentle_up%s",output_dir,suffix);
-	write_track_section(context,&steep_to_gentle_up,track_type,base_dir,output_path,sprites,subtype,subtype==TRACK_SUBTYPE_LIFT?steep_to_gentle_up_chain:NULL);
+	write_track_section(context,&(track_list.steep_to_gentle_up),track_type,base_dir,output_path,sprites,subtype,subtype==TRACK_SUBTYPE_LIFT?steep_to_gentle_up_chain:NULL);
 	sprintf(output_path,"%.255ssteep%s",output_dir,suffix);
-	write_track_section(context,&steep,track_type,base_dir,output_path,sprites,subtype,subtype==TRACK_SUBTYPE_LIFT?steep_chain:NULL);
+	write_track_section(context,&(track_list.steep),track_type,base_dir,output_path,sprites,subtype,subtype==TRACK_SUBTYPE_LIFT?steep_chain:NULL);
 	}
 	if(groups&TRACK_GROUP_VERTICAL_SLOPES)
 	{
 	sprintf(output_path,"%.255ssteep_to_vertical_up%s",output_dir,suffix);
-	write_track_section(context,&steep_to_vertical_up,track_type,base_dir,output_path,sprites,subtype,NULL);
+	write_track_section(context,&(track_list.steep_to_vertical_up),track_type,base_dir,output_path,sprites,subtype,NULL);
 	sprintf(output_path,"%.255svertical_to_steep_up%s",output_dir,suffix);
-	write_track_section(context,&vertical_to_steep_up,track_type,base_dir,output_path,sprites,subtype,NULL);
+	write_track_section(context,&(track_list.vertical_to_steep_up),track_type,base_dir,output_path,sprites,subtype,NULL);
 	sprintf(output_path,"%.255svertical%s",output_dir,suffix);
-	write_track_section(context,&vertical,track_type,base_dir,output_path,sprites,subtype,NULL);
+	write_track_section(context,&(track_list.vertical),track_type,base_dir,output_path,sprites,subtype,NULL);
 	}
 
 //Turns
 	if(groups&TRACK_GROUP_TURNS)
 	{
 	sprintf(output_path,"%.255ssmall_turn_left%s",output_dir,suffix);
-	write_track_section(context,&small_turn_left,track_type,base_dir,output_path,sprites,subtype,NULL);
+	write_track_section(context,&(track_list.small_turn_left),track_type,base_dir,output_path,sprites,subtype,NULL);
 	sprintf(output_path,"%.255smedium_turn_left%s",output_dir,suffix);
-	write_track_section(context,&medium_turn_left,track_type,base_dir,output_path,sprites,subtype,NULL);
+	write_track_section(context,&(track_list.medium_turn_left),track_type,base_dir,output_path,sprites,subtype,NULL);
 	sprintf(output_path,"%.255slarge_turn_left_to_diag%s",output_dir,suffix);
-	write_track_section(context,&large_turn_left_to_diag,track_type,base_dir,output_path,sprites,subtype,NULL);
+	write_track_section(context,&(track_list.large_turn_left_to_diag),track_type,base_dir,output_path,sprites,subtype,NULL);
 	sprintf(output_path,"%.255slarge_turn_right_to_diag%s",output_dir,suffix);
-	write_track_section(context,&large_turn_right_to_diag,track_type,base_dir,output_path,sprites,subtype,NULL);
+	write_track_section(context,&(track_list.large_turn_right_to_diag),track_type,base_dir,output_path,sprites,subtype,NULL);
 	}
 
 //Diagonals
 	if(groups&TRACK_GROUP_DIAGONALS)
 	{
 	sprintf(output_path,"%.255sflat_diag%s",output_dir,suffix);
-	write_track_section(context,&flat_diag,track_type,base_dir,output_path,sprites,subtype,subtype==TRACK_SUBTYPE_LIFT?flat_diag_chain:NULL);
-	sprintf(output_path,"%.255sflat_to_gentle_up_diag%s",output_dir,suffix);
-	write_track_section(context,&flat_to_gentle_up_diag,track_type,base_dir,output_path,sprites,subtype,subtype==TRACK_SUBTYPE_LIFT?flat_to_gentle_up_diag_chain:NULL);
-	sprintf(output_path,"%.255sgentle_to_flat_up_diag%s",output_dir,suffix);
-	write_track_section(context,&gentle_to_flat_up_diag,track_type,base_dir,output_path,sprites,subtype,subtype==TRACK_SUBTYPE_LIFT?gentle_to_flat_up_diag_chain:NULL);
-	sprintf(output_path,"%.255sgentle_diag%s",output_dir,suffix);
-	write_track_section(context,&gentle_diag,track_type,base_dir,output_path,sprites,subtype,subtype==TRACK_SUBTYPE_LIFT?gentle_diag_chain:NULL);
-	sprintf(output_path,"%.255sgentle_to_steep_up_diag%s",output_dir,suffix);
-	write_track_section(context,&gentle_to_steep_up_diag,track_type,base_dir,output_path,sprites,subtype,subtype==TRACK_SUBTYPE_LIFT?gentle_to_steep_up_diag_chain:NULL);
-	sprintf(output_path,"%.255ssteep_to_gentle_up_diag%s",output_dir,suffix);
-	write_track_section(context,&steep_to_gentle_up_diag,track_type,base_dir,output_path,sprites,subtype,subtype==TRACK_SUBTYPE_LIFT?steep_to_gentle_up_diag_chain:NULL);
-	sprintf(output_path,"%.255ssteep_diag%s",output_dir,suffix);
-	write_track_section(context,&steep_diag,track_type,base_dir,output_path,sprites,subtype,subtype==TRACK_SUBTYPE_LIFT?steep_diag_chain:NULL);
+	write_track_section(context,&(track_list.flat_diag),track_type,base_dir,output_path,sprites,subtype,subtype==TRACK_SUBTYPE_LIFT?flat_diag_chain:NULL);
+		if(groups&TRACK_GROUP_FLAT)
+		{
+		sprintf(output_path,"%.255sflat_to_gentle_up_diag%s",output_dir,suffix);
+		write_track_section(context,&(track_list.flat_to_gentle_up_diag),track_type,base_dir,output_path,sprites,subtype,subtype==TRACK_SUBTYPE_LIFT?flat_to_gentle_up_diag_chain:NULL);
+		sprintf(output_path,"%.255sgentle_to_flat_up_diag%s",output_dir,suffix);
+		write_track_section(context,&(track_list.gentle_to_flat_up_diag),track_type,base_dir,output_path,sprites,subtype,subtype==TRACK_SUBTYPE_LIFT?gentle_to_flat_up_diag_chain:NULL);
+		sprintf(output_path,"%.255sgentle_diag%s",output_dir,suffix);
+		write_track_section(context,&(track_list.gentle_diag),track_type,base_dir,output_path,sprites,subtype,subtype==TRACK_SUBTYPE_LIFT?gentle_diag_chain:NULL);
+		}
+		if(groups&TRACK_GROUP_STEEP_SLOPES)
+		{
+		sprintf(output_path,"%.255sgentle_to_steep_up_diag%s",output_dir,suffix);
+		write_track_section(context,&(track_list.gentle_to_steep_up_diag),track_type,base_dir,output_path,sprites,subtype,subtype==TRACK_SUBTYPE_LIFT?gentle_to_steep_up_diag_chain:NULL);
+		sprintf(output_path,"%.255ssteep_to_gentle_up_diag%s",output_dir,suffix);
+		write_track_section(context,&(track_list.steep_to_gentle_up_diag),track_type,base_dir,output_path,sprites,subtype,subtype==TRACK_SUBTYPE_LIFT?steep_to_gentle_up_diag_chain:NULL);
+		sprintf(output_path,"%.255ssteep_diag%s",output_dir,suffix);
+		write_track_section(context,&(track_list.steep_diag),track_type,base_dir,output_path,sprites,subtype,subtype==TRACK_SUBTYPE_LIFT?steep_diag_chain:NULL);
+		}
 	}
 
 //Banked turns
 	if(groups&TRACK_GROUP_BANKED_TURNS)
 	{
 	sprintf(output_path,"%.255sflat_to_left_bank%s",output_dir,suffix);
-	write_track_section(context,&flat_to_left_bank,track_type,base_dir,output_path,sprites,subtype,NULL);
+	write_track_section(context,&(track_list.flat_to_left_bank),track_type,base_dir,output_path,sprites,subtype,NULL);
 	sprintf(output_path,"%.255sflat_to_right_bank%s",output_dir,suffix);
-	write_track_section(context,&flat_to_right_bank,track_type,base_dir,output_path,sprites,subtype,NULL);
+	write_track_section(context,&(track_list.flat_to_right_bank),track_type,base_dir,output_path,sprites,subtype,NULL);
 	sprintf(output_path,"%.255sleft_bank_to_gentle_up%s",output_dir,suffix);
-	write_track_section(context,&left_bank_to_gentle_up,track_type,base_dir,output_path,sprites,subtype,NULL);
+	write_track_section(context,&(track_list.left_bank_to_gentle_up),track_type,base_dir,output_path,sprites,subtype,NULL);
 	sprintf(output_path,"%.255sright_bank_to_gentle_up%s",output_dir,suffix);
-	write_track_section(context,&right_bank_to_gentle_up,track_type,base_dir,output_path,sprites,subtype,NULL);
+	write_track_section(context,&(track_list.right_bank_to_gentle_up),track_type,base_dir,output_path,sprites,subtype,NULL);
 	sprintf(output_path,"%.255sgentle_up_to_left_bank%s",output_dir,suffix);
-	write_track_section(context,&gentle_up_to_left_bank,track_type,base_dir,output_path,sprites,subtype,NULL);
+	write_track_section(context,&(track_list.gentle_up_to_left_bank),track_type,base_dir,output_path,sprites,subtype,NULL);
 	sprintf(output_path,"%.255sgentle_up_to_right_bank%s",output_dir,suffix);
-	write_track_section(context,&gentle_up_to_right_bank,track_type,base_dir,output_path,sprites,subtype,NULL);
+	write_track_section(context,&(track_list.gentle_up_to_right_bank),track_type,base_dir,output_path,sprites,subtype,NULL);
 	
 	sprintf(output_path,"%.255sleft_bank%s",output_dir,suffix);
-	write_track_section(context,semi_split?&semi_split_left_bank:&left_bank,track_type,base_dir,output_path,sprites,subtype,NULL);
+	write_track_section(context,&(track_list.left_bank),track_type,base_dir,output_path,sprites,subtype,NULL);
 
 		if(groups&TRACK_GROUP_DIAGONALS)
 		{
 		sprintf(output_path,"%.255sflat_to_left_bank_diag%s",output_dir,suffix);
-		write_track_section(context,&flat_to_left_bank_diag,track_type,base_dir,output_path,sprites,subtype,NULL);
+		write_track_section(context,&(track_list.flat_to_left_bank_diag),track_type,base_dir,output_path,sprites,subtype,NULL);
 		sprintf(output_path,"%.255sflat_to_right_bank_diag%s",output_dir,suffix);
-		write_track_section(context,&flat_to_right_bank_diag,track_type,base_dir,output_path,sprites,subtype,NULL);
+		write_track_section(context,&(track_list.flat_to_right_bank_diag),track_type,base_dir,output_path,sprites,subtype,NULL);
 		sprintf(output_path,"%.255sleft_bank_to_gentle_up_diag%s",output_dir,suffix);
-		write_track_section(context,&left_bank_to_gentle_up_diag,track_type,base_dir,output_path,sprites,subtype,NULL);
+		write_track_section(context,&(track_list.left_bank_to_gentle_up_diag),track_type,base_dir,output_path,sprites,subtype,NULL);
 		sprintf(output_path,"%.255sright_bank_to_gentle_up_diag%s",output_dir,suffix);
-		write_track_section(context,&right_bank_to_gentle_up_diag,track_type,base_dir,output_path,sprites,subtype,NULL);
+		write_track_section(context,&(track_list.right_bank_to_gentle_up_diag),track_type,base_dir,output_path,sprites,subtype,NULL);
 		sprintf(output_path,"%.255sgentle_up_to_left_bank_diag%s",output_dir,suffix);
-		write_track_section(context,&gentle_up_to_left_bank_diag,track_type,base_dir,output_path,sprites,subtype,NULL);
+		write_track_section(context,&(track_list.gentle_up_to_left_bank_diag),track_type,base_dir,output_path,sprites,subtype,NULL);
 		sprintf(output_path,"%.255sgentle_up_to_right_bank_diag%s",output_dir,suffix);
-		write_track_section(context,&gentle_up_to_right_bank_diag,track_type,base_dir,output_path,sprites,subtype,NULL);
+		write_track_section(context,&(track_list.gentle_up_to_right_bank_diag),track_type,base_dir,output_path,sprites,subtype,NULL);
 		sprintf(output_path,"%.255sleft_bank_diag%s",output_dir,suffix);
-		write_track_section(context,semi_split?&semi_split_left_bank_diag:&left_bank_diag,track_type,base_dir,output_path,sprites,subtype,NULL);
+		write_track_section(context,&(track_list.left_bank_diag),track_type,base_dir,output_path,sprites,subtype,NULL);
 		}
 
 	sprintf(output_path,"%.255ssmall_turn_left_bank%s",output_dir,suffix);
-	write_track_section(context,semi_split?&semi_split_small_turn_left_bank:&small_turn_left_bank,track_type,base_dir,output_path,sprites,subtype,NULL);
+	write_track_section(context,&(track_list.small_turn_left_bank),track_type,base_dir,output_path,sprites,subtype,NULL);
 	sprintf(output_path,"%.255smedium_turn_left_bank%s",output_dir,suffix);
-	write_track_section(context,semi_split?&semi_split_medium_turn_left_bank:&medium_turn_left_bank,track_type,base_dir,output_path,sprites,subtype,NULL);
+	write_track_section(context,&(track_list.medium_turn_left_bank),track_type,base_dir,output_path,sprites,subtype,NULL);
 	sprintf(output_path,"%.255slarge_turn_left_to_diag_bank%s",output_dir,suffix);
-	write_track_section(context,semi_split?&semi_split_large_turn_left_to_diag_bank:&large_turn_left_to_diag_bank,track_type,base_dir,output_path,sprites,subtype,NULL);
+	write_track_section(context,&(track_list.large_turn_left_to_diag_bank),track_type,base_dir,output_path,sprites,subtype,NULL);
 	sprintf(output_path,"%.255slarge_turn_right_to_diag_bank%s",output_dir,suffix);
-	write_track_section(context,semi_split?&semi_split_large_turn_right_to_diag_bank:&large_turn_right_to_diag_bank,track_type,base_dir,output_path,sprites,subtype,NULL);
+	write_track_section(context,&(track_list.large_turn_right_to_diag_bank),track_type,base_dir,output_path,sprites,subtype,NULL);
 	}
 
 //Sloped turns
 	if(groups&TRACK_GROUP_SLOPED_TURNS)
 	{
 	sprintf(output_path,"%.255ssmall_turn_left_gentle_up%s",output_dir,suffix);
-	write_track_section(context,&small_turn_left_gentle_up,track_type,base_dir,output_path,sprites,subtype,NULL);
+	write_track_section(context,&(track_list.small_turn_left_gentle_up),track_type,base_dir,output_path,sprites,subtype,NULL);
 	sprintf(output_path,"%.255ssmall_turn_right_gentle_up%s",output_dir,suffix);
-	write_track_section(context,&small_turn_right_gentle_up,track_type,base_dir,output_path,sprites,subtype,NULL);
+	write_track_section(context,&(track_list.small_turn_right_gentle_up),track_type,base_dir,output_path,sprites,subtype,NULL);
 	sprintf(output_path,"%.255smedium_turn_left_gentle_up%s",output_dir,suffix);
-	write_track_section(context,&medium_turn_left_gentle_up,track_type,base_dir,output_path,sprites,subtype,NULL);
+	write_track_section(context,&(track_list.medium_turn_left_gentle_up),track_type,base_dir,output_path,sprites,subtype,NULL);
 	sprintf(output_path,"%.255smedium_turn_right_gentle_up%s",output_dir,suffix);
-	write_track_section(context,&medium_turn_right_gentle_up,track_type,base_dir,output_path,sprites,subtype,NULL);
+	write_track_section(context,&(track_list.medium_turn_right_gentle_up),track_type,base_dir,output_path,sprites,subtype,NULL);
 	}
 	if((groups&TRACK_GROUP_SLOPED_TURNS)&&(groups&TRACK_GROUP_STEEP_SLOPES))
 	{
 	sprintf(output_path,"%.255svery_small_turn_left_steep_up%s",output_dir,suffix);
-	write_track_section(context,&very_small_turn_left_steep_up,track_type,base_dir,output_path,sprites,subtype,NULL);
+	write_track_section(context,&(track_list.very_small_turn_left_steep_up),track_type,base_dir,output_path,sprites,subtype,NULL);
 	sprintf(output_path,"%.255svery_small_turn_right_steep_up%s",output_dir,suffix);
-	write_track_section(context,&very_small_turn_right_steep_up,track_type,base_dir,output_path,sprites,subtype,NULL);
+	write_track_section(context,&(track_list.very_small_turn_right_steep_up),track_type,base_dir,output_path,sprites,subtype,NULL);
 	}
 	if((groups&TRACK_GROUP_SLOPED_TURNS)&&(groups&TRACK_GROUP_VERTICAL_SLOPES))
 	{
 	sprintf(output_path,"%.255svertical_twist_left_up%s",output_dir,suffix);
-	write_track_section(context,&vertical_twist_left_up,track_type,base_dir,output_path,sprites,subtype,NULL);
+	write_track_section(context,&(track_list.vertical_twist_left_up),track_type,base_dir,output_path,sprites,subtype,NULL);
 	sprintf(output_path,"%.255svertical_twist_right_up%s",output_dir,suffix);
-	write_track_section(context,&vertical_twist_right_up,track_type,base_dir,output_path,sprites,subtype,NULL);
+	write_track_section(context,&(track_list.vertical_twist_right_up),track_type,base_dir,output_path,sprites,subtype,NULL);
 	}
 
 //Sloped banked turns
@@ -618,130 +621,130 @@ int semi_split=track_type->flags&TRACK_SEMI_SPLIT;
 	if(groups&TRACK_GROUP_BANKED_SLOPED_TURNS)
 	{
 	sprintf(output_path,"%.255sgentle_up_to_gentle_up_left_bank%s",output_dir,suffix);
-	write_track_section(context,&gentle_up_to_gentle_up_left_bank,track_type,base_dir,output_path,sprites,subtype,NULL);
+	write_track_section(context,&(track_list.gentle_up_to_gentle_up_left_bank),track_type,base_dir,output_path,sprites,subtype,NULL);
 	sprintf(output_path,"%.255sgentle_up_to_gentle_up_right_bank%s",output_dir,suffix);
-	write_track_section(context,&gentle_up_to_gentle_up_right_bank,track_type,base_dir,output_path,sprites,subtype,NULL);
+	write_track_section(context,&(track_list.gentle_up_to_gentle_up_right_bank),track_type,base_dir,output_path,sprites,subtype,NULL);
 	sprintf(output_path,"%.255sgentle_up_left_bank_to_gentle_up%s",output_dir,suffix);
-	write_track_section(context,&gentle_up_left_bank_to_gentle_up,track_type,base_dir,output_path,sprites,subtype,NULL);
+	write_track_section(context,&(track_list.gentle_up_left_bank_to_gentle_up),track_type,base_dir,output_path,sprites,subtype,NULL);
 	sprintf(output_path,"%.255sgentle_up_right_bank_to_gentle_up%s",output_dir,suffix);
-	write_track_section(context,&gentle_up_right_bank_to_gentle_up,track_type,base_dir,output_path,sprites,subtype,NULL);
+	write_track_section(context,&(track_list.gentle_up_right_bank_to_gentle_up),track_type,base_dir,output_path,sprites,subtype,NULL);
 	sprintf(output_path,"%.255sleft_bank_to_gentle_up_left_bank%s",output_dir,suffix);
-	write_track_section(context,semi_split?&semi_split_left_bank_to_gentle_up_left_bank:&left_bank_to_gentle_up_left_bank,track_type,base_dir,output_path,sprites,subtype,NULL);
+	write_track_section(context,&(track_list.left_bank_to_gentle_up_left_bank),track_type,base_dir,output_path,sprites,subtype,NULL);
 	sprintf(output_path,"%.255sright_bank_to_gentle_up_right_bank%s",output_dir,suffix);
-	write_track_section(context,semi_split?&semi_split_right_bank_to_gentle_up_right_bank:&right_bank_to_gentle_up_right_bank,track_type,base_dir,output_path,sprites,subtype,NULL);
+	write_track_section(context,&(track_list.right_bank_to_gentle_up_right_bank),track_type,base_dir,output_path,sprites,subtype,NULL);
 	sprintf(output_path,"%.255sgentle_up_left_bank_to_left_bank%s",output_dir,suffix);
-	write_track_section(context,semi_split?&semi_split_gentle_up_left_bank_to_left_bank:&gentle_up_left_bank_to_left_bank,track_type,base_dir,output_path,sprites,subtype,NULL);
+	write_track_section(context,&(track_list.gentle_up_left_bank_to_left_bank),track_type,base_dir,output_path,sprites,subtype,NULL);
 	sprintf(output_path,"%.255sgentle_up_right_bank_to_right_bank%s",output_dir,suffix);
-	write_track_section(context,semi_split?&semi_split_gentle_up_right_bank_to_right_bank:&gentle_up_right_bank_to_right_bank,track_type,base_dir,output_path,sprites,subtype,NULL);
+	write_track_section(context,&(track_list.gentle_up_right_bank_to_right_bank),track_type,base_dir,output_path,sprites,subtype,NULL);
 	sprintf(output_path,"%.255sgentle_up_left_bank%s",output_dir,suffix);
-	write_track_section(context,&gentle_up_left_bank,track_type,base_dir,output_path,sprites,subtype,NULL);
+	write_track_section(context,&(track_list.gentle_up_left_bank),track_type,base_dir,output_path,sprites,subtype,NULL);
 	sprintf(output_path,"%.255sgentle_up_right_bank%s",output_dir,suffix);
-	write_track_section(context,&gentle_up_right_bank,track_type,base_dir,output_path,sprites,subtype,NULL);
+	write_track_section(context,&(track_list.gentle_up_right_bank),track_type,base_dir,output_path,sprites,subtype,NULL);
 	sprintf(output_path,"%.255sflat_to_gentle_up_left_bank%s",output_dir,suffix);
-	write_track_section(context,&flat_to_gentle_up_left_bank,track_type,base_dir,output_path,sprites,subtype,NULL);
+	write_track_section(context,&(track_list.flat_to_gentle_up_left_bank),track_type,base_dir,output_path,sprites,subtype,NULL);
 	sprintf(output_path,"%.255sflat_to_gentle_up_right_bank%s",output_dir,suffix);
-	write_track_section(context,&flat_to_gentle_up_right_bank,track_type,base_dir,output_path,sprites,subtype,NULL);
+	write_track_section(context,&(track_list.flat_to_gentle_up_right_bank),track_type,base_dir,output_path,sprites,subtype,NULL);
 	sprintf(output_path,"%.255sgentle_up_left_bank_to_flat%s",output_dir,suffix);
-	write_track_section(context,&gentle_up_left_bank_to_flat,track_type,base_dir,output_path,sprites,subtype,NULL);
+	write_track_section(context,&(track_list.gentle_up_left_bank_to_flat),track_type,base_dir,output_path,sprites,subtype,NULL);
 	sprintf(output_path,"%.255sgentle_up_right_bank_to_flat%s",output_dir,suffix);
-	write_track_section(context,&gentle_up_right_bank_to_flat,track_type,base_dir,output_path,sprites,subtype,NULL);
+	write_track_section(context,&(track_list.gentle_up_right_bank_to_flat),track_type,base_dir,output_path,sprites,subtype,NULL);
 	
 	sprintf(output_path,"%.255ssmall_turn_left_bank_gentle_up%s",output_dir,suffix);
-	write_track_section(context,semi_split?&semi_split_small_turn_left_bank_gentle_up:&small_turn_left_bank_gentle_up,track_type,base_dir,output_path,sprites,subtype,NULL);
+	write_track_section(context,&(track_list.small_turn_left_bank_gentle_up),track_type,base_dir,output_path,sprites,subtype,NULL);
 	sprintf(output_path,"%.255ssmall_turn_right_bank_gentle_up%s",output_dir,suffix);
-	write_track_section(context,semi_split?&semi_split_small_turn_right_bank_gentle_up:&small_turn_right_bank_gentle_up,track_type,base_dir,output_path,sprites,subtype,NULL);
+	write_track_section(context,&(track_list.small_turn_right_bank_gentle_up),track_type,base_dir,output_path,sprites,subtype,NULL);
 	sprintf(output_path,"%.255smedium_turn_left_bank_gentle_up%s",output_dir,suffix);
-	write_track_section(context,semi_split?&semi_split_medium_turn_left_bank_gentle_up:&medium_turn_left_bank_gentle_up,track_type,base_dir,output_path,sprites,subtype,NULL);
+	write_track_section(context,&(track_list.medium_turn_left_bank_gentle_up),track_type,base_dir,output_path,sprites,subtype,NULL);
 	sprintf(output_path,"%.255smedium_turn_right_bank_gentle_up%s",output_dir,suffix);
-	write_track_section(context,semi_split?&semi_split_medium_turn_right_bank_gentle_up:&medium_turn_right_bank_gentle_up,track_type,base_dir,output_path,sprites,subtype,NULL);
+	write_track_section(context,&(track_list.medium_turn_right_bank_gentle_up),track_type,base_dir,output_path,sprites,subtype,NULL);
 	}
 
 //Miscellaneous
 	if(groups&TRACK_GROUP_S_BENDS)
 	{
 	sprintf(output_path,"%.255ss_bend_left%s",output_dir,suffix);
-	write_track_section(context,&s_bend_left,track_type,base_dir,output_path,sprites,subtype,NULL);
+	write_track_section(context,&(track_list.s_bend_left),track_type,base_dir,output_path,sprites,subtype,NULL);
 	sprintf(output_path,"%.255ss_bend_right%s",output_dir,suffix);
-	write_track_section(context,&s_bend_right,track_type,base_dir,output_path,sprites,subtype,NULL);
+	write_track_section(context,&(track_list.s_bend_right),track_type,base_dir,output_path,sprites,subtype,NULL);
 	}
 
 	if(groups&TRACK_GROUP_HELICES)
 	{
 	sprintf(output_path,"%.255ssmall_helix_left_up%s",output_dir,suffix);
-	write_track_section(context,semi_split?&semi_split_small_helix_left_up:&small_helix_left_up,track_type,base_dir,output_path,sprites,subtype,NULL);
+	write_track_section(context,&(track_list.small_helix_left_up),track_type,base_dir,output_path,sprites,subtype,NULL);
 	sprintf(output_path,"%.255ssmall_helix_right_up%s",output_dir,suffix);
-	write_track_section(context,semi_split?&semi_split_small_helix_right_up:&small_helix_right_up,track_type,base_dir,output_path,sprites,subtype,NULL);
+	write_track_section(context,&(track_list.small_helix_right_up),track_type,base_dir,output_path,sprites,subtype,NULL);
 	sprintf(output_path,"%.255smedium_helix_left_up%s",output_dir,suffix);
-	write_track_section(context,semi_split?&semi_split_medium_helix_left_up:&medium_helix_left_up,track_type,base_dir,output_path,sprites,subtype,NULL);
+	write_track_section(context,&(track_list.medium_helix_left_up),track_type,base_dir,output_path,sprites,subtype,NULL);
 	sprintf(output_path,"%.255smedium_helix_right_up%s",output_dir,suffix);
-	write_track_section(context,semi_split?&semi_split_medium_helix_right_up:&medium_helix_right_up,track_type,base_dir,output_path,sprites,subtype,NULL);
+	write_track_section(context,&(track_list.medium_helix_right_up),track_type,base_dir,output_path,sprites,subtype,NULL);
 	}
 
 //Inversions
 	if(groups&TRACK_GROUP_BARREL_ROLLS)
 	{
 	sprintf(output_path,"%.255sbarrel_roll_left%s",output_dir,suffix);
-	write_track_section(context,&barrel_roll_left,track_type,base_dir,output_path,sprites,subtype,NULL);
+	write_track_section(context,&(track_list.barrel_roll_left),track_type,base_dir,output_path,sprites,subtype,NULL);
 	sprintf(output_path,"%.255sbarrel_roll_right%s",output_dir,suffix);
-	write_track_section(context,&barrel_roll_right,track_type,base_dir,output_path,sprites,subtype,NULL);
+	write_track_section(context,&(track_list.barrel_roll_right),track_type,base_dir,output_path,sprites,subtype,NULL);
 	}
 	if(groups&TRACK_GROUP_HALF_LOOPS)
 	{
 	sprintf(output_path,"%.255shalf_loop%s",output_dir,suffix);
-	write_track_section(context,&half_loop,track_type,base_dir,output_path,sprites,subtype,NULL);
+	write_track_section(context,&(track_list.half_loop),track_type,base_dir,output_path,sprites,subtype,NULL);
 	}
 	if(groups&TRACK_GROUP_LARGE_SLOPE_TRANSITIONS)
 	{
 	sprintf(output_path,"%.255sflat_to_steep_up%s",output_dir,suffix);
-	write_track_section(context,&flat_to_steep_up,track_type,base_dir,output_path,sprites,subtype,NULL);
+	write_track_section(context,&(track_list.flat_to_steep_up),track_type,base_dir,output_path,sprites,subtype,NULL);
 	sprintf(output_path,"%.255ssteep_to_flat_up%s",output_dir,suffix);
-	write_track_section(context,&steep_to_flat_up,track_type,base_dir,output_path,sprites,subtype,NULL);
+	write_track_section(context,&(track_list.steep_to_flat_up),track_type,base_dir,output_path,sprites,subtype,NULL);
 	}
 	if(groups&TRACK_GROUP_QUARTER_LOOPS)
 	{
 	sprintf(output_path,"%.255squarter_loop_up%s",output_dir,suffix);
-	write_track_section(context,semi_split?&semi_split_quarter_loop_up:&quarter_loop_up,track_type,base_dir,output_path,sprites,subtype,NULL);
+	write_track_section(context,&(track_list.quarter_loop_up),track_type,base_dir,output_path,sprites,subtype,NULL);
 	}
 	if(groups&TRACK_GROUP_CORKSCREWS)
 	{
 	sprintf(output_path,"%.255scorkscrew_left%s",output_dir,suffix);
-	write_track_section(context,&corkscrew_left,track_type,base_dir,output_path,sprites,subtype,NULL);
+	write_track_section(context,&(track_list.corkscrew_left),track_type,base_dir,output_path,sprites,subtype,NULL);
 	sprintf(output_path,"%.255scorkscrew_right%s",output_dir,suffix);
-	write_track_section(context,&corkscrew_right,track_type,base_dir,output_path,sprites,subtype,NULL);
+	write_track_section(context,&(track_list.corkscrew_right),track_type,base_dir,output_path,sprites,subtype,NULL);
 	}
 	if(groups&TRACK_GROUP_TURN_BANK_TRANSITIONS)
 	{
 	sprintf(output_path,"%.255ssmall_turn_left_bank_to_gentle_up%s",output_dir,suffix);
-	write_track_section(context,&small_turn_left_bank_to_gentle_up,track_type,base_dir,output_path,sprites,subtype,NULL);
+	write_track_section(context,&(track_list.small_turn_left_bank_to_gentle_up),track_type,base_dir,output_path,sprites,subtype,NULL);
 	sprintf(output_path,"%.255ssmall_turn_right_bank_to_gentle_up%s",output_dir,suffix);
-	write_track_section(context,&small_turn_right_bank_to_gentle_up,track_type,base_dir,output_path,sprites,subtype,NULL);
+	write_track_section(context,&(track_list.small_turn_right_bank_to_gentle_up),track_type,base_dir,output_path,sprites,subtype,NULL);
 	}
 	
 	if(groups&TRACK_GROUP_LARGE_HALF_LOOPS)
 	{
 	sprintf(output_path,"%.255slarge_half_loop_left%s",output_dir,suffix);
-	write_track_section(context,&large_half_loop_left,track_type,base_dir,output_path,sprites,subtype,NULL);
+	write_track_section(context,&(track_list.large_half_loop_left),track_type,base_dir,output_path,sprites,subtype,NULL);
 	sprintf(output_path,"%.255slarge_half_loop_right%s",output_dir,suffix);
-	write_track_section(context,&large_half_loop_right,track_type,base_dir,output_path,sprites,subtype,NULL);
+	write_track_section(context,&(track_list.large_half_loop_right),track_type,base_dir,output_path,sprites,subtype,NULL);
 	}
 	
 	if(groups&TRACK_GROUP_SMALL_SLOPE_TRANSITIONS)
 	{
 	sprintf(output_path,"%.255ssmall_flat_to_steep_up%s",output_dir,suffix);
-	write_track_section(context,&small_flat_to_steep_up,track_type,base_dir,output_path,sprites,subtype,subtype==TRACK_SUBTYPE_LIFT?small_flat_to_steep_up_chain:NULL);
+	write_track_section(context,&(track_list.small_flat_to_steep_up),track_type,base_dir,output_path,sprites,subtype,subtype==TRACK_SUBTYPE_LIFT?small_flat_to_steep_up_chain:NULL);
 	sprintf(output_path,"%.255ssmall_steep_to_flat_up%s",output_dir,suffix);
-	write_track_section(context,&small_steep_to_flat_up,track_type,base_dir,output_path,sprites,subtype,subtype==TRACK_SUBTYPE_LIFT?small_steep_to_flat_up_chain:NULL);
+	write_track_section(context,&(track_list.small_steep_to_flat_up),track_type,base_dir,output_path,sprites,subtype,subtype==TRACK_SUBTYPE_LIFT?small_steep_to_flat_up_chain:NULL);
 	sprintf(output_path,"%.255ssmall_flat_to_steep_up_diag%s",output_dir,suffix);
-	write_track_section(context,&small_flat_to_steep_up_diag,track_type,base_dir,output_path,sprites,subtype,subtype==TRACK_SUBTYPE_LIFT?small_flat_to_steep_up_diag_chain:NULL);
+	write_track_section(context,&(track_list.small_flat_to_steep_up_diag),track_type,base_dir,output_path,sprites,subtype,subtype==TRACK_SUBTYPE_LIFT?small_flat_to_steep_up_diag_chain:NULL);
 	sprintf(output_path,"%.255ssmall_steep_to_flat_up_diag%s",output_dir,suffix);
-	write_track_section(context,&small_steep_to_flat_up_diag,track_type,base_dir,output_path,sprites,subtype,subtype==TRACK_SUBTYPE_LIFT?small_steep_to_flat_up_diag_chain:NULL);
+	write_track_section(context,&(track_list.small_steep_to_flat_up_diag),track_type,base_dir,output_path,sprites,subtype,subtype==TRACK_SUBTYPE_LIFT?small_steep_to_flat_up_diag_chain:NULL);
 	}
 
 //Launched lift
 	if(groups&TRACK_GROUP_LAUNCHED_LIFTS)
 	{
 	sprintf(output_path,"%.255spowered_lift%s",output_dir,suffix);
-	write_track_section(context,&launched_lift,track_type,base_dir,output_path,sprites,subtype,NULL);
+	write_track_section(context,&(track_list.launched_lift),track_type,base_dir,output_path,sprites,subtype,NULL);
 	}
 
 return 0;
@@ -749,10 +752,14 @@ return 0;
 
 int write_track_type(context_t* context,track_type_t* track_type,json_t* sprites,const char* base_dir,const char* output_dir)
 {
-write_track_subtype(context,track_type,sprites,base_dir,output_dir,TRACK_SUBTYPE_DEFAULT);
+write_track_subtype(context,track_type,track_list_split,sprites,base_dir,output_dir,TRACK_SUBTYPE_DEFAULT);
 	if(track_type->flags&TRACK_HAS_LIFT)
 	{
-	write_track_subtype(context,track_type,sprites,base_dir,output_dir,TRACK_SUBTYPE_LIFT);
+	write_track_subtype(context,track_type,track_list_split,sprites,base_dir,output_dir,TRACK_SUBTYPE_LIFT);
 	}
 return 0;
 }
+
+
+
+
