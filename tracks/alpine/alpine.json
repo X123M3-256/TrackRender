@@ -1,0 +1,20 @@
+{
+"flags":["has_lift"],
+"sections":["flat","turns","gentle_slopes","steep_slopes","vertical_slopes","large_slope_transitions","diagonals","sloped_turns","banked_turns","banked_sloped_turns","s_bends","helices","barrel_rolls","quarter_loops","half_loops","large_half_loops","corkscrews","brakes","boosters","launched_lifts","turn_bank_transitions","small_slope_transitions"],
+"lift_sections":["flat","gentle_slopes","steep_slopes","diagonals","small_slope_transitions"],
+"z_offset":8,
+"length":0.25,
+
+"models":
+	{
+	"track":"tracks/alpine/alpine.obj",
+	"lift":"tracks/alpine/alpine.obj",
+	"mask":"tracks/alpine/alpine_mask.obj",
+	"brake":"tracks/raptor/raptor_brake.obj",
+	"block_brake":"tracks/raptor/raptor_block_brake.obj"
+	},
+"base_directory":"/home/edward/RCT2Prog/OpenRCT2/resources/g2/",
+"sprite_directory":"track/alpine/",
+"spritefile_in":"sprites_old.json",
+"spritefile_out":"sprites.json"
+}

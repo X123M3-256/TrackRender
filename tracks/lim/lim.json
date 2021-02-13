@@ -1,0 +1,18 @@
+{
+"flags":[],
+"sections":["large_slope_transitions","barrel_rolls","half_loops","large_half_loops","turn_bank_transitions"],
+"alt_sections":["barrel_rolls"],
+"lift_sections":["gentle_slopes","steep_slopes","diagonals"],
+"z_offset":4,
+"length":0.3333333,
+
+"models":
+	{
+	"track":"tracks/lim/lim.obj",
+	"mask":"tracks/lim/lim_mask.obj"
+	},
+"base_directory":"/home/edward/RCT2Prog/OpenRCT2/resources/g2/",
+"sprite_directory":"track/lim/",
+"spritefile_in":"sprites_old.json",
+"spritefile_out":"sprites.json"
+}

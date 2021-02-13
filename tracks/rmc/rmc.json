@@ -1,0 +1,37 @@
+{
+"flags":["has_lift","has_supports","semi_split"],
+"sections_actual":["turns","gentle_slopes","steep_slopes","vertical_slopes","brakes","boosters"],
+"sections":["flat","turns","gentle_slopes","steep_slopes","vertical_slopes","large_slope_transitions","diagonals","sloped_turns","banked_turns","banked_sloped_turns","s_bends","helices","barrel_rolls","quarter_loops","brakes","boosters","launched_lifts","turn_bank_transitions"],
+"lift_sections_actual":[],
+"lift_sections":["flat","gentle_slopes","steep_slopes","diagonals"],
+"z_offset":13,
+"length":0.5,
+"support_spacing":0.8,
+
+"models":
+	{
+	"track":"tracks/rmc/rmc.obj",
+	"lift":"tracks/rmc/rmc_lift.obj",
+	"brake":"tracks/rmc/rmc_brake.obj",
+	"block_brake":"tracks/rmc/rmc_block_brake.obj",
+	"booster":"tracks/rmc/rmc_booster.obj",
+	"mask":"tracks/rmc/rmc_mask.obj",
+	"support_flat":"tracks/rmc/rmc_support.obj",
+	"support_bank_third":"tracks/rmc/rmc_support_bank_third.obj",
+	"support_bank_half":"tracks/rmc/rmc_support_bank_half.obj",
+	"support_bank_two_thirds":"tracks/rmc/rmc_support_bank_two_thirds.obj",
+	"support_bank":"tracks/rmc/rmc_support_bank.obj",
+	"support_base":"tracks/rmc/rmc_support_base.obj",
+	"support_vertical":"tracks/rmc/rmc_support_vertical.obj",
+	"support_steep_to_vertical":"tracks/rmc/rmc_support_steep_to_vertical.obj",
+	"support_vertical_to_steep":"tracks/rmc/rmc_support_vertical_to_steep.obj",
+	"support_vertical_twist":"tracks/rmc/rmc_support_vertical_twist.obj",
+	"support_barrel_roll":"tracks/rmc/rmc_support_barrel_roll.obj",
+	"support_quarter_loop":"tracks/rmc/rmc_support_quarter_loop.obj",
+	"support_corkscrew":"tracks/rmc/rmc_support_corkscrew.obj"
+	},
+"base_directory":"/home/edward/RCT2Prog/OpenRCT2/resources/g2/",
+"sprite_directory":"track/rmc/",
+"spritefile_in":"sprites_old.json",
+"spritefile_out":"sprites.json"
+}

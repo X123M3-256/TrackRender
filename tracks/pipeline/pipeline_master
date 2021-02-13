@@ -1,0 +1,52 @@
+# Blender MTL File: 'intamin.blend'
+# Material Count: 2
+
+newmtl Remap1_Edge
+Ns 8
+Kd 0.2 0.0 0.0
+Ks 0.8 0.8 0.8
+
+newmtl Remap1_NoAO
+Ns 8
+Kd 0.2 0.0 0.0
+Ks 0.8 0.8 0.8
+
+newmtl Remap2_Edge
+Ns 8
+Kd 0.2 0.0 0.0
+Ks 0.8 0.8 0.8
+
+newmtl Remap2_NoAO
+Ns 8
+Kd 0.2 0.0 0.0
+Ks 0.8 0.8 0.8
+
+newmtl Remap1_Chain
+Ns 2
+Kd 0.050000 0.050000 0.050000
+Ks 0.000000 0.000000 0.000000
+
+newmtl Brake_Greyscale
+Ns 5
+Kd 0.005000 0.005000 0.005000
+Ks 0.000000 0.000000 0.000000
+
+newmtl BrakeTop_Greyscale
+Ns 5
+Kd 0.060000 0.060000 0.060000
+Ks 0.000000 0.000000 0.000000
+
+newmtl BrakeSide_Greyscale
+Ns 5
+Kd 0.000000 0.000000 0.000000
+Ks 0.000000 0.000000 0.000000
+
+newmtl Brake_Remap1
+Ns 5
+Kd 0.100000 0.100000 0.100000
+Ks 0.000000 0.000000 0.000000
+
+newmtl VisibleMask
+Ns 8
+Kd 0.50000 0.500000 0.500000
+Ks 0.275000 0.2750000 0.2750000

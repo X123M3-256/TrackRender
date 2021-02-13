@@ -1,0 +1,17 @@
+# Blender MTL File: 'intamin.blend'
+# Material Count: 2
+
+newmtl Remap1
+Ns 7
+Kd 0.350000 0.000000 0.000000
+Ks 0.05000 0.050000 0.050000
+
+newmtl Remap2
+Ns 7
+Kd 0.20000 0.000000 0.000000
+Ks 1.000000 1.000000 1.000000
+
+newmtl Material
+Ns 5
+Kd 0.020000 0.020000 0.020000
+Ks 0.200000 0.200000 0.200000

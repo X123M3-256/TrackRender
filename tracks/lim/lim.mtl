@@ -1,0 +1,13 @@
+# Blender MTL File: 'lim.blend'
+# Material Count: 2
+
+newmtl Remap1_NoAO_Edge_Spine
+Ns 7
+Kd 0.000000 0.200000 0.000000
+Ks 0.900000 0.900000 0.900000
+
+newmtl Remap2_NoAO_Edge_Rail
+Ns 7
+Kd 0.240000 0.000000 0.240000
+Ks 1.000000 1.000000 1.000000
+

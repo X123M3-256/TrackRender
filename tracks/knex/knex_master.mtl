@@ -1,0 +1,19 @@
+# Blender MTL File: 'intamin.blend'
+# Material Count: 2
+
+
+newmtl Remap1_Edge
+Ns 6
+Kd 0.45000 0.000000 0.000000
+Ks 0.35000 0.350000 0.050000
+
+newmtl Remap2_Edge
+Ns 10
+Kd 0.35000 0.000000 0.000000
+Ks 0.250000 0.250000 0.250000
+
+newmtl Chain
+Ns 5
+Kd 0.050000 0.050000 0.050000
+Ks 0.000000 0.000000 0.000000
+
