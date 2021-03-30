@@ -64,6 +64,7 @@ uint32_t groups=0;
 		else if(strcmp(json_string_value(group_name),"small_slope_transitions")==0)groups|=TRACK_GROUP_SMALL_SLOPE_TRANSITIONS;
 		else if(strcmp(json_string_value(group_name),"large_slope_transitions")==0)groups|=TRACK_GROUP_LARGE_SLOPE_TRANSITIONS;
 		else if(strcmp(json_string_value(group_name),"barrel_rolls")==0)groups|=TRACK_GROUP_BARREL_ROLLS;
+		else if(strcmp(json_string_value(group_name),"inline_twists")==0)groups|=TRACK_GROUP_INLINE_TWISTS;
 		else if(strcmp(json_string_value(group_name),"quarter_loops")==0)groups|=TRACK_GROUP_QUARTER_LOOPS;
 		else if(strcmp(json_string_value(group_name),"corkscrews")==0)groups|=TRACK_GROUP_CORKSCREWS;
 		else if(strcmp(json_string_value(group_name),"half_loops")==0)groups|=TRACK_GROUP_HALF_LOOPS;
@@ -292,13 +293,12 @@ light_t lights[9]={
 light_t lights[9]={
 {LIGHT_DIFFUSE,0,vector3_normalize(vector3(0.0,-1.0,0.0)),0.25},
 {LIGHT_DIFFUSE,0,vector3_normalize(vector3(1.0,0.3,0.0)),0.32},
-/*
 {LIGHT_SPECULAR,0,vector3_normalize(vector3(1,1,-1)),1.0},
 {LIGHT_DIFFUSE,0,vector3_normalize(vector3(1,0.65,-1)),0.8},
-*/
+/*
 {LIGHT_SPECULAR,1,vector3_normalize(vector3(1,0.63,-1)),1.0},
 {LIGHT_DIFFUSE,1,vector3_normalize(vector3(1,0.63,-1)),0.8},
-
+*/
 {LIGHT_DIFFUSE,0,vector3(0.0,1.0,0.0),0.174},
 {LIGHT_DIFFUSE,0,vector3_normalize(vector3(-1.0,0.0,0.0)),0.15},
 {LIGHT_DIFFUSE,0,vector3_normalize(vector3(0.0,1.0,1.0)),0.2},

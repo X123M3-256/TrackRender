@@ -688,6 +688,13 @@ int groups=0;
 	sprintf(output_path,"%.255sbarrel_roll_right%s",output_dir,suffix);
 	write_track_section(context,&(track_list.barrel_roll_right),track_type,base_dir,output_path,sprites,subtype,NULL);
 	}
+	if(groups&TRACK_GROUP_INLINE_TWISTS)
+	{
+	sprintf(output_path,"%.255sinline_twist_left%s",output_dir,suffix);
+	write_track_section(context,&(track_list.inline_twist_left),track_type,base_dir,output_path,sprites,subtype,NULL);
+	sprintf(output_path,"%.255sinline_twist_right%s",output_dir,suffix);
+	write_track_section(context,&(track_list.inline_twist_right),track_type,base_dir,output_path,sprites,subtype,NULL);
+	}
 	if(groups&TRACK_GROUP_HALF_LOOPS)
 	{
 	sprintf(output_path,"%.255shalf_loop%s",output_dir,suffix);
