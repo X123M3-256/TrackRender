@@ -231,6 +231,15 @@ return 0;
 
 int main(int argc,char** argv)
 {
+
+//generate_subposition_data(&(track_list_default.gentle_to_steep_up),"LeftLargeCorkscrewUp");
+//generate_subposition_data(&(track_list_default.large_corkscrew_left),"LeftLargeCorkscrewUp",0);
+//generate_subposition_data(&(track_list_default.large_corkscrew_right),"RightLargeCorkscrewUp",0);
+generate_subposition_data(&(track_list_default.large_corkscrew_right),"LeftLargeCorkscrewDown",27);
+generate_subposition_data(&(track_list_default.large_corkscrew_left),"RightLargeCorkscrewDown",27);
+return;
+
+
 	if(argc!=2)
 	{
 	printf("Usage: TrackRender <file>\n");

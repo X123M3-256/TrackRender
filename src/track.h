@@ -173,6 +173,8 @@ view_t views[4];
 
 int write_track_type(context_t* context,track_type_t* track_type,json_t* sprites,const char* base_dir,const char* output_dir);
 
+void generate_subposition_data(track_section_t* track_section,char* name,int reverse);
+
 typedef struct
 	{
 	track_section_t flat;
