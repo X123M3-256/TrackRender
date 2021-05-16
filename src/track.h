@@ -85,11 +85,12 @@ TRACK_GROUP_INLINE_TWISTS=0x4000,
 TRACK_GROUP_HALF_LOOPS=0x8000,
 TRACK_GROUP_QUARTER_LOOPS=0x10000,
 TRACK_GROUP_CORKSCREWS=0x20000,
-TRACK_GROUP_BOOSTERS=0x40000,
-TRACK_GROUP_LAUNCHED_LIFTS=0x80000,
-TRACK_GROUP_TURN_BANK_TRANSITIONS=0x100000,
-TRACK_GROUP_LARGE_HALF_LOOPS=0x200000,
-TRACK_GROUP_SMALL_SLOPE_TRANSITIONS=0x400000
+TRACK_GROUP_LARGE_CORKSCREWS=0x40000,
+TRACK_GROUP_BOOSTERS=0x80000,
+TRACK_GROUP_LAUNCHED_LIFTS=0x100000,
+TRACK_GROUP_TURN_BANK_TRANSITIONS=0x200000,
+TRACK_GROUP_LARGE_HALF_LOOPS=0x400000,
+TRACK_GROUP_SMALL_SLOPE_TRANSITIONS=0x800000
 };
 
 
@@ -265,6 +266,8 @@ typedef struct
 	track_section_t quarter_loop_up;
 	track_section_t corkscrew_left;
 	track_section_t corkscrew_right;
+	track_section_t large_corkscrew_left;
+	track_section_t large_corkscrew_right;
 	track_section_t small_turn_left_bank_to_gentle_up;
 	track_section_t small_turn_right_bank_to_gentle_up;
 	track_section_t launched_lift;

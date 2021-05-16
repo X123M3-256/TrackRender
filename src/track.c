@@ -719,6 +719,13 @@ int groups=0;
 	sprintf(output_path,"%.255scorkscrew_right%s",output_dir,suffix);
 	write_track_section(context,&(track_list.corkscrew_right),track_type,base_dir,output_path,sprites,subtype,NULL);
 	}
+	if(groups&TRACK_GROUP_LARGE_CORKSCREWS)
+	{
+	sprintf(output_path,"%.255slarge_corkscrew_left%s",output_dir,suffix);
+	write_track_section(context,&(track_list.large_corkscrew_left),track_type,base_dir,output_path,sprites,subtype,NULL);
+	sprintf(output_path,"%.255slarge_corkscrew_right%s",output_dir,suffix);
+	write_track_section(context,&(track_list.large_corkscrew_right),track_type,base_dir,output_path,sprites,subtype,NULL);
+	}
 	if(groups&TRACK_GROUP_TURN_BANK_TRANSITIONS)
 	{
 	sprintf(output_path,"%.255ssmall_turn_left_bank_to_gentle_up%s",output_dir,suffix);
@@ -759,10 +766,10 @@ return 0;
 
 int write_track_type(context_t* context,track_type_t* track_type,json_t* sprites,const char* base_dir,const char* output_dir)
 {
-write_track_subtype(context,track_type,track_list_split,sprites,base_dir,output_dir,TRACK_SUBTYPE_DEFAULT);
+write_track_subtype(context,track_type,track_list_default,sprites,base_dir,output_dir,TRACK_SUBTYPE_DEFAULT);
 	if(track_type->flags&TRACK_HAS_LIFT)
 	{
-	write_track_subtype(context,track_type,track_list_split,sprites,base_dir,output_dir,TRACK_SUBTYPE_LIFT);
+	write_track_subtype(context,track_type,track_list_default,sprites,base_dir,output_dir,TRACK_SUBTYPE_LIFT);
 	}
 return 0;
 }
