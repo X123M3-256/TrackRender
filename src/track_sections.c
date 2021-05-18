@@ -42,8 +42,8 @@
 #define CORKSCREW_SEGMENT2_LENGTH (1.744083*TILE_SIZE)
 #define CORKSCREW_LENGTH (CORKSCREW_SEGMENT1_LENGTH+CORKSCREW_SEGMENT2_LENGTH)
 
-#define LARGE_CORKSCREW_SEGMENT1_LENGTH (2.824277*TILE_SIZE)
-#define LARGE_CORKSCREW_SEGMENT2_LENGTH (2.933438*TILE_SIZE)
+#define LARGE_CORKSCREW_SEGMENT1_LENGTH (2.665302*TILE_SIZE)
+#define LARGE_CORKSCREW_SEGMENT2_LENGTH (2.665301*TILE_SIZE)
 #define LARGE_CORKSCREW_LENGTH (LARGE_CORKSCREW_SEGMENT1_LENGTH+LARGE_CORKSCREW_SEGMENT2_LENGTH)
 
 
@@ -631,8 +631,9 @@ return point;
 
 track_point_t large_corkscrew_left_curve(float distance)
 {
-	if(distance<LARGE_CORKSCREW_SEGMENT1_LENGTH)return bezier3d(2.040694,-1.216024,0.000000,0.000000,-1.701532,6.242332,0.000000,0.000000,0.349774,-4.431544,11.503800,0.000000,-0.390790,0.873685,-0.825000,0.192393,-2.02638642e-09,1.19359406e-07,-1.71851966e-06,-5.19115702e-06,3.84473255e-05,2.91093716e-03,8.69288160e-02,distance);
-	else return bezier3d(1.164874,2.570422,3.690034,0.824670,-2.848476,0.582681,7.380068,4.540800,2.034094,-4.896158,3.690034,7.422030,1.443125,-1.039687,-0.750000,0.196234,-1.75744125e-08,7.57741959e-07,-1.14090904e-05,7.19901377e-05,-3.22829928e-04,8.18802544e-04,1.10559344e-01,distance-LARGE_CORKSCREW_SEGMENT1_LENGTH); 
+
+	if(distance<LARGE_CORKSCREW_SEGMENT1_LENGTH)return bezier3d(0.933626,0.221374,0.000000,0.000000,-2.469325,6.623252,0.000000,0.000000,0.438626,-4.728626,11.385000,0.000000,0.474996,-0.837494,0.250000,-0.033411,-2.12934033e-08,5.76526391e-07,-4.79935988e-06,5.11070674e-06,2.88738739e-05,3.22777231e-03,8.78272624e-02,distance);
+	else return bezier3d(0.438626,3.412747,3.243626,1.155000,-2.469325,0.784724,5.838527,4.153926,0.933626,-3.022253,3.243626,7.095000,1.376400,-1.314599,0.000000,-0.028389,-2.12934347e-08,7.34476868e-07,-8.96710411e-06,4.40460099e-05,-1.18670859e-04,-1.92288999e-03,1.34679889e-01,distance-LARGE_CORKSCREW_SEGMENT1_LENGTH); 
 }
 
 track_point_t large_corkscrew_right_curve(float distance)
@@ -961,10 +962,10 @@ rect_t large_corkscrew_left_rects[]=
 {INT32_MIN,INT32_MIN,-112,INT32_MAX},
 };
 mask_t large_corkscrew_left_masks[]={
-{0,17,0,0,large_corkscrew_left_rects},{TRACK_MASK_TRANSFER_NEXT,48,-32,24,large_corkscrew_left_rects+17},{TRACK_MASK_DIFFERENCE,65,-64,64,large_corkscrew_left_rects+65},{0,48,-32,96,large_corkscrew_left_rects+130},{0,17,0,152,large_corkscrew_left_rects+178},
-{TRACK_MASK_TRANSFER_NEXT,1,0,0,large_corkscrew_left_rects+195},{TRACK_MASK_DIFFERENCE,1,-32,-8,large_corkscrew_left_rects+196},{0,33,-64,0,large_corkscrew_left_rects+197},{0,65,-96,32,large_corkscrew_left_rects+230},{0,33,-128,88,large_corkscrew_left_rects+295},
-{0,1,0,0,large_corkscrew_left_rects+328},{TRACK_MASK_TRANSFER_NEXT,31,32,-8,large_corkscrew_left_rects+329},{TRACK_MASK_DIFFERENCE,32,64,0,large_corkscrew_left_rects+360},{0,1,32,0,large_corkscrew_left_rects+392},{0,1,0,24,large_corkscrew_left_rects+393},
-{0,17,0,0,large_corkscrew_left_rects+394},{0,49,32,24,large_corkscrew_left_rects+411},{0,65,64,64,large_corkscrew_left_rects+460},{TRACK_MASK_TRANSFER_NEXT,33,96,64,large_corkscrew_left_rects+525},{TRACK_MASK_DIFFERENCE,1,128,88,large_corkscrew_left_rects+558}
+{0,17,0,0,large_corkscrew_left_rects},{TRACK_MASK_TRANSFER_NEXT,48,-32,24,large_corkscrew_left_rects+17},{TRACK_MASK_DIFFERENCE,65,-64,64,large_corkscrew_left_rects+65},{0,48,-32,96,large_corkscrew_left_rects+130},{0,17,0,136,large_corkscrew_left_rects+178},
+{TRACK_MASK_TRANSFER_NEXT,1,0,0,large_corkscrew_left_rects+195},{TRACK_MASK_DIFFERENCE,1,-32,-8,large_corkscrew_left_rects+196},{0,33,-64,0,large_corkscrew_left_rects+197},{0,65,-96,32,large_corkscrew_left_rects+230},{0,33,-128,72,large_corkscrew_left_rects+295},
+{0,1,0,0,large_corkscrew_left_rects+328},{TRACK_MASK_TRANSFER_NEXT,31,32,-8,large_corkscrew_left_rects+329},{TRACK_MASK_DIFFERENCE,32,64,0,large_corkscrew_left_rects+360},{0,1,32,0,large_corkscrew_left_rects+392},{0,1,0,8,large_corkscrew_left_rects+393},
+{0,17,0,0,large_corkscrew_left_rects+394},{0,49,32,24,large_corkscrew_left_rects+411},{0,65,64,64,large_corkscrew_left_rects+460},{TRACK_MASK_TRANSFER_NEXT,33,96,64,large_corkscrew_left_rects+525},{TRACK_MASK_DIFFERENCE,1,128,72,large_corkscrew_left_rects+558}
 };
 
 
@@ -998,10 +999,10 @@ rect_t large_corkscrew_right_rects[]=
 {-32,INT32_MIN,INT32_MAX,-126},{-30,-126,INT32_MAX,-125},{-28,-125,INT32_MAX,-124},{-26,-124,INT32_MAX,-123},{-24,-123,INT32_MAX,-122},{-22,-122,INT32_MAX,-121},{-20,-121,INT32_MAX,-120},{-18,-120,INT32_MAX,-119},{-16,-119,INT32_MAX,-118},{-14,-118,INT32_MAX,-117},{-12,-117,INT32_MAX,-116},{-10,-116,INT32_MAX,-115},{-8,-115,INT32_MAX,-114},{-6,-114,INT32_MAX,-113},{-4,-113,INT32_MAX,-112},{-2,-112,INT32_MAX,-111},{0,-111,INT32_MAX,-64}
 };
 mask_t large_corkscrew_right_masks[]={
-{0,17,0,0,large_corkscrew_right_rects},{0,49,-32,24,large_corkscrew_right_rects+17},{0,65,-64,64,large_corkscrew_right_rects+66},{TRACK_MASK_TRANSFER_NEXT,33,-96,64,large_corkscrew_right_rects+131},{TRACK_MASK_DIFFERENCE,1,-128,88,large_corkscrew_right_rects+164},
-{0,1,0,0,large_corkscrew_right_rects+165},{TRACK_MASK_TRANSFER_NEXT,31,-32,-8,large_corkscrew_right_rects+166},{TRACK_MASK_DIFFERENCE,32,-64,0,large_corkscrew_right_rects+197},{0,1,-32,0,large_corkscrew_right_rects+229},{0,1,0,24,large_corkscrew_right_rects+230},
-{TRACK_MASK_TRANSFER_NEXT,1,0,0,large_corkscrew_right_rects+231},{TRACK_MASK_DIFFERENCE,1,32,-8,large_corkscrew_right_rects+232},{0,33,64,0,large_corkscrew_right_rects+233},{0,65,96,32,large_corkscrew_right_rects+266},{0,33,128,88,large_corkscrew_right_rects+331},
-{0,17,0,0,large_corkscrew_right_rects+364},{TRACK_MASK_TRANSFER_NEXT,48,32,24,large_corkscrew_right_rects+381},{TRACK_MASK_DIFFERENCE,65,64,64,large_corkscrew_right_rects+429},{0,48,32,96,large_corkscrew_right_rects+494},{0,17,0,152,large_corkscrew_right_rects+542},
+{0,17,0,0,large_corkscrew_right_rects},{0,49,-32,24,large_corkscrew_right_rects+17},{0,65,-64,64,large_corkscrew_right_rects+66},{TRACK_MASK_TRANSFER_NEXT,33,-96,64,large_corkscrew_right_rects+131},{TRACK_MASK_DIFFERENCE,1,-128,72,large_corkscrew_right_rects+164},
+{0,1,0,0,large_corkscrew_right_rects+165},{TRACK_MASK_TRANSFER_NEXT,31,-32,-8,large_corkscrew_right_rects+166},{TRACK_MASK_DIFFERENCE,32,-64,0,large_corkscrew_right_rects+197},{0,1,-32,0,large_corkscrew_right_rects+229},{0,1,0,8,large_corkscrew_right_rects+230},
+{TRACK_MASK_TRANSFER_NEXT,1,0,0,large_corkscrew_right_rects+231},{TRACK_MASK_DIFFERENCE,1,32,-8,large_corkscrew_right_rects+232},{0,33,64,0,large_corkscrew_right_rects+233},{0,65,96,32,large_corkscrew_right_rects+266},{0,33,128,72,large_corkscrew_right_rects+331},
+{0,17,0,0,large_corkscrew_right_rects+364},{TRACK_MASK_TRANSFER_NEXT,48,32,24,large_corkscrew_right_rects+381},{TRACK_MASK_DIFFERENCE,65,64,64,large_corkscrew_right_rects+429},{0,48,32,96,large_corkscrew_right_rects+494},{0,17,0,136,large_corkscrew_right_rects+542},
 };
 
 const track_section_t large_corkscrew_right={TRACK_NO_SUPPORTS|TRACK_OFFSET_SPRITE_MASK|TRACK_SPECIAL_CORKSCREW_LEFT,large_corkscrew_right_curve,LARGE_CORKSCREW_LENGTH,{{VIEW_NEEDS_TRACK_MASK,5,large_corkscrew_right_masks},{VIEW_NEEDS_TRACK_MASK,5,large_corkscrew_right_masks+5},{VIEW_NEEDS_TRACK_MASK,5,large_corkscrew_right_masks+10},{VIEW_NEEDS_TRACK_MASK,5,large_corkscrew_right_masks+15}}};
