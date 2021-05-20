@@ -89,8 +89,9 @@ TRACK_GROUP_LARGE_CORKSCREWS=0x40000,
 TRACK_GROUP_BOOSTERS=0x80000,
 TRACK_GROUP_LAUNCHED_LIFTS=0x100000,
 TRACK_GROUP_TURN_BANK_TRANSITIONS=0x200000,
-TRACK_GROUP_LARGE_HALF_LOOPS=0x400000,
-TRACK_GROUP_SMALL_SLOPE_TRANSITIONS=0x800000
+TRACK_GROUP_MEDIUM_HALF_LOOPS=0x400000,
+TRACK_GROUP_LARGE_HALF_LOOPS=0x800000,
+TRACK_GROUP_SMALL_SLOPE_TRANSITIONS=0x1000000
 };
 
 
@@ -257,6 +258,8 @@ typedef struct
 	track_section_t inline_twist_left;
 	track_section_t inline_twist_right;
 	track_section_t half_loop;
+	track_section_t medium_half_loop_left;
+	track_section_t medium_half_loop_right;
 	track_section_t large_half_loop_left;
 	track_section_t large_half_loop_right;
 	track_section_t flat_to_steep_up;

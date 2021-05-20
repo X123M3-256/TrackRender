@@ -734,6 +734,13 @@ int groups=0;
 	write_track_section(context,&(track_list.small_turn_right_bank_to_gentle_up),track_type,base_dir,output_path,sprites,subtype,NULL);
 	}
 	
+	if(groups&TRACK_GROUP_MEDIUM_HALF_LOOPS)
+	{
+	sprintf(output_path,"%.255smedium_half_loop_left%s",output_dir,suffix);
+	write_track_section(context,&(track_list.medium_half_loop_left),track_type,base_dir,output_path,sprites,subtype,NULL);
+	sprintf(output_path,"%.255smedium_half_loop_right%s",output_dir,suffix);
+	write_track_section(context,&(track_list.medium_half_loop_right),track_type,base_dir,output_path,sprites,subtype,NULL);
+	}
 	if(groups&TRACK_GROUP_LARGE_HALF_LOOPS)
 	{
 	sprintf(output_path,"%.255slarge_half_loop_left%s",output_dir,suffix);
@@ -1079,50 +1086,50 @@ sprite_rotation_t sprite_rotations[]=
 	{29,18,0,Y(29),-V,0.0},
 	{30,18,0,Y(30),-V,0.0},
 	{31,18,0,Y(31),-V,0.0},
-	{16,11,0,Y( 0),V+1*M_PI_12,0.0},
-	{24,11,0,Y( 8),V+1*M_PI_12,0.0},
-	{ 0,11,0,Y(16),V+1*M_PI_12,0.0},
-	{ 8,11,0,Y(24),V+1*M_PI_12,0.0},
-	{16,12,0,Y( 0),V+2*M_PI_12,0.0},
-	{24,12,0,Y( 8),V+2*M_PI_12,0.0},
-	{ 0,12,0,Y(16),V+2*M_PI_12,0.0},
-	{ 8,12,0,Y(24),V+2*M_PI_12,0.0},
-	{16,13,0,Y( 0),V+3*M_PI_12,0.0},
-	{24,13,0,Y( 8),V+3*M_PI_12,0.0},
-	{ 0,13,0,Y(16),V+3*M_PI_12,0.0},
-	{ 8,13,0,Y(24),V+3*M_PI_12,0.0},
-	{16,14,0,Y( 0),V+4*M_PI_12,0.0},
-	{24,14,0,Y( 8),V+4*M_PI_12,0.0},
-	{ 0,14,0,Y(16),V+4*M_PI_12,0.0},
-	{ 8,14,0,Y(24),V+4*M_PI_12,0.0},
-	{16,15,0,Y( 0),V+5*M_PI_12,0.0},
-	{24,15,0,Y( 8),V+5*M_PI_12,0.0},
-	{ 0,15,0,Y(16),V+5*M_PI_12,0.0},
-	{ 8,15,0,Y(24),V+5*M_PI_12,0.0},
-	{16,16,0,Y( 0),V+6*M_PI_12,0.0},
-	{24,16,0,Y( 8),V+6*M_PI_12,0.0},
-	{ 0,16,0,Y(16),V+6*M_PI_12,0.0},
-	{ 8,16,0,Y(24),V+6*M_PI_12,0.0},
-	{16,19,0,Y( 0),-V-1*M_PI_12,0.0},
-	{24,19,0,Y( 8),-V-1*M_PI_12,0.0},
-	{ 0,19,0,Y(16),-V-1*M_PI_12,0.0},
-	{ 8,19,0,Y(24),-V-1*M_PI_12,0.0},
-	{16,20,0,Y( 0),-V-2*M_PI_12,0.0},
-	{24,20,0,Y( 8),-V-2*M_PI_12,0.0},
-	{ 0,20,0,Y(16),-V-2*M_PI_12,0.0},
-	{ 8,20,0,Y(24),-V-2*M_PI_12,0.0},
-	{16,21,0,Y( 0),-V-3*M_PI_12,0.0},
-	{24,21,0,Y( 8),-V-3*M_PI_12,0.0},
-	{ 0,21,0,Y(16),-V-3*M_PI_12,0.0},
-	{ 8,21,0,Y(24),-V-3*M_PI_12,0.0},
-	{16,22,0,Y( 0),-V-4*M_PI_12,0.0},
-	{24,22,0,Y( 8),-V-4*M_PI_12,0.0},
-	{ 0,22,0,Y(16),-V-4*M_PI_12,0.0},
-	{ 8,22,0,Y(24),-V-4*M_PI_12,0.0},
-	{16,23,0,Y( 0),-V-5*M_PI_12,0.0},
-	{24,23,0,Y( 8),-V-5*M_PI_12,0.0},
-	{ 0,23,0,Y(16),-V-5*M_PI_12,0.0},
-	{ 8,23,0,Y(24),-V-5*M_PI_12,0.0},
+	{ 0,11,0,Y( 0),V+1*M_PI_12,0.0},
+	{ 8,11,0,Y( 8),V+1*M_PI_12,0.0},
+	{16,11,0,Y(16),V+1*M_PI_12,0.0},
+	{24,11,0,Y(24),V+1*M_PI_12,0.0},
+	{ 0,12,0,Y( 0),V+2*M_PI_12,0.0},
+	{ 8,12,0,Y( 8),V+2*M_PI_12,0.0},
+	{16,12,0,Y(16),V+2*M_PI_12,0.0},
+	{24,12,0,Y(24),V+2*M_PI_12,0.0},
+	{ 0,13,0,Y( 0),V+3*M_PI_12,0.0},
+	{ 8,13,0,Y( 8),V+3*M_PI_12,0.0},
+	{16,13,0,Y(16),V+3*M_PI_12,0.0},
+	{24,13,0,Y(24),V+3*M_PI_12,0.0},
+	{ 0,14,0,Y( 0),V+4*M_PI_12,0.0},
+	{ 8,14,0,Y( 8),V+4*M_PI_12,0.0},
+	{16,14,0,Y(16),V+4*M_PI_12,0.0},
+	{24,14,0,Y(24),V+4*M_PI_12,0.0},
+	{ 0,15,0,Y( 0),V+5*M_PI_12,0.0},
+	{ 8,15,0,Y( 8),V+5*M_PI_12,0.0},
+	{16,15,0,Y(16),V+5*M_PI_12,0.0},
+	{24,15,0,Y(24),V+5*M_PI_12,0.0},
+	{ 0,16,0,Y( 0),V+6*M_PI_12,0.0},
+	{ 8,16,0,Y( 8),V+6*M_PI_12,0.0},
+	{16,16,0,Y(16),V+6*M_PI_12,0.0},
+	{24,16,0,Y(24),V+6*M_PI_12,0.0},
+	{ 0,19,0,Y( 0),-V-1*M_PI_12,0.0},
+	{ 8,19,0,Y( 8),-V-1*M_PI_12,0.0},
+	{16,19,0,Y(16),-V-1*M_PI_12,0.0},
+	{24,19,0,Y(24),-V-1*M_PI_12,0.0},
+	{ 0,20,0,Y( 0),-V-2*M_PI_12,0.0},
+	{ 8,20,0,Y( 8),-V-2*M_PI_12,0.0},
+	{16,20,0,Y(16),-V-2*M_PI_12,0.0},
+	{24,20,0,Y(24),-V-2*M_PI_12,0.0},
+	{ 0,21,0,Y( 0),-V-3*M_PI_12,0.0},
+	{ 8,21,0,Y( 8),-V-3*M_PI_12,0.0},
+	{16,21,0,Y(16),-V-3*M_PI_12,0.0},
+	{24,21,0,Y(24),-V-3*M_PI_12,0.0},
+	{ 0,22,0,Y( 0),-V-4*M_PI_12,0.0},
+	{ 8,22,0,Y( 8),-V-4*M_PI_12,0.0},
+	{16,22,0,Y(16),-V-4*M_PI_12,0.0},
+	{24,22,0,Y(24),-V-4*M_PI_12,0.0},
+	{ 0,23,0,Y( 0),-V-5*M_PI_12,0.0},
+	{ 8,23,0,Y( 8),-V-5*M_PI_12,0.0},
+	{16,23,0,Y(16),-V-5*M_PI_12,0.0},
+	{24,23,0,Y(24),-V-5*M_PI_12,0.0},
 	{ 0,34,0,Y( 0)+CRY(1*M_PI_6),CRP(1*M_PI_6),CRR(1*M_PI_6)},
 	{ 8,34,0,Y( 8)+CRY(1*M_PI_6),CRP(1*M_PI_6),CRR(1*M_PI_6)},
 	{16,34,0,Y(16)+CRY(1*M_PI_6),CRP(1*M_PI_6),CRR(1*M_PI_6)},
@@ -1239,8 +1246,9 @@ int length=(int)floor(0.5+32.0*(track_section->length/TILE_SIZE));
 
 
 track_point_t end=track_section->curve(track_section->length);
-//printf("Angle %f\n",atan2(end.tangent.x,end.tangent.z));
-matrix_t reverse_transform=rotate_y(atan2(end.tangent.x,end.tangent.z));
+float finish_angle=roundf(2.0*atan2(-end.tangent.x,-end.tangent.z)/M_PI);
+//printf("Angle %f\n",0.5*finish_angle*M_PI);
+matrix_t reverse_transform=rotate_y(finish_angle);
 vector3_t reverse_offset=end.position;
 
 printf("CREATE_VEHICLE_INFO(TrackVehicleInfo%s%d, {\n",name,view);
@@ -1294,7 +1302,8 @@ printf("CREATE_VEHICLE_INFO(TrackVehicleInfo%s%d, {\n",name,view);
 		break;
 		}
 		if(i%5==0)printf("    ");
-	printf("{%d, %d, %d, %d, %d, %d}, ",x,y,z,(8*view+rotation.yaw_sprite+(reverse?16:0))%32,rotation.pitch_sprite,rotation.bank_sprite);
+		//TODO the reverse rotation seems to only apply to corkscrews
+	printf("{%d, %d, %d, %d, %d, %d}, ",x,y,z,(8*view+rotation.yaw_sprite+(reverse?0:0))%32,rotation.pitch_sprite,rotation.bank_sprite);
 		if(i%5==4||i==length-1)putchar('\n');
 	}
 puts("})\n");

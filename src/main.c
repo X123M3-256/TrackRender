@@ -69,6 +69,7 @@ uint32_t groups=0;
 		else if(strcmp(json_string_value(group_name),"corkscrews")==0)groups|=TRACK_GROUP_CORKSCREWS;
 		else if(strcmp(json_string_value(group_name),"large_corkscrews")==0)groups|=TRACK_GROUP_LARGE_CORKSCREWS;
 		else if(strcmp(json_string_value(group_name),"half_loops")==0)groups|=TRACK_GROUP_HALF_LOOPS;
+		else if(strcmp(json_string_value(group_name),"medium_half_loops")==0)groups|=TRACK_GROUP_MEDIUM_HALF_LOOPS;
 		else if(strcmp(json_string_value(group_name),"large_half_loops")==0)groups|=TRACK_GROUP_LARGE_HALF_LOOPS;
 		else if(strcmp(json_string_value(group_name),"boosters")==0)groups|=TRACK_GROUP_BOOSTERS;
 		else if(strcmp(json_string_value(group_name),"launched_lifts")==0)groups|=TRACK_GROUP_LAUNCHED_LIFTS;
@@ -231,14 +232,17 @@ return 0;
 
 int main(int argc,char** argv)
 {
-
-//generate_subposition_data(&(track_list_default.gentle_to_steep_up),"LeftLargeCorkscrewUp");
+//generate_subposition_data(&(track_list_default.small_turn_left),"LeftLargeCorkscrewUp",0);
+//generate_subposition_data(&(track_list_default.small_turn_left),"LeftLargeCorkscrewUp",1);
 //generate_subposition_data(&(track_list_default.large_corkscrew_left),"LeftLargeCorkscrewUp",0);
 //generate_subposition_data(&(track_list_default.large_corkscrew_right),"RightLargeCorkscrewUp",0);
-generate_subposition_data(&(track_list_default.large_corkscrew_right),"LeftLargeCorkscrewDown",27);
-generate_subposition_data(&(track_list_default.large_corkscrew_left),"RightLargeCorkscrewDown",27);
-return;
-
+//generate_subposition_data(&(track_list_default.large_corkscrew_right),"LeftLargeCorkscrewDown",27);
+//generate_subposition_data(&(track_list_default.large_corkscrew_left),"RightLargeCorkscrewDown",27);
+//generate_subposition_data(&(track_list_default.medium_half_loop_left),"LeftMediumHalfLoopUp",0);
+//generate_subposition_data(&(track_list_default.medium_half_loop_right),"RightMediumHalfLoopUp",0);
+//generate_subposition_data(&(track_list_default.medium_half_loop_right),"LeftMediumHalfLoopDown",27);
+//generate_subposition_data(&(track_list_default.medium_half_loop_left),"RightMediumHalfLoopDown",27);
+//return;
 
 	if(argc!=2)
 	{
