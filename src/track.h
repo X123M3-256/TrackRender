@@ -91,7 +91,8 @@ TRACK_GROUP_LAUNCHED_LIFTS=0x100000,
 TRACK_GROUP_TURN_BANK_TRANSITIONS=0x200000,
 TRACK_GROUP_MEDIUM_HALF_LOOPS=0x400000,
 TRACK_GROUP_LARGE_HALF_LOOPS=0x800000,
-TRACK_GROUP_SMALL_SLOPE_TRANSITIONS=0x1000000
+TRACK_GROUP_ZERO_G_ROLLS=0x1000000,
+TRACK_GROUP_SMALL_SLOPE_TRANSITIONS=0x2000000
 };
 
 
@@ -273,6 +274,10 @@ typedef struct
 	track_section_t corkscrew_right;
 	track_section_t large_corkscrew_left;
 	track_section_t large_corkscrew_right;
+	track_section_t zero_g_roll_left;
+	track_section_t zero_g_roll_right;
+	track_section_t large_zero_g_roll_left;
+	track_section_t large_zero_g_roll_right;
 	track_section_t small_turn_left_bank_to_gentle_up;
 	track_section_t small_turn_right_bank_to_gentle_up;
 	track_section_t launched_lift;

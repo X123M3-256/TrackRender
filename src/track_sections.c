@@ -52,9 +52,9 @@
 #define LARGE_HALF_LOOP_SEGMENT2_LENGTH (LARGE_HALF_LOOP_SEGMENT1_LENGTH+4.766127*TILE_SIZE)
 #define LARGE_HALF_LOOP_LENGTH ((LARGE_HALF_LOOP_SEGMENT2_LENGTH+3.545350*TILE_SIZE)*LARGE_HALF_LOOP_FACTOR)
 
-#define MEDIUM_HALF_LOOP_FACTOR 1.0094223047505255
-#define MEDIUM_HALF_LOOP_SEGMENT1_LENGTH (4.512989*TILE_SIZE)
-#define MEDIUM_HALF_LOOP_SEGMENT2_LENGTH (2.754524*TILE_SIZE)
+#define MEDIUM_HALF_LOOP_FACTOR 1.0091442916264541
+#define MEDIUM_HALF_LOOP_SEGMENT1_LENGTH (4.576898*TILE_SIZE)
+#define MEDIUM_HALF_LOOP_SEGMENT2_LENGTH (2.800775*TILE_SIZE)
 #define MEDIUM_HALF_LOOP_LENGTH ((MEDIUM_HALF_LOOP_SEGMENT1_LENGTH+MEDIUM_HALF_LOOP_SEGMENT2_LENGTH)*MEDIUM_HALF_LOOP_FACTOR)
 
 
@@ -62,7 +62,11 @@
 #define SMALL_FLAT_TO_STEEP_LENGTH (1.221327*TILE_SIZE)
 #define SMALL_FLAT_TO_STEEP_DIAG_LENGTH (1.584693*TILE_SIZE)
 
+#define ZERO_G_ROLL_BASE_LENGTH (3.083249*TILE_SIZE)
+#define ZERO_G_ROLL_LENGTH (3.178567*TILE_SIZE)
 
+#define LARGE_ZERO_G_ROLL_BASE_LENGTH (4.793163*TILE_SIZE)
+#define LARGE_ZERO_G_ROLL_LENGTH (4.793163*TILE_SIZE)
 
 
 float cubic(float a,float b, float c,float d,float x)
@@ -576,15 +580,6 @@ float v=0;//-0.75*TILE_SIZE/32;
 return cubic_curve_vertical(-0.5*TILE_SIZE-2*o,-0.5*TILE_SIZE+3*o,5*TILE_SIZE,0,-2*CLEARANCE_HEIGHT-2*v,13*CLEARANCE_HEIGHT+3*v,0,0,9.15921042e-12,-7.64176033e-10,1.91775506e-08,-6.20557903e-08,-1.07682192e-05,2.95991517e-04,5.44333126e-02,distance);
 }
 
-track_point_t heartline_curve(track_point_t unbanked_curve,float angle)
-{
-track_point_t point;
-point.position=vector3_add(unbanked_curve.position,vector3_add(vector3_mult(unbanked_curve.normal,0.125*(1-cos(angle))),vector3_mult(unbanked_curve.binormal,-0.125*sin(angle))));
-point.tangent=unbanked_curve.tangent;
-point.normal=vector3_add(vector3_mult(unbanked_curve.normal,cos(angle)),vector3_mult(unbanked_curve.binormal,sin(angle)));
-point.binormal=vector3_add(vector3_mult(unbanked_curve.normal,-sin(angle)),vector3_mult(unbanked_curve.binormal,cos(angle)));
-return point;
-}
 
 
 track_point_t steep_to_flat_up_curve(float distance)
@@ -661,15 +656,15 @@ float proj_distance=distance/MEDIUM_HALF_LOOP_FACTOR;
 
 	if(proj_distance<MEDIUM_HALF_LOOP_SEGMENT1_LENGTH)
 	{
-	float u=reparameterize(-4.31538254e-10,1.16616216e-08,-1.29968800e-07,1.25445874e-06,7.16338445e-06,5.27984060e-04,5.61089865e-02,proj_distance);
-	point.position=vector3(TILE_SIZE*proj_distance/MEDIUM_HALF_LOOP_LENGTH,cubic(-10.0*CLEARANCE_HEIGHT/3.0,28.0*CLEARANCE_HEIGHT/3.0,10*CLEARANCE_HEIGHT,0.0,u),cubic(-0.5*TILE_SIZE,-1.75*TILE_SIZE,5*TILE_SIZE,0.0,u));
-	point.tangent=vector3_normalize(vector3(0,cubic_derivative(-10.0*CLEARANCE_HEIGHT/3.0,28.0*CLEARANCE_HEIGHT/3.0,10*CLEARANCE_HEIGHT,u),cubic_derivative(-0.5*TILE_SIZE,-1.75*TILE_SIZE,5*TILE_SIZE,u)));
+	float u=reparameterize(3.58651744e-10,-7.21419108e-09,6.85259131e-08,1.37002728e-06,-9.68954069e-06,3.60136667e-04,5.61056927e-02,proj_distance);
+	point.position=vector3(TILE_SIZE*proj_distance/MEDIUM_HALF_LOOP_LENGTH,cubic(-22.0*CLEARANCE_HEIGHT/3.0,14.0*CLEARANCE_HEIGHT,10*CLEARANCE_HEIGHT,0.0,u),cubic(-0.45*TILE_SIZE,-1.825*TILE_SIZE,5*TILE_SIZE,0.0,u));
+	point.tangent=vector3_normalize(vector3(0,cubic_derivative(-22.0*CLEARANCE_HEIGHT/3.0,14.0*CLEARANCE_HEIGHT,10*CLEARANCE_HEIGHT,u),cubic_derivative(-0.45*TILE_SIZE,-1.825*TILE_SIZE,5*TILE_SIZE,u)));
 	}
 	else
 	{
-	float u=reparameterize(-8.97422703e-08,2.61659360e-06,-2.40280202e-05,4.40332476e-05,2.64024200e-05,3.76625942e-03,9.28091063e-02,proj_distance-MEDIUM_HALF_LOOP_SEGMENT1_LENGTH);
-	point.position=vector3(TILE_SIZE*proj_distance/MEDIUM_HALF_LOOP_LENGTH,cubic(-2.0*CLEARANCE_HEIGHT/3.0,-7*CLEARANCE_HEIGHT,16*CLEARANCE_HEIGHT,48.0*CLEARANCE_HEIGHT/3.0,u),cubic(3.5*TILE_SIZE-10,-5.25*TILE_SIZE+10,0,2.75*TILE_SIZE,u));
-	point.tangent=vector3_normalize(vector3(0,cubic_derivative(-2.0*CLEARANCE_HEIGHT/3.0,-7*CLEARANCE_HEIGHT,16*CLEARANCE_HEIGHT,u),cubic_derivative(3.5*TILE_SIZE-10,-5.25*TILE_SIZE+10,0,u)));
+	float u=reparameterize(-1.42314299e-07,4.73667822e-06,-5.54843710e-05,2.44308349e-04,-4.15592779e-04,4.27539677e-03,8.54238756e-02,proj_distance-MEDIUM_HALF_LOOP_SEGMENT1_LENGTH);
+	point.position=vector3(TILE_SIZE*proj_distance/MEDIUM_HALF_LOOP_LENGTH,cubic(0.0,-26.0*CLEARANCE_HEIGHT/3.0,52.0*CLEARANCE_HEIGHT/3.0,50.0*CLEARANCE_HEIGHT/3.0,u),cubic(0.45*TILE_SIZE,-2.175*TILE_SIZE,0,2.725*TILE_SIZE,u));
+	point.tangent=vector3_normalize(vector3(0,cubic_derivative(0.0,-26.0*CLEARANCE_HEIGHT/3.0,52.0*CLEARANCE_HEIGHT/3.0,u),cubic_derivative(0.45*TILE_SIZE,-2.175*TILE_SIZE,0,u)));
 	}
 
 point.tangent.x+=1.0/MEDIUM_HALF_LOOP_LENGTH;
@@ -738,6 +733,75 @@ point.binormal.z*=-1;
 return point;
 }
 
+track_point_t roll_curve(float xa,float xb,float xc,float xd,float ya,float yb,float yc,float yd,float ra,float rb,float rc,float rd,float pa,float pb,float pc,float pd,float pe,float pf,float pg,float distance)
+{
+float u=reparameterize(pa,pb,pc,pd,pe,pf,pg,distance);
+track_point_t unbanked_curve=plane_curve_vertical(vector3(0.0,cubic(ya,yb,yc,yd,u),cubic(xa,xb,xc,xd,u)),vector3_normalize(vector3(0.0,cubic_derivative(ya,yb,yc,u),cubic_derivative(xa,xb,xc,u))));
+
+float roll=cubic(ra,rb,rc,rd,distance);
+float roll_rate=cubic_derivative(ra,rb,rc,distance);
+
+track_point_t point;
+float radius=7*CLEARANCE_HEIGHT/6;
+point.position=vector3_add(unbanked_curve.position,vector3_add(vector3_mult(unbanked_curve.normal,radius*(1-cos(roll))),vector3_mult(unbanked_curve.binormal,-radius*sin(roll))));
+point.tangent=vector3_normalize(vector3_add(unbanked_curve.tangent,vector3_add(vector3_mult(unbanked_curve.normal,radius*roll_rate*sin(roll)),vector3_mult(unbanked_curve.binormal,-radius*roll_rate*cos(roll)))));
+point.normal=vector3_add(vector3_mult(unbanked_curve.normal,cos(roll)),vector3_mult(unbanked_curve.binormal,sin(roll)));
+point.binormal=vector3_cross(point.tangent,point.normal);
+return point;
+}
+
+track_point_t zero_g_roll_left_curve(float distance)
+{
+float roll_rate_final=0.75*M_PI/(3.0*TILE_SIZE);
+float roll_rate_initial=0.5*M_PI/(3.0*TILE_SIZE);
+
+float a=(roll_rate_final+roll_rate_initial-2*M_PI/ZERO_G_ROLL_BASE_LENGTH)/(ZERO_G_ROLL_BASE_LENGTH*ZERO_G_ROLL_BASE_LENGTH);
+float b=(3*M_PI/ZERO_G_ROLL_BASE_LENGTH-2*roll_rate_initial-roll_rate_final)/ZERO_G_ROLL_BASE_LENGTH;
+float c=roll_rate_initial;
+
+//printf("%f*x^3+%f*x^2+%f*x\n",a,b,c);
+//printf("%f*TILE_SIZE,%f*TILE_SIZE,%f*TILE_SIZE,%f*TILE_SIZE\n",a/TILE_SIZE,b/TILE_SIZE,c/TILE_SIZE,0.0);
+
+return roll_curve(-0.5*TILE_SIZE,-1.5*TILE_SIZE,5*TILE_SIZE,0,4*CLEARANCE_HEIGHT,-11*CLEARANCE_HEIGHT,10*CLEARANCE_HEIGHT,0,a,b,c,0,2.72452673e-06,-8.60587142e-05,1.06785619e-03,-6.53445874e-03,2.04313108e-02,-2.83005236e-02,7.09176768e-02,reparameterize(-1.46756962e-08,6.34485894e-07,-1.39524362e-05,1.88464057e-04,-1.01667370e-03,-2.45806003e-03,9.98034019e-01,distance));
+}
+
+track_point_t zero_g_roll_right_curve(float distance)
+{
+track_point_t point=zero_g_roll_left_curve(distance);
+point.position.x*=-1;
+point.normal.x*=-1;
+point.tangent.x*=-1;
+point.binormal.y*=-1;
+point.binormal.z*=-1;
+return point;
+}
+
+track_point_t large_zero_g_roll_left_curve(float distance)
+{
+float roll_rate_final=0.75*M_PI/(3.0*TILE_SIZE);
+float roll_rate_initial=0*M_PI/(3.0*TILE_SIZE);
+
+float a=(roll_rate_final+roll_rate_initial-2*M_PI/LARGE_ZERO_G_ROLL_BASE_LENGTH)/(LARGE_ZERO_G_ROLL_BASE_LENGTH*LARGE_ZERO_G_ROLL_BASE_LENGTH);
+float b=(3*M_PI/LARGE_ZERO_G_ROLL_BASE_LENGTH-2*roll_rate_initial-roll_rate_final)/LARGE_ZERO_G_ROLL_BASE_LENGTH;
+float c=roll_rate_initial;
+
+//printf("%f*x^3+%f*x^2+%f*x\n",a,b,c);
+//printf("%f*TILE_SIZE,%f*TILE_SIZE,%f*TILE_SIZE,%f*TILE_SIZE\n",a/TILE_SIZE,b/TILE_SIZE,c/TILE_SIZE,0.0);
+
+return roll_curve(
+-1.0*TILE_SIZE,2.0*TILE_SIZE,3.0*TILE_SIZE,0,-2*CLEARANCE_HEIGHT,-9*CLEARANCE_HEIGHT,24*CLEARANCE_HEIGHT,0,a,b,c,0,9.38511689e-11,-4.52424630e-09,1.44865105e-07,-1.80128064e-06,-1.25558328e-06,7.49034430e-04,5.27578035e-02,distance);
+}
+
+track_point_t large_zero_g_roll_right_curve(float distance)
+{
+track_point_t point=large_zero_g_roll_left_curve(distance);
+point.position.x*=-1;
+point.normal.x*=-1;
+point.tangent.x*=-1;
+point.binormal.y*=-1;
+point.binormal.z*=-1;
+return point;
+}
 
 track_point_t small_turn_left_bank_to_gentle_up_curve(float distance)
 {
@@ -1123,7 +1187,29 @@ mask_t large_corkscrew_right_masks[]={
 const track_section_t large_corkscrew_right={TRACK_NO_SUPPORTS|TRACK_OFFSET_SPRITE_MASK|TRACK_SPECIAL_CORKSCREW_LEFT,large_corkscrew_right_curve,LARGE_CORKSCREW_LENGTH,{{VIEW_NEEDS_TRACK_MASK,5,large_corkscrew_right_masks},{VIEW_NEEDS_TRACK_MASK,5,large_corkscrew_right_masks+5},{VIEW_NEEDS_TRACK_MASK,5,large_corkscrew_right_masks+10},{VIEW_NEEDS_TRACK_MASK,5,large_corkscrew_right_masks+15}}};
 
 
+rect_t all={INT32_MIN,INT32_MIN,INT32_MAX,INT32_MAX};
 
+mask_t large_zero_g_roll_masks[]={
+{0,1,0,0,&all},{0,1,-32,16,&all},{0,1,-64,32,&all},{0,1,-96,48,&all},
+{0,1,0,0,&all},{0,1,-32,-16,&all},{0,1,-64,-32,&all},{0,1,-96,-48,&all},
+{0,1,0,0,&all},{0,1,32,-16,&all},{0,1,64,-32,&all},{0,1,96,-48,&all},
+{0,1,0,0,&all},{0,1,32,16,&all},{0,1,64,32,&all},{0,1,96,48,&all},
+};
+
+mask_t zero_g_roll_masks[]={
+{0,1,0,0,&all},{0,1,-32,16,&all},{0,1,-64,32,&all},
+{0,1,0,0,&all},{0,1,-32,-16,&all},{0,1,-64,-32,&all},
+{0,1,0,0,&all},{0,1,32,-16,&all},{0,1,64,-32,&all},
+{0,1,0,0,&all},{0,1,32,16,&all},{0,1,64,32,&all},
+};
+
+
+
+const track_section_t zero_g_roll_left={TRACK_NO_SUPPORTS,zero_g_roll_left_curve,ZERO_G_ROLL_LENGTH,{{0,3,zero_g_roll_masks},{0,3,zero_g_roll_masks+3},{0,3,zero_g_roll_masks+6},{0,3,zero_g_roll_masks+9}}};
+const track_section_t zero_g_roll_right={TRACK_NO_SUPPORTS,zero_g_roll_right_curve,ZERO_G_ROLL_LENGTH,{{0,3,zero_g_roll_masks},{0,3,zero_g_roll_masks+3},{0,3,zero_g_roll_masks+6},{0,3,zero_g_roll_masks+9}}};
+
+const track_section_t large_zero_g_roll_left={TRACK_NO_SUPPORTS,large_zero_g_roll_left_curve,LARGE_ZERO_G_ROLL_LENGTH,{{0,4,large_zero_g_roll_masks},{0,4,large_zero_g_roll_masks+4},{0,4,large_zero_g_roll_masks+8},{0,4,large_zero_g_roll_masks+12}}};
+const track_section_t large_zero_g_roll_right={TRACK_NO_SUPPORTS,large_zero_g_roll_right_curve,LARGE_ZERO_G_ROLL_LENGTH,{{0,4,large_zero_g_roll_masks},{0,4,large_zero_g_roll_masks+4},{0,4,large_zero_g_roll_masks+8},{0,4,large_zero_g_roll_masks+12}}};
 
 //Slopes
 const track_section_t flat={0,flat_curve,FLAT_LENGTH,{{0,1,NULL},{0,1,NULL},{0,0,NULL},{0,0,NULL}}};
@@ -1136,7 +1222,6 @@ const track_section_t flat_to_gentle_up={0,flat_to_gentle_up_curve,FLAT_TO_GENTL
 //const track_section_t flat_to_gentle_down={0,flat_to_gentle_down_curve,TILE_SIZE,{{0,1,NULL},{0,1,NULL},{0,1,NULL},{0,1,NULL}}};
 const track_section_t gentle_up_to_flat={0,gentle_up_to_flat_curve,FLAT_TO_GENTLE_LENGTH,{{0,1,NULL},{0,1,NULL},{0,1,NULL},{0,1,NULL}}};
 const track_section_t gentle={0,gentle_curve,GENTLE_LENGTH,{{0,1,NULL},{0,1,NULL},{0,1,NULL},{0,1,NULL}}};
-rect_t all={INT32_MIN,INT32_MIN,INT32_MAX,INT32_MAX};
 mask_t gentle_to_steep_up_masks[]={{TRACK_MASK_INTERSECT,1,0,0,&all},{TRACK_MASK_DIFFERENCE,1,0,0,&all},{TRACK_MASK_INTERSECT,1,0,0,&all},{TRACK_MASK_DIFFERENCE,1,0,0,&all}};
 const track_section_t gentle_to_steep_up={0,gentle_to_steep_up_curve,GENTLE_TO_STEEP_LENGTH,{{0,1,NULL},{VIEW_NEEDS_TRACK_MASK,2,gentle_to_steep_up_masks},{VIEW_NEEDS_TRACK_MASK,2,gentle_to_steep_up_masks+2},{0,1,NULL}}};
 rect_t steep_to_gentle_up_rects[]={{9,INT32_MIN,INT32_MAX,INT32_MAX},{INT32_MIN,INT32_MIN,9,INT32_MAX},{INT32_MIN,INT32_MIN,-12,INT32_MAX},{-12,INT32_MIN,INT32_MAX,INT32_MAX}};
@@ -2243,6 +2328,10 @@ track_list_t track_list_default={
 	corkscrew_right,
 	large_corkscrew_left,
 	large_corkscrew_right,
+	zero_g_roll_left,
+	zero_g_roll_right,
+	large_zero_g_roll_left,
+	large_zero_g_roll_right,
 	small_turn_left_bank_to_gentle_up,
 	small_turn_right_bank_to_gentle_up,
 	launched_lift
@@ -2345,6 +2434,10 @@ track_list_t track_list_semi_split={
 	corkscrew_right,
 	large_corkscrew_left,
 	large_corkscrew_right,
+	zero_g_roll_left,
+	zero_g_roll_right,
+	large_zero_g_roll_left,
+	large_zero_g_roll_right,
 	small_turn_left_bank_to_gentle_up,
 	small_turn_right_bank_to_gentle_up,
 	launched_lift
@@ -2447,6 +2540,10 @@ track_list_t track_list_split={
 	corkscrew_right,
 	large_corkscrew_left,
 	large_corkscrew_right,
+	zero_g_roll_left,
+	zero_g_roll_right,
+	large_zero_g_roll_left,
+	large_zero_g_roll_right,
 	small_turn_left_bank_to_gentle_up,
 	small_turn_right_bank_to_gentle_up,
 	launched_lift

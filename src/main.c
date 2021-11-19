@@ -71,6 +71,7 @@ uint32_t groups=0;
 		else if(strcmp(json_string_value(group_name),"half_loops")==0)groups|=TRACK_GROUP_HALF_LOOPS;
 		else if(strcmp(json_string_value(group_name),"medium_half_loops")==0)groups|=TRACK_GROUP_MEDIUM_HALF_LOOPS;
 		else if(strcmp(json_string_value(group_name),"large_half_loops")==0)groups|=TRACK_GROUP_LARGE_HALF_LOOPS;
+		else if(strcmp(json_string_value(group_name),"zero_g_rolls")==0)groups|=TRACK_GROUP_ZERO_G_ROLLS;
 		else if(strcmp(json_string_value(group_name),"boosters")==0)groups|=TRACK_GROUP_BOOSTERS;
 		else if(strcmp(json_string_value(group_name),"launched_lifts")==0)groups|=TRACK_GROUP_LAUNCHED_LIFTS;
 		else if(strcmp(json_string_value(group_name),"turn_bank_transitions")==0)groups|=TRACK_GROUP_TURN_BANK_TRANSITIONS;
@@ -304,6 +305,7 @@ light_t lights[9]={
 };
 */
 
+/*
 light_t lights[9]={
 {LIGHT_DIFFUSE,0,vector3_normalize(vector3(0.0,-1.0,0.0)),0.25},
 {LIGHT_DIFFUSE,0,vector3_normalize(vector3(1.0,0.3,0.0)),0.32},
@@ -312,14 +314,26 @@ light_t lights[9]={
 /*
 {LIGHT_SPECULAR,1,vector3_normalize(vector3(1,0.63,-1)),1.0},
 {LIGHT_DIFFUSE,1,vector3_normalize(vector3(1,0.63,-1)),0.8},
-*/
+*//*
 {LIGHT_DIFFUSE,0,vector3(0.0,1.0,0.0),0.174},
 {LIGHT_DIFFUSE,0,vector3_normalize(vector3(-1.0,0.0,0.0)),0.15},
 {LIGHT_DIFFUSE,0,vector3_normalize(vector3(0.0,1.0,1.0)),0.2},
 {LIGHT_DIFFUSE,0,vector3_normalize(vector3(0.65,0.816,-0.65000000)),0.25},
 {LIGHT_DIFFUSE,0,vector3_normalize(vector3(-1.0,0.0,-1.0)),0.25},
 };
+*/
 
+light_t lights[9]={
+{LIGHT_DIFFUSE,0,vector3_normalize(vector3(0.0,-1.0,0.0)),0.05},//Bottom
+{LIGHT_DIFFUSE,0,vector3_normalize(vector3(1.0,0.3,0.0)),0.1},//Back right
+{LIGHT_SPECULAR,0,vector3_normalize(vector3(1,1,-1)),1.0},//Main specular
+{LIGHT_DIFFUSE,1,vector3_normalize(vector3(1,0.63,-1)),0.8},//Main light
+{LIGHT_DIFFUSE,0,vector3(0.0,1.0,0.0),0.25},//Top
+{LIGHT_DIFFUSE,0,vector3_normalize(vector3(-1.0,0.0,0.0)),0.05},//Left
+{LIGHT_DIFFUSE,0,vector3_normalize(vector3(-1.0,1.0,1.0)),0.2},//Top left
+{LIGHT_DIFFUSE,0,vector3_normalize(vector3(0.65,0.816,-0.65000000)),0.35},//Front right
+{LIGHT_DIFFUSE,0,vector3_normalize(vector3(-1.0,0.0,-1.0)),0.25},//Front
+};
 
 context_t context=get_context(lights,9);
 

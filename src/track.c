@@ -345,6 +345,19 @@ int track_mask_views=0;
 
 	view_t* view=track_section->views+angle;
 
+	char final_filename[512];
+	char relative_filename[512];
+	snprintf(relative_filename,512,"%s_%d.png",filename,angle+1);
+	snprintf(final_filename,512,"%s%s",base_directory,relative_filename);
+//y		snprintf(final_filename,512,"../ImageEncode/%s",relative_filename);
+	printf("%s\n",final_filename);
+	FILE* file=fopen(final_filename,"w");
+		if(file==NULL)
+		{
+		printf("Error: could not open %s for writing\n",final_filename);
+		exit(1);
+		}
+	image_write_png(&(full_sprites[angle]),file);
 		
 		for(int sprite=0;sprite<view->num_sprites;sprite++)
 		{
@@ -747,6 +760,17 @@ int groups=0;
 	write_track_section(context,&(track_list.large_half_loop_left),track_type,base_dir,output_path,sprites,subtype,NULL);
 	sprintf(output_path,"%.255slarge_half_loop_right%s",output_dir,suffix);
 	write_track_section(context,&(track_list.large_half_loop_right),track_type,base_dir,output_path,sprites,subtype,NULL);
+	}
+	if(groups&TRACK_GROUP_ZERO_G_ROLLS)
+	{
+	sprintf(output_path,"%.255szero_g_roll_left%s",output_dir,suffix);
+	write_track_section(context,&(track_list.zero_g_roll_left),track_type,base_dir,output_path,sprites,subtype,NULL);
+	sprintf(output_path,"%.255szero_g_roll_right%s",output_dir,suffix);
+	write_track_section(context,&(track_list.zero_g_roll_right),track_type,base_dir,output_path,sprites,subtype,NULL);
+	sprintf(output_path,"%.255slarge_zero_g_roll_left%s",output_dir,suffix);
+	write_track_section(context,&(track_list.large_zero_g_roll_left),track_type,base_dir,output_path,sprites,subtype,NULL);
+	sprintf(output_path,"%.255slarge_zero_g_roll_right%s",output_dir,suffix);
+	write_track_section(context,&(track_list.large_zero_g_roll_right),track_type,base_dir,output_path,sprites,subtype,NULL);
 	}
 	
 	if(groups&TRACK_GROUP_SMALL_SLOPE_TRANSITIONS)
