@@ -614,7 +614,7 @@ int groups=0;
 	sprintf(output_path,"%.255smedium_turn_right_gentle_up%s",output_dir,suffix);
 	write_track_section(context,&(track_list.medium_turn_right_gentle_up),track_type,base_dir,output_path,sprites,subtype,NULL);
 	}
-	if((groups&TRACK_GROUP_SLOPED_TURNS)&&(groups&TRACK_GROUP_STEEP_SLOPES))
+	if((groups&TRACK_GROUP_STEEP_SLOPED_TURNS)&&(groups&TRACK_GROUP_STEEP_SLOPES))
 	{
 	sprintf(output_path,"%.255svery_small_turn_left_steep_up%s",output_dir,suffix);
 	write_track_section(context,&(track_list.very_small_turn_left_steep_up),track_type,base_dir,output_path,sprites,subtype,NULL);
