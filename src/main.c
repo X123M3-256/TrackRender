@@ -23,7 +23,7 @@ json_t* mesh=json_object_get(json,name);
 	{
 		if(json_is_string(mesh))
 		{
-		if(mesh_load(model,json_string_value(mesh)))
+		if(mesh_load_transform(model,json_string_value(mesh),rotate_y(-0.5*M_PI)))
 			{
 			printf("Failed to load model \"%s\"\n",json_string_value(mesh));
 			return 1;
@@ -234,17 +234,6 @@ return 0;
 
 int main(int argc,char** argv)
 {
-//generate_subposition_data(&(track_list_default.small_turn_left),"LeftLargeCorkscrewUp",0);
-//generate_subposition_data(&(track_list_default.small_turn_left),"LeftLargeCorkscrewUp",1);
-//generate_subposition_data(&(track_list_default.large_corkscrew_left),"LeftLargeCorkscrewUp",0);
-//generate_subposition_data(&(track_list_default.large_corkscrew_right),"RightLargeCorkscrewUp",0);
-//generate_subposition_data(&(track_list_default.large_corkscrew_right),"LeftLargeCorkscrewDown",27);
-//generate_subposition_data(&(track_list_default.large_corkscrew_left),"RightLargeCorkscrewDown",27);
-//generate_subposition_data(&(track_list_default.medium_half_loop_left),"LeftMediumHalfLoopUp",0);
-//generate_subposition_data(&(track_list_default.medium_half_loop_right),"RightMediumHalfLoopUp",0);
-//generate_subposition_data(&(track_list_default.medium_half_loop_right),"LeftMediumHalfLoopDown",27);
-//generate_subposition_data(&(track_list_default.medium_half_loop_left),"RightMediumHalfLoopDown",27);
-//return;
 
 	if(argc!=2)
 	{
@@ -306,7 +295,7 @@ light_t lights[9]={
 };
 */
 
-/*
+
 light_t lights[9]={
 {LIGHT_DIFFUSE,0,vector3_normalize(vector3(0.0,-1.0,0.0)),0.25},
 {LIGHT_DIFFUSE,0,vector3_normalize(vector3(1.0,0.3,0.0)),0.32},
@@ -315,15 +304,15 @@ light_t lights[9]={
 /*
 {LIGHT_SPECULAR,1,vector3_normalize(vector3(1,0.63,-1)),1.0},
 {LIGHT_DIFFUSE,1,vector3_normalize(vector3(1,0.63,-1)),0.8},
-*//*
+*/
 {LIGHT_DIFFUSE,0,vector3(0.0,1.0,0.0),0.174},
 {LIGHT_DIFFUSE,0,vector3_normalize(vector3(-1.0,0.0,0.0)),0.15},
 {LIGHT_DIFFUSE,0,vector3_normalize(vector3(0.0,1.0,1.0)),0.2},
 {LIGHT_DIFFUSE,0,vector3_normalize(vector3(0.65,0.816,-0.65000000)),0.25},
 {LIGHT_DIFFUSE,0,vector3_normalize(vector3(-1.0,0.0,-1.0)),0.25},
 };
-*/
 
+/*
 light_t lights[9]={
 {LIGHT_DIFFUSE,0,vector3_normalize(vector3(0.0,-1.0,0.0)),0.05},//Bottom
 {LIGHT_DIFFUSE,0,vector3_normalize(vector3(1.0,0.3,0.0)),0.1},//Back right
@@ -335,7 +324,7 @@ light_t lights[9]={
 {LIGHT_DIFFUSE,0,vector3_normalize(vector3(0.65,0.816,-0.65000000)),0.35},//Front right
 {LIGHT_DIFFUSE,0,vector3_normalize(vector3(-1.0,0.0,-1.0)),0.25},//Front
 };
-
+*/
 context_t context=get_context(lights,9);
 
 write_track_type(&context,&track_type,sprites,base_dir,sprite_dir);
