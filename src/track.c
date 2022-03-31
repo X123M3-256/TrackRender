@@ -5,10 +5,6 @@
 #include "track.h"
 #include "sprites.h"
 
-#define track_base (12.375*0.0254)
-#define support_top (18*0.0254)
-const float pivot=0.5*(track_base+support_top);
-
 vector3_t change_coordinates(vector3_t a)
 {
 vector3_t result={a.z,a.y,a.x};
@@ -157,6 +153,14 @@ int get_special_index(int flags)
 	case TRACK_SPECIAL_CORKSCREW_RIGHT:
 		return MODEL_SPECIAL_CORKSCREW;
 	break;
+	case TRACK_SPECIAL_ZERO_G_ROLL_LEFT:
+	case TRACK_SPECIAL_ZERO_G_ROLL_RIGHT:
+		return MODEL_SPECIAL_ZERO_G_ROLL;
+	break;
+	case TRACK_SPECIAL_LARGE_ZERO_G_ROLL_LEFT:
+	case TRACK_SPECIAL_LARGE_ZERO_G_ROLL_RIGHT:
+		return MODEL_SPECIAL_LARGE_ZERO_G_ROLL;
+	break;
 	case TRACK_SPECIAL_BRAKE:
 		return MODEL_SPECIAL_BRAKE;
 	break;
@@ -204,14 +208,14 @@ context_begin_render(context);
 //Add ghost models/track masks at start and end
 track_transform_args_t args;
 args.scale=scale;
-args.offset=-length-1e-5;
+args.offset=-length;
 args.z_offset=z_offset;
 args.track_curve=track_section->curve;
 args.flags=track_section->flags;
 args.length=track_section->length;
 	if(track_mask)context_add_model_transformed(context,&(track_type->mask),track_transform,&args,0);//);
 	else if(!extrude_behind)context_add_model_transformed(context,mesh,track_transform,&args,MESH_GHOST);
-args.offset=track_section->length+1e-5;
+args.offset=track_section->length;
 	if(track_mask)context_add_model_transformed(context,&(track_type->mask),track_transform,&args,0);//track_mask?0:MESH_GHOST);
 	else context_add_model_transformed(context,mesh,track_transform,&args,MESH_GHOST);
 
@@ -240,8 +244,7 @@ args.offset=track_section->length+1e-5;
 		if(track_type->models_loaded&(1<<index))
 		{
 		matrix_t mat=views[1];
-		mat.entries[6]*=-1; //Flip so faces point the right way - TODO sort out the coordinate system
-			if((track_section->flags&TRACK_SPECIAL_MASK)!=TRACK_SPECIAL_VERTICAL_TWIST_RIGHT&&(track_section->flags&TRACK_SPECIAL_MASK)!=TRACK_SPECIAL_BARREL_ROLL_RIGHT&&(track_section->flags&TRACK_SPECIAL_MASK)!=TRACK_SPECIAL_CORKSCREW_RIGHT)
+			if((track_section->flags&TRACK_SPECIAL_MASK)!=TRACK_SPECIAL_VERTICAL_TWIST_RIGHT&&(track_section->flags&TRACK_SPECIAL_MASK)!=TRACK_SPECIAL_BARREL_ROLL_RIGHT&&(track_section->flags&TRACK_SPECIAL_MASK)!=TRACK_SPECIAL_CORKSCREW_RIGHT&&(track_section->flags&TRACK_SPECIAL_MASK)!=TRACK_SPECIAL_ZERO_G_ROLL_RIGHT&&(track_section->flags&TRACK_SPECIAL_MASK)!=TRACK_SPECIAL_LARGE_ZERO_G_ROLL_RIGHT)
 			{
 			mat.entries[6]*=-1;
 			mat.entries[7]*=-1;
@@ -258,7 +261,6 @@ args.offset=track_section->length+1e-5;
 
 	if((track_type->flags&TRACK_HAS_SUPPORTS)&&!(track_section->flags&TRACK_NO_SUPPORTS))
 	{
-	//float support_spacing=0.8*TILE_SIZE;
 	int num_supports=(int)floor(0.5+track_section->length/track_type->support_spacing);
 	float support_step=track_section->length/num_supports;
 	int entry=0;
@@ -284,7 +286,7 @@ args.offset=track_section->length+1e-5;
 			if(bank_angle<0)rotation=matrix_mult(views[2],rotation);
 
 		vector3_t translation=change_coordinates(support_point.position);
-		translation.y-=pivot/sqrt(track_point.tangent.x*track_point.tangent.x+track_point.tangent.z*track_point.tangent.z)-pivot;
+		translation.y-=track_type->pivot/sqrt(track_point.tangent.x*track_point.tangent.x+track_point.tangent.z*track_point.tangent.z)-track_type->pivot;
 
 		context_add_model(context,&(track_type->models[get_support_index(bank_angle)]),transform(rotation,translation),track_mask); 
 		}
@@ -326,9 +328,9 @@ image_t full_sprites[4];
 	}
 	else render_track_section(context,track_section,track_type,0,0,0xF,full_sprites,subtype);
 
-	if(overlay!=NULL)
+	if(overlay!=NULL&&!(track_type->flags & TRACK_NO_LIFT_SPRITE))
 	{
-		for(int i=0;i<4;i++)image_blit(full_sprites+i,overlay+i,0,13-z_offset);//RMC was 14, make this a parameter
+		for(int i=0;i<4;i++)image_blit(full_sprites+i,overlay+i,0,track_type->lift_offset-z_offset);
 	}
 
 image_t track_masks[4];
@@ -423,6 +425,7 @@ int track_mask_views=0;
 		//if(view->flags&VIEW_NEEDS_TRACK_MASK)image_write_png(&(track_masks[angle]),file);
 		image_crop(&part_sprite);
 		image_write_png(&part_sprite,file);
+		//image_write_png(full_sprites+angle,file);
 		fclose(file);	
 
 		json_t* sprite_entry=json_object();
@@ -787,10 +790,11 @@ return 0;
 
 int write_track_type(context_t* context,track_type_t* track_type,json_t* sprites,const char* base_dir,const char* output_dir)
 {
-write_track_subtype(context,track_type,track_list_default,sprites,base_dir,output_dir,TRACK_SUBTYPE_DEFAULT);
+track_list_t track_list=track_type->flags&TRACK_SEMI_SPLIT?track_list_semi_split:track_list_default;
+write_track_subtype(context,track_type,track_list,sprites,base_dir,output_dir,TRACK_SUBTYPE_DEFAULT);
 	if(track_type->flags&TRACK_HAS_LIFT)
 	{
-	write_track_subtype(context,track_type,track_list_default,sprites,base_dir,output_dir,TRACK_SUBTYPE_LIFT);
+	write_track_subtype(context,track_type,track_list,sprites,base_dir,output_dir,TRACK_SUBTYPE_LIFT);
 	}
 return 0;
 }

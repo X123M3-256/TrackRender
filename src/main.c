@@ -86,8 +86,6 @@ uint32_t groups=0;
 return 0;
 }
 
-
-
 int load_track_type(track_type_t* track_type,json_t* json)
 {
 //Load track flags
@@ -112,6 +110,7 @@ json_t* flags=json_object_get(json,"flags");
 			if(strcmp(json_string_value(flag_name),"has_lift")==0)track_type->flags|=TRACK_HAS_LIFT;
 			else if(strcmp(json_string_value(flag_name),"has_supports")==0)track_type->flags|=TRACK_HAS_SUPPORTS;
 			else if(strcmp(json_string_value(flag_name),"semi_split")==0)track_type->flags|=TRACK_SEMI_SPLIT;
+			else if(strcmp(json_string_value(flag_name),"no_lift_sprite")==0)track_type->flags|=TRACK_NO_LIFT_SPRITE;
 			else
 			{
 			printf("Error: Unrecognized flag \"%s\"\n",json_string_value(flag_name));
@@ -143,6 +142,17 @@ json_t* groups=json_object_get(json,"sections");
 			}
 			if(load_groups(groups,&(track_type->lift_groups)))return 1;
 		}
+	json_t* offset=json_object_get(json,"lift_offset");
+		if(offset)
+		{
+			if(!json_is_integer(offset))
+			{
+			printf("Error: Property \"lift_sections\" is not an array\n");
+			return 1;
+			}
+		track_type->lift_offset=json_integer_value(offset);
+		}
+		else track_type->lift_offset=13;
 	}
 
 
@@ -174,7 +184,19 @@ json_t* support_spacing=json_object_get(json,"support_spacing");
 		printf("Error: Property \"support_spacing\" not found or is not a number\n");
 		return 1;
 		}
-	}
+	} else track_type->support_spacing=TILE_SIZE;
+
+//Load pivot
+json_t* pivot=json_object_get(json,"pivot");
+	if(pivot!=NULL)
+	{
+		if(json_is_number(pivot))track_type->pivot=json_number_value(pivot)*TILE_SIZE;
+		else
+		{
+		printf("Error: Property \"pivot\" not found or is not a number\n");
+		return 1;
+		}
+	}else track_type->pivot=0;
 
 //Load models
 json_t* models=json_object_get(json,"models");
@@ -201,7 +223,7 @@ json_t* models=json_object_get(json,"models");
 		}
 	}
 
-const char* support_model_names[NUM_MODELS]={"support_flat","support_bank_sixth","support_bank_third","support_bank_half","support_bank_two_thirds","support_bank_five_sixths","support_bank","support_base","brake","block_brake","booster","support_steep_to_vertical","support_vertical_to_steep","support_vertical","support_vertical_twist","support_barrel_roll","support_half_loop","support_quarter_loop","support_corkscrew"};
+const char* support_model_names[NUM_MODELS]={"support_flat","support_bank_sixth","support_bank_third","support_bank_half","support_bank_two_thirds","support_bank_five_sixths","support_bank","support_base","brake","block_brake","booster","support_steep_to_vertical","support_vertical_to_steep","support_vertical","support_vertical_twist","support_barrel_roll","support_half_loop","support_quarter_loop","support_corkscrew","support_zero_g_roll","support_large_zero_g_roll"};
 
 track_type->models_loaded=0;
 	for(int i=0;i<NUM_MODELS;i++)
@@ -218,19 +240,92 @@ track_type->models_loaded=0;
 		}
 	}
 
-
-/*
-mesh_load(&(rmc.supports[SUPPORT_FLAT]),"tracks/rmc/rmc_support.obj");
-mesh_load(&(rmc.supports[SUPPORT_BANK_HALF]),"tracks/rmc/rmc_support_bank_half.obj");
-mesh_load(&(rmc.supports[SUPPORT_BANK]),"tracks/rmc/rmc_support_bank.obj");
-mesh_load(&(rmc.supports[SUPPORT_BASE]),"tracks/rmc/rmc_support_base.obj");
-mesh_load(&(rmc.supports[SUPPORT_SPECIAL_VERTICAL]),"tracks/rmc/rmc_support_vertical.obj");
-mesh_load(&(rmc.supports[SUPPORT_SPECIAL_STEEP_TO_VERTICAL]),"tracks/rmc/rmc_support_steep_to_vertical.obj");
-mesh_load(&(rmc.supports[SUPPORT_SPECIAL_VERTICAL_TO_STEEP]),"tracks/rmc/rmc_support_vertical_to_steep.obj");
-mesh_load(&(rmc.supports[SUPPORT_SPECIAL_VERTICAL_TWIST]),"tracks/rmc/rmc_support_vertical_twist.obj");
-*/
 return 0;
 }
+
+int load_vector(vector3_t* vector,json_t* array)
+{
+int size=json_array_size(array);
+	if(size!=3)
+	{
+	printf("Vector must have 3 components\n");
+	return 1;
+	}
+
+json_t* x=json_array_get(array,0);
+json_t* y=json_array_get(array,1);
+json_t* z=json_array_get(array,2);
+
+	if(!json_is_number(x)||!json_is_number(y)||!json_is_number(z))
+	{
+	printf("Vector components must be numeric\n");
+	return 1;
+	}
+vector->x=json_number_value(x);
+vector->y=json_number_value(y);
+vector->z=json_number_value(z);
+return 0;
+}
+
+int load_lights(light_t* lights,int* lights_count,json_t* json)
+{
+int num_lights=json_array_size(json);
+	for(int i=0;i<num_lights;i++)
+	{
+	json_t* light=json_array_get(json,i);
+	assert(light!=NULL);
+		if(!json_is_object(light))
+		{
+		printf("Warning: Light array contains an element which is not an object - ignoring\n");
+		continue;
+		}
+	
+	json_t* type=json_object_get(light,"type");
+		if(type==NULL||!json_is_string(type))
+		{
+		printf("Error: Property \"type\" not found or is not a string\n");
+		return 1;
+		}
+	
+	const char* type_value=json_string_value(type);
+		if(strcmp(type_value,"diffuse")==0)lights[i].type=LIGHT_DIFFUSE;
+		else if(strcmp(type_value,"specular")==0)lights[i].type=LIGHT_SPECULAR;
+		else
+		{
+		printf("Unrecognized light type \"%s\"\n",type);
+		free(lights);
+		}
+
+	json_t* shadow=json_object_get(light,"shadow");
+		if(shadow==NULL||!json_is_boolean(shadow))
+		{
+		printf("Error: Property \"shadow\" not found or is not a boolean\n");
+		return 1;
+		}
+		if(json_boolean_value(shadow)==JSON_TRUE)lights[i].shadow=1;
+		else lights[i].shadow=0;
+
+	json_t* direction=json_object_get(light,"direction");
+		if(direction==NULL||!json_is_array(direction))
+		{
+		printf("Error: Property \"direction\" not found or is not a direction\n");
+		return 1;
+		}
+		if(load_vector(&(lights[i].direction),direction))return 1;
+	lights[i].direction=vector3_normalize(lights[i].direction);
+	
+	json_t* strength=json_object_get(light,"strength");
+		if(strength==NULL||!json_is_number(strength))
+		{
+		printf("Error: Property \"strength\" not found or is not a number\n");
+		return 1;
+		}
+	lights[i].intensity=json_number_value(strength);
+	}
+*lights_count=num_lights;
+return 0;
+}
+
 
 int main(int argc,char** argv)
 {
@@ -269,10 +364,40 @@ json_t* json_spritefile_out=json_object_get(track,"spritefile_out");
 	if(json_spritefile_out!=NULL&&json_is_string(json_spritefile_out))spritefile_out=json_string_value(json_spritefile_out);
 	else printf("Error: No property \"spritefile_out\" found\n");
 
+int num_lights=9;
+light_t lights[16]={
+{LIGHT_DIFFUSE,0,vector3_normalize(vector3(0.0,-1.0,0.0)),0.25},
+{LIGHT_DIFFUSE,0,vector3_normalize(vector3(1.0,0.3,0.0)),0.32},
+{LIGHT_SPECULAR,0,vector3_normalize(vector3(1,1,-1)),1.0},
+{LIGHT_DIFFUSE,0,vector3_normalize(vector3(1,0.65,-1)),0.8},
+{LIGHT_DIFFUSE,0,vector3(0.0,1.0,0.0),0.174},
+{LIGHT_DIFFUSE,0,vector3_normalize(vector3(-1.0,0.0,0.0)),0.15},
+{LIGHT_DIFFUSE,0,vector3_normalize(vector3(0.0,1.0,1.0)),0.2},
+{LIGHT_DIFFUSE,0,vector3_normalize(vector3(0.65,0.816,-0.65000000)),0.25},
+{LIGHT_DIFFUSE,0,vector3_normalize(vector3(-1.0,0.0,-1.0)),0.25},
+{0,0,{0,0,0},0},
+{0,0,{0,0,0},0},
+{0,0,{0,0,0},0},
+{0,0,{0,0,0},0},
+{0,0,{0,0,0},0},
+{0,0,{0,0,0},0},
+{0,0,{0,0,0},0}
+};
+
+json_t* light_array=json_object_get(track,"lights");
+	if(light_array!=NULL)
+	{
+		if(!json_is_array(light_array))
+		{
+		printf("Error: Property \"lights\" is not an array\n");
+		return 1;
+		}
+	if(load_lights(lights,&num_lights,light_array))return 1;
+	}
 
 track_type_t track_type;
-
 	if(load_track_type(&track_type,track))return 1;
+
 char full_path[256];
 snprintf(full_path,256,"%s%s",base_dir,spritefile_in);
 json_t* sprites=json_load_file(full_path,0,&error);
@@ -281,50 +406,8 @@ json_t* sprites=json_load_file(full_path,0,&error);
 	printf("Error: %s in file %s line %d column %d\n",error.text,error.source,error.line,error.column);
 	return 1;
 	}
-/*
-light_t lights[9]={
-{LIGHT_DIFFUSE,0,vector3_normalize(vector3(0.0,-1.0,0.0)),0.25},//Bottom
-{LIGHT_DIFFUSE,0,vector3_normalize(vector3(1.0,0.3,0.0)),0.426},//Back right
-{LIGHT_SPECULAR,0,vector3_normalize(vector3(1,1,-1)),1.0},//Main specular
-{LIGHT_DIFFUSE,0,vector3_normalize(vector3(1,0.65,-1)),0.55},//Main light
-{LIGHT_DIFFUSE,0,vector3(0.0,1.0,0.0),0.256},//Top
-{LIGHT_DIFFUSE,0,vector3_normalize(vector3(-1.0,0.0,0.0)),0.15},//Left
-{LIGHT_DIFFUSE,0,vector3_normalize(vector3(0.0,1.0,1.0)),0.063},//Back left
-{LIGHT_DIFFUSE,0,vector3_normalize(vector3(0.65,1.0,-0.65000000)),0.325},//Front right
-{LIGHT_DIFFUSE,0,vector3_normalize(vector3(-1.0,0.0,-1.0)),0.25},//Front
-};
-*/
 
 
-light_t lights[9]={
-{LIGHT_DIFFUSE,0,vector3_normalize(vector3(0.0,-1.0,0.0)),0.25},
-{LIGHT_DIFFUSE,0,vector3_normalize(vector3(1.0,0.3,0.0)),0.32},
-{LIGHT_SPECULAR,0,vector3_normalize(vector3(1,1,-1)),1.0},
-{LIGHT_DIFFUSE,0,vector3_normalize(vector3(1,0.65,-1)),0.8},
-/*
-{LIGHT_SPECULAR,1,vector3_normalize(vector3(1,0.63,-1)),1.0},
-{LIGHT_DIFFUSE,1,vector3_normalize(vector3(1,0.63,-1)),0.8},
-*/
-{LIGHT_DIFFUSE,0,vector3(0.0,1.0,0.0),0.174},
-{LIGHT_DIFFUSE,0,vector3_normalize(vector3(-1.0,0.0,0.0)),0.15},
-{LIGHT_DIFFUSE,0,vector3_normalize(vector3(0.0,1.0,1.0)),0.2},
-{LIGHT_DIFFUSE,0,vector3_normalize(vector3(0.65,0.816,-0.65000000)),0.25},
-{LIGHT_DIFFUSE,0,vector3_normalize(vector3(-1.0,0.0,-1.0)),0.25},
-};
-
-/*
-light_t lights[9]={
-{LIGHT_DIFFUSE,0,vector3_normalize(vector3(0.0,-1.0,0.0)),0.05},//Bottom
-{LIGHT_DIFFUSE,0,vector3_normalize(vector3(1.0,0.3,0.0)),0.1},//Back right
-{LIGHT_SPECULAR,0,vector3_normalize(vector3(1,1,-1)),1.0},//Main specular
-{LIGHT_DIFFUSE,1,vector3_normalize(vector3(1,0.63,-1)),0.8},//Main light
-{LIGHT_DIFFUSE,0,vector3(0.0,1.0,0.0),0.25},//Top
-{LIGHT_DIFFUSE,0,vector3_normalize(vector3(-1.0,0.0,0.0)),0.05},//Left
-{LIGHT_DIFFUSE,0,vector3_normalize(vector3(-1.0,1.0,1.0)),0.2},//Top left
-{LIGHT_DIFFUSE,0,vector3_normalize(vector3(0.65,0.816,-0.65000000)),0.35},//Front right
-{LIGHT_DIFFUSE,0,vector3_normalize(vector3(-1.0,0.0,-1.0)),0.25},//Front
-};
-*/
 context_t context=get_context(lights,9);
 
 write_track_type(&context,&track_type,sprites,base_dir,sprite_dir);
