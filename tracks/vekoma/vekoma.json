@@ -1,0 +1,20 @@
+{
+"flags":["has_lift"],
+"sections":["flat","turns","gentle_slopes","steep_slopes","vertical_slopes","large_slope_transitions","diagonals","sloped_turns","banked_turns","banked_sloped_turns","s_bends","helices","barrel_rolls","quarter_loops","half_loops","large_half_loops","corkscrews","brakes","turn_bank_transitions","small_slope_transitions"],
+"lift_sections":["flat","gentle_slopes","steep_slopes","diagonals","small_slope_transitions"],
+"z_offset":5,
+"length":0.33333333333,
+
+"models":
+	{
+	"track":"tracks/vekoma/vekoma.obj",
+	"brake":"tracks/vekoma/vekoma_brake.obj",
+	"block_brake":"tracks/vekoma/vekoma_block_brake.obj",
+	"lift":"tracks/vekoma/vekoma.obj",
+	"mask":"tracks/vekoma/vekoma_mask.obj"
+	},
+"base_directory":"/home/edward/RCT2Prog/OpenRCT2/resources/g2/",
+"sprite_directory":"track/vekoma/",
+"spritefile_in":"sprites_old.json",
+"spritefile_out":"sprites.json"
+}

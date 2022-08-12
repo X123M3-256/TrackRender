@@ -1,6 +1,6 @@
 # Blender v2.79 (sub 0) OBJ File: 'bm.blend'
 # www.blender.org
-mtllib bm_mask.mtl
+mtllib bm_master.mtl
 v 1.102270 0.165341 -0.000000
 v 1.102270 1.451323 -0.000000
 v -1.102270 0.165341 0.000000

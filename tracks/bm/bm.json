@@ -1,6 +1,7 @@
 {
-"flags":["has_lift"],
-"sections":["turns","gentle_slopes","steep_slopes","vertical_slopes","large_slope_transitions","diagonals","sloped_turns","banked_turns","banked_sloped_turns","s_bends","helices","barrel_rolls","quarter_loops","half_loops","large_half_loops","corkscrews","brakes","boosters","launched_lifts","turn_bank_transitions"],
+"flags":[],
+"sections":["zero_g_rolls"],
+"sections_old":["turns","gentle_slopes","steep_slopes","vertical_slopes","large_slope_transitions","diagonals","sloped_turns","banked_turns","banked_sloped_turns","s_bends","helices","barrel_rolls","quarter_loops","half_loops","large_half_loops","corkscrews","brakes","boosters","launched_lifts","turn_bank_transitions"],
 "sections_actual":["turns","gentle_slopes","steep_slopes","vertical_slopes","large_slope_transitions","diagonals","sloped_turns","banked_turns","banked_sloped_turns","s_bends","helices","barrel_rolls","quarter_loops","half_loops","brakes"],
 "lift_sections":["gentle_slopes","steep_slopes","diagonals"],
 "z_offset":8,
@@ -8,12 +9,12 @@
 
 "models":
 	{
-	"track":"tracks/bm/bm.obj",
+	"track":"tracks/bm/bm_invert.obj",
 	"lift":"tracks/bm/bm.obj",
 	"mask":"tracks/bm/bm_mask.obj"
 	},
-"base_directory":"/home/edward/RCT2Prog/OpenRCT2/resources/g2/",
-"sprite_directory":"track/rmc/",
+"base_directory":"/home/edward/RCT2/OpenRCT2/resources/g2/",
+"sprite_directory":"track/bm/",
 "spritefile_in":"sprites_old.json",
 "spritefile_out":"sprites.json"
 }
