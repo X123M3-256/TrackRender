@@ -178,9 +178,6 @@ return 0;
 
 void render_track_section(context_t* context,track_section_t* track_section,track_type_t* track_type,int extrude_behind,int track_mask,int rendered_views,image_t* images,int subtype)
 {
-
-
-
 int num_meshes=(int)floor(0.5+track_section->length/track_type->length);
 float scale=track_section->length/(num_meshes*track_type->length);
 
@@ -215,8 +212,6 @@ mesh_t* mesh;
 			assert(0);
 		break;
 		}
-
-
 
 
 context_begin_render(context);
@@ -290,10 +285,16 @@ args.offset=track_section->length;
 			{
 			int use_alt=(track_type->models_loaded&(1<<MODEL_TRACK_ALT))&&(i&2);
 				if(track_section->flags&TRACK_ALT_INVERT)use_alt=!use_alt;
-
-				if(!(track_type->models_loaded&(1<<MODEL_TRACK_TIE))&&start_tie)args.offset-=tie_length;
+			//Add track model
+				if(!(track_type->models_loaded&(1<<MODEL_TRACK_TIE))&&start_tie)args.offset=offset-tie_length;
 				if(use_alt)context_add_model_transformed(context,&(track_type->models[MODEL_TRACK_ALT]),track_transform,&args,track_mask);
 				else context_add_model_transformed(context,mesh,track_transform,&args,track_mask);
+			//Add track mask
+				if(track_mask)
+				{
+					if(start_tie)args.offset=offset-tie_length;
+				context_add_model_transformed(context,&(track_type->mask),track_transform,&args,0);
+				}
 			offset+=inter_length;
 			}
 		}
