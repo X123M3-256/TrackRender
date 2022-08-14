@@ -178,11 +178,27 @@ return 0;
 
 void render_track_section(context_t* context,track_section_t* track_section,track_type_t* track_type,int extrude_behind,int track_mask,int rendered_views,image_t* images,int subtype)
 {
+
+
+
 int num_meshes=(int)floor(0.5+track_section->length/track_type->length);
 float scale=track_section->length/(num_meshes*track_type->length);
 
+//If alternating track meshes are used, we would prefer to have an even number of meshes as long as it doesn't cause too much distortion
+	if(track_type->models_loaded&(1<<MODEL_TRACK_ALT))
+	{
+	int num_meshes_even=2*(int)floor(0.5+track_section->length/(2*track_type->length));
+		if(track_section->flags&TRACK_ALT_PREFER_ODD)num_meshes_even=2*(int)floor(track_section->length/(2*track_type->length))+1;
+	float scale_even=track_section->length/(num_meshes_even*track_type->length);
+		if(scale_even>0.9&&scale_even<1.11111)	
+		{
+		num_meshes=num_meshes_even;
+		scale=scale_even;
+		}
+	}
+
+
 float length=scale*track_type->length;
-	if(extrude_behind)num_meshes++;//TODO make extruded section straight
 float z_offset=((track_type->z_offset/8.0)*CLEARANCE_HEIGHT);
 
 
@@ -219,22 +235,98 @@ args.offset=track_section->length;
 	if(track_mask)context_add_model_transformed(context,&(track_type->mask),track_transform,&args,0);//track_mask?0:MESH_GHOST);
 	else context_add_model_transformed(context,mesh,track_transform,&args,MESH_GHOST);
 
-	for(int i=0;i<num_meshes;i++)
+
+	if(track_type->flags&TRACK_TIE_AT_BOUNDARY)
 	{
-	track_transform_args_t args;
-	args.scale=scale;
-	args.offset=(i-(extrude_behind?1:0))*length;
-	args.z_offset=z_offset;
-	args.track_curve=track_section->curve;
-	args.flags=track_section->flags;
-	args.length=track_section->length;
-		
+	//Determine start angle
+	int start_angle=3;
+		if(rendered_views&1)start_angle=0;
+		else if(rendered_views&2)start_angle=1;
+		else if(rendered_views&4)start_angle=2;
 
-     		if(track_mask)context_add_model_transformed(context,&(track_type->mask),track_transform,&args,0);
-	context_add_model_transformed(context,mesh,track_transform,&args,track_mask); 
-		if((track_type->models_loaded&(1<<MODEL_BASE))&&(track_type->flags&TRACK_HAS_SUPPORTS)&&!(track_section->flags&TRACK_NO_SUPPORTS))context_add_model_transformed(context,&(track_type->models[MODEL_BASE]),base_transform,&args,track_mask); 
+	int end_angle=start_angle;
+		if(track_section->flags&TRACK_EXIT_90_DEG_LEFT)end_angle-=1;
+		else if(track_section->flags&TRACK_EXIT_90_DEG_RIGHT)end_angle+=1;
+		else if(track_section->flags&TRACK_EXIT_180_DEG)end_angle+=2;
+		if(end_angle<0)end_angle+=4;
+		if(end_angle>3)end_angle-=4;
+
+	int start_tie=start_angle<=1;
+	int end_tie=end_angle>1;
+
+	//Calculate corrected scale
+	double corrected_length=num_meshes*track_type->length;
+		if(!start_tie)corrected_length-=track_type->tie_length;
+		if(end_tie)corrected_length+=track_type->tie_length;
+	double corrected_scale=track_section->length/corrected_length;
+
+	double tie_length=corrected_scale*track_type->tie_length;
+	double inter_length=corrected_scale*(track_type->length-track_type->tie_length);
+
+	double offset=0;
+
+		if(extrude_behind)
+		{
+		num_meshes++;
+		offset-=(extrude_behind?1:0)*corrected_scale*track_type->length;
+		}
+		for(int i=0;i<2*num_meshes+1;i++)
+		{
+		track_transform_args_t args;
+		args.scale=corrected_scale;
+		args.offset=offset;
+		args.z_offset=z_offset;
+		args.track_curve=track_section->curve;
+		args.flags=track_section->flags;
+		args.length=track_section->length;
+			if((!(i&1))&&(i!=0||start_tie)&&(i!=2*num_meshes||end_tie))
+			{
+			track_point_t track_point=get_track_point(track_section->curve,track_section->flags,z_offset,args.length,args.offset+track_type->tie_length/2);	
+			context_add_model(context,&(track_type->tie_mesh),transform(matrix(track_point.binormal.z,track_point.normal.z,track_point.tangent.z,track_point.binormal.y,track_point.normal.y,track_point.tangent.y,track_point.binormal.x,track_point.normal.x,track_point.tangent.x),change_coordinates(track_point.position)),track_mask);
+				if(track_type->models_loaded&(1<<MODEL_TRACK_TIE))context_add_model_transformed(context,&(track_type->models[MODEL_TRACK_TIE]),track_transform,&args,track_mask);
+			offset+=tie_length;
+			}
+			else if(i&1)
+			{
+			int use_alt=(track_type->models_loaded&(1<<MODEL_TRACK_ALT))&&(i&2);
+				if(track_section->flags&TRACK_ALT_INVERT)use_alt=!use_alt;
+
+				if(!(track_type->models_loaded&(1<<MODEL_TRACK_TIE))&&start_tie)args.offset-=tie_length;
+				if(use_alt)context_add_model_transformed(context,&(track_type->models[MODEL_TRACK_ALT]),track_transform,&args,track_mask);
+				else context_add_model_transformed(context,mesh,track_transform,&args,track_mask);
+			offset+=inter_length;
+			}
+		}
+
 	}
+	else
+	{
+		if(extrude_behind)num_meshes++;
+		for(int i=0;i<num_meshes;i++)
+		{
+		track_transform_args_t args;
+		args.scale=scale;
+		args.offset=(i-(extrude_behind?1:0))*length;
+		args.z_offset=z_offset;
+		args.track_curve=track_section->curve;
+		args.flags=track_section->flags;
+		args.length=track_section->length;
+			
+		int use_alt=(track_type->models_loaded&(1<<MODEL_TRACK_ALT))&&(i&1);
+			if(track_section->flags&TRACK_ALT_INVERT)use_alt=!use_alt;
 
+			if(track_mask)context_add_model_transformed(context,&(track_type->mask),track_transform,&args,0);
+			if(use_alt)context_add_model_transformed(context,&(track_type->models[MODEL_TRACK_ALT]),track_transform,&args,track_mask);
+			else context_add_model_transformed(context,mesh,track_transform,&args,track_mask);
+
+			if((track_type->models_loaded&(1<<MODEL_BASE))&&(track_type->flags&TRACK_HAS_SUPPORTS)&&!(track_section->flags&TRACK_NO_SUPPORTS))context_add_model_transformed(context,&(track_type->models[MODEL_BASE]),base_transform,&args,track_mask); 
+			if(track_type->flags&TRACK_SEPARATE_TIE)
+			{
+			track_point_t track_point=get_track_point(track_section->curve,track_section->flags,z_offset,args.length,args.offset+0.5*length);	
+			context_add_model(context,&(track_type->tie_mesh),transform(matrix(track_point.binormal.z,track_point.normal.z,track_point.tangent.z,track_point.binormal.y,track_point.normal.y,track_point.tangent.y,track_point.binormal.x,track_point.normal.x,track_point.tangent.x),change_coordinates(track_point.position)),track_mask);
+			}
+		}
+	}
 	
 
 
@@ -317,16 +409,49 @@ int is_in_mask(int x,int y,mask_t* mask)
 return 0;
 }
 
+void render_track_sections(context_t* context,track_section_t* track_section,track_type_t* track_type,int track_mask,int subtype,int views,image_t* sprites)
+{
+	if(track_section->flags&TRACK_EXTRUDE_BEHIND)
+	{
+		if(track_type->flags&TRACK_SEPARATE_TIE)
+		{
+			if(views&0x1)render_track_section(context,track_section,track_type,1,track_mask,0x1,sprites,subtype);
+			if(views&0x2)render_track_section(context,track_section,track_type,0,track_mask,0x2,sprites,subtype);
+			if(views&0x4)render_track_section(context,track_section,track_type,1,track_mask,0x4,sprites,subtype);
+			if(views&0x8)render_track_section(context,track_section,track_type,0,track_mask,0x8,sprites,subtype);
+		}
+		else
+		{
+			if(views&0x5)render_track_section(context,track_section,track_type,1,track_mask,views&0x5,sprites,subtype);
+			if(views&0xA)render_track_section(context,track_section,track_type,0,track_mask,views&0xA,sprites,subtype);
+		}
+	}
+	else
+	{
+		if((track_type->flags&TRACK_SEPARATE_TIE)&&(track_section->flags&TRACK_EXIT_90_DEG))
+		{
+			if(views&0x1)render_track_section(context,track_section,track_type,0,track_mask,0x1,sprites,subtype);
+			if(views&0x2)render_track_section(context,track_section,track_type,0,track_mask,0x2,sprites,subtype);
+			if(views&0x4)render_track_section(context,track_section,track_type,0,track_mask,0x4,sprites,subtype);
+			if(views&0x8)render_track_section(context,track_section,track_type,0,track_mask,0x8,sprites,subtype);
+		}
+		else if((track_type->flags&TRACK_SEPARATE_TIE))
+		{
+			if(views&0x3)render_track_section(context,track_section,track_type,0,track_mask,views&0x3,sprites,subtype);
+			if(views&0xC)render_track_section(context,track_section,track_type,0,track_mask,views&0xC,sprites,subtype);
+		}
+		else
+		{
+		render_track_section(context,track_section,track_type,0,track_mask,views,sprites,subtype);
+		}
+	}
+}
+
 void write_track_section(context_t* context,track_section_t* track_section,track_type_t* track_type,const char* base_directory,const char* filename,json_t* sprites,int subtype,image_t* overlay)
 {
 int z_offset=(int)(track_type->z_offset+0.499999);
 image_t full_sprites[4];
-	if(track_section->flags&TRACK_EXTRUDE_BEHIND)
-	{
-	render_track_section(context,track_section,track_type,1,0,0x5,full_sprites,subtype);
-	render_track_section(context,track_section,track_type,0,0,0xA,full_sprites,subtype);
-	}
-	else render_track_section(context,track_section,track_type,0,0,0xF,full_sprites,subtype);
+render_track_sections(context,track_section,track_type,0,subtype,0xF,full_sprites);
 
 	if(overlay!=NULL&&!(track_type->flags & TRACK_NO_LIFT_SPRITE))
 	{
@@ -336,10 +461,7 @@ image_t full_sprites[4];
 image_t track_masks[4];
 int track_mask_views=0;
 	for(int i=0;i<4;i++)track_mask_views|=(track_section->views[i].flags&VIEW_NEEDS_TRACK_MASK?1:0)<<i;
-	if(track_mask_views!=0)render_track_section(context,track_section,track_type,0,1,track_mask_views,track_masks,subtype);
-
-
-
+	if(track_mask_views!=0)render_track_sections(context,track_section,track_type,1,subtype,track_mask_views,track_masks);
 
 	for(int angle=0;angle<4;angle++)
 	{

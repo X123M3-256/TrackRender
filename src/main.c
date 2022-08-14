@@ -111,6 +111,8 @@ json_t* flags=json_object_get(json,"flags");
 			else if(strcmp(json_string_value(flag_name),"has_supports")==0)track_type->flags|=TRACK_HAS_SUPPORTS;
 			else if(strcmp(json_string_value(flag_name),"semi_split")==0)track_type->flags|=TRACK_SEMI_SPLIT;
 			else if(strcmp(json_string_value(flag_name),"no_lift_sprite")==0)track_type->flags|=TRACK_NO_LIFT_SPRITE;
+			else if(strcmp(json_string_value(flag_name),"separate_tie")==0)track_type->flags|=TRACK_SEPARATE_TIE;
+			else if(strcmp(json_string_value(flag_name),"tie_at_boundary")==0)track_type->flags|=TRACK_SEPARATE_TIE|TRACK_TIE_AT_BOUNDARY;
 			else
 			{
 			printf("Error: Unrecognized flag \"%s\"\n",json_string_value(flag_name));
@@ -164,6 +166,20 @@ json_t* length=json_object_get(json,"length");
 	printf("Error: Property \"length\" not found or is not a number\n");
 	return 1;
 	}
+
+
+//Load tie length
+	if(track_type->flags&TRACK_TIE_AT_BOUNDARY)
+	{
+	json_t* tie_length=json_object_get(json,"tie_length");
+		if(tie_length!=NULL&&json_is_number(tie_length))track_type->tie_length=json_number_value(tie_length)*TILE_SIZE;
+		else
+		{
+		printf("Error: Property \"tie_length\" not found or is not a number\n");
+		return 1;
+		}
+	}
+
 
 //Load Z offset
 json_t* z_offset=json_object_get(json,"z_offset");
@@ -223,7 +239,18 @@ json_t* models=json_object_get(json,"models");
 		}
 	}
 
-const char* support_model_names[NUM_MODELS]={"support_flat","support_bank_sixth","support_bank_third","support_bank_half","support_bank_two_thirds","support_bank_five_sixths","support_bank","support_base","brake","block_brake","booster","support_steep_to_vertical","support_vertical_to_steep","support_vertical","support_vertical_twist","support_barrel_roll","support_half_loop","support_quarter_loop","support_corkscrew","support_zero_g_roll","support_large_zero_g_roll"};
+	if(track_type->flags&TRACK_SEPARATE_TIE)
+	{
+		if(load_model(&(track_type->tie_mesh),models,"tie"))
+		{
+		mesh_destroy(&(track_type->mesh));
+		mesh_destroy(&(track_type->mask));
+			if(track_type->flags&TRACK_HAS_LIFT)mesh_destroy(&(track_type->lift_mesh));
+		return 1;
+		}
+	}
+
+const char* support_model_names[NUM_MODELS]={"track_alt","track_tie","support_flat","support_bank_sixth","support_bank_third","support_bank_half","support_bank_two_thirds","support_bank_five_sixths","support_bank","support_base","brake","block_brake","booster","support_steep_to_vertical","support_vertical_to_steep","support_vertical","support_vertical_twist","support_barrel_roll","support_half_loop","support_quarter_loop","support_corkscrew","support_zero_g_roll","support_large_zero_g_roll"};
 
 track_type->models_loaded=0;
 	for(int i=0;i<NUM_MODELS;i++)
