@@ -11,4 +11,4 @@ target_link_libraries (maketrack m ${PNG_LIBRARY} ${ZLIB_LIBRARY} IsoRender assi
 
 add_executable(subposition src/subposition.c src/track_sections.c)
 set_property(TARGET subposition PROPERTY C_STANDARD 99)
-target_link_libraries (subposition m IsoRender)
+target_link_libraries (subposition m)
