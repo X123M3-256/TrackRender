@@ -5,6 +5,12 @@
 #include "track.h"
 #include "sprites.h"
 
+float start_offset_x=0.0;
+float start_offset_y=0.0;
+float end_offset_x=0.0;
+float end_offset_y=0.0;
+
+
 vector3_t change_coordinates(vector3_t a)
 {
 vector3_t result={a.z,a.y,a.x};
@@ -42,6 +48,17 @@ track_point_t track_point;
 	if(flags&TRACK_DIAGONAL)track_point.position.x+=0.5*TILE_SIZE;
 track_point.position.y+=z_offset-2*CLEARANCE_HEIGHT;
 	if(!(flags&TRACK_VERTICAL))track_point.position.z-=0.5*TILE_SIZE;
+
+float v=u/length;
+	if(v<0)v=0;
+	else if(v>1)v=1;
+
+track_point.position.z+=(start_offset_x*TILE_SIZE/32.0)*(2*v*v*v-3*v*v+1);
+track_point.position.y+=(start_offset_y*CLEARANCE_HEIGHT/8.0)*(2*v*v*v-3*v*v+1);
+
+track_point.position.z+=(end_offset_x*TILE_SIZE/32.0)*(-2*v*v*v+3*v*v);
+track_point.position.y+=(end_offset_y*CLEARANCE_HEIGHT/8.0)*(-2*v*v*v+3*v*v);
+
 return track_point;
 }
 
@@ -169,6 +186,7 @@ int get_special_index(int flags)
 	break;
 	case TRACK_SPECIAL_BOOSTER:
 	case TRACK_SPECIAL_LAUNCHED_LIFT:
+	case TRACK_SPECIAL_VERTICAL_BOOSTER:
 		return MODEL_SPECIAL_BOOSTER;
 	break;
 	}
@@ -312,9 +330,10 @@ args.offset=track_section->length;
 		args.track_curve=track_section->curve;
 		args.flags=track_section->flags;
 		args.length=track_section->length;
-			
-		int use_alt=(track_type->models_loaded&(1<<MODEL_TRACK_ALT))&&(i&1);
-			if(track_section->flags&TRACK_ALT_INVERT)use_alt=!use_alt;
+		
+		int alt_available=track_type->models_loaded&(1<<MODEL_TRACK_ALT);
+		int use_alt=alt_available&&(i&1);
+			if(alt_available&&(track_section->flags&TRACK_ALT_INVERT))use_alt=!use_alt;
 
 			if(track_mask)context_add_model_transformed(context,&(track_type->mask),track_transform,&args,0);
 			if(use_alt)context_add_model_transformed(context,&(track_type->models[MODEL_TRACK_ALT]),track_transform,&args,track_mask);
@@ -347,6 +366,11 @@ args.offset=track_section->length;
 			{
 			mat=matrix_mult(mat,rotate_x(0.387596687));
 			mat=matrix_mult(mat,matrix(1,0,0,0,1,0,0,0,1.080123));
+			}
+			else if((track_section->flags&TRACK_SPECIAL_MASK)==TRACK_SPECIAL_VERTICAL_BOOSTER)
+			{
+			mat=matrix_mult(mat,rotate_x(-0.5*M_PI));
+			mat=matrix_mult(mat,matrix(1,0,0,0,1,0,0,0,0.816496580928));
 			}
 		context_add_model(context,&(track_type->models[index]),transform(mat,vector3(!(track_section->flags&TRACK_VERTICAL)?-0.5*TILE_SIZE:0,z_offset-2*CLEARANCE_HEIGHT,0)),track_mask); 
 		}
@@ -410,8 +434,63 @@ int is_in_mask(int x,int y,mask_t* mask)
 return 0;
 }
 
+int offset_table_index(track_point_t track)
+{
+	if(vector3_norm(vector3_sub(track.normal,vector3_normalize(vector3(0,1,0))))<0.1&&vector3_norm(vector3_sub(track.tangent,vector3_normalize(vector3(0,0,1))))<0.1)return 0;
+	else if(vector3_norm(vector3_sub(track.tangent,vector3_normalize(vector3(0,2*CLEARANCE_HEIGHT,TILE_SIZE))))<0.1)return 0x01;
+	else if(vector3_norm(vector3_sub(track.tangent,vector3_normalize(vector3(TILE_SIZE,2*CLEARANCE_HEIGHT,0))))<0.1)return 0x31;
+	else if(vector3_norm(vector3_sub(track.tangent,vector3_normalize(vector3(-TILE_SIZE,2*CLEARANCE_HEIGHT,0))))<0.1)return 0x11;
+	else if(vector3_norm(vector3_sub(track.tangent,vector3_normalize(vector3(0,8*CLEARANCE_HEIGHT,TILE_SIZE))))<0.1)return 2;
+	else if(vector3_norm(vector3_sub(track.normal,vector3_normalize(vector3(1,1,0))))<0.1)return 3;
+	else if(vector3_norm(vector3_sub(track.normal,vector3_normalize(vector3(-1,1,0))))<0.1)return 3;
+	else if(vector3_norm(vector3_sub(track.normal,vector3_normalize(vector3(0,-1,0))))<0.1)
+	{
+		if(vector3_norm(vector3_sub(track.tangent,vector3_normalize(vector3(1,0,0))))<0.1)return 0x34;
+		else if(vector3_norm(vector3_sub(track.tangent,vector3_normalize(vector3(-1,0,0))))<0.1)return 0x14;
+		else if(track.tangent.z>0.8)return 0x04;
+		else if(track.tangent.z<0.8)return 0x24;
+	return 5;
+	}
+return 5;
+}
+
+void set_offset(int view_angle,track_section_t* track_section)
+{
+int start_table=offset_table_index(track_section->curve(0));
+int end_table=offset_table_index(track_section->curve(track_section->length));
+
+float offset_tables[6][8]={
+	{0,0.5,0,0,0,0.5,0,0},
+	{0,1.0,0,0,0,0,0,0},//Gentle
+	{-2.25,0,-2.0,0,-0.75,0,-1.5,-1.0},//Steep
+	{0,1.0,0,1.0,0,1.0,0,0},//Bank
+	{0,-0.5,0,0,0,-0.5,0,0},//Inverted
+	{0,0,0,0,0,0,0,0},//Other
+	};
+
+start_offset_x=offset_tables[start_table&0xF][2*view_angle];
+start_offset_y=offset_tables[start_table&0xF][2*view_angle+1];
+
+view_angle=(view_angle+(end_table>>4))%4;
+end_table&=0xF;
+
+end_offset_x=offset_tables[end_table&0xF][2*view_angle];
+end_offset_y=offset_tables[end_table&0xF][2*view_angle+1];
+}
+
 void render_track_sections(context_t* context,track_section_t* track_section,track_type_t* track_type,int track_mask,int subtype,int views,image_t* sprites)
 {
+/*
+set_offset(0,track_section);
+	if(views&0x1)render_track_section(context,track_section,track_type,0,track_mask,0x1,sprites,subtype);
+set_offset(1,track_section);
+	if(views&0x2)render_track_section(context,track_section,track_type,0,track_mask,0x2,sprites,subtype);
+set_offset(2,track_section);
+	if(views&0x4)render_track_section(context,track_section,track_type,0,track_mask,0x4,sprites,subtype);
+set_offset(3,track_section);
+	if(views&0x8)render_track_section(context,track_section,track_type,0,track_mask,0x8,sprites,subtype);
+return;
+*/
 	if(track_section->flags&TRACK_EXTRUDE_BEHIND)
 	{
 		if(track_type->flags&TRACK_SEPARATE_TIE)
@@ -601,6 +680,11 @@ int groups=0;
 	{
 	sprintf(output_path,"%.255sbooster%s",output_dir,suffix);
 	write_track_section(context,&(track_list.booster),track_type,base_dir,output_path,sprites,subtype,NULL);
+	}
+	if(groups&TRACK_GROUP_VERTICAL_BOOSTERS)
+	{
+	sprintf(output_path,"%.255svertical_booster%s",output_dir,suffix);
+	write_track_section(context,&(track_list.vertical_booster),track_type,base_dir,output_path,sprites,subtype,NULL);
 	}
 
 //Slopes
@@ -913,7 +997,10 @@ return 0;
 
 int write_track_type(context_t* context,track_type_t* track_type,json_t* sprites,const char* base_dir,const char* output_dir)
 {
-track_list_t track_list=track_type->flags&TRACK_SEMI_SPLIT?track_list_semi_split:track_list_default;
+track_list_t track_list=track_list_default;
+	if(track_type->flags&TRACK_SEMI_SPLIT)track_list=track_list_semi_split;
+	else if(track_type->flags&TRACK_SPLIT)track_list=track_list_split;
+
 write_track_subtype(context,track_type,track_list,sprites,base_dir,output_dir,TRACK_SUBTYPE_DEFAULT);
 	if(track_type->flags&TRACK_HAS_LIFT)
 	{

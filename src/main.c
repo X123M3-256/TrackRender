@@ -76,6 +76,7 @@ uint32_t groups=0;
 		else if(strcmp(json_string_value(group_name),"boosters")==0)groups|=TRACK_GROUP_BOOSTERS;
 		else if(strcmp(json_string_value(group_name),"launched_lifts")==0)groups|=TRACK_GROUP_LAUNCHED_LIFTS;
 		else if(strcmp(json_string_value(group_name),"turn_bank_transitions")==0)groups|=TRACK_GROUP_TURN_BANK_TRANSITIONS;
+		else if(strcmp(json_string_value(group_name),"vertical_boosters")==0)groups|=TRACK_GROUP_VERTICAL_BOOSTERS;
 		else
 		{
 		printf("Error: Unrecognized section group \"%s\"\n",json_string_value(group_name));
@@ -110,6 +111,7 @@ json_t* flags=json_object_get(json,"flags");
 			if(strcmp(json_string_value(flag_name),"has_lift")==0)track_type->flags|=TRACK_HAS_LIFT;
 			else if(strcmp(json_string_value(flag_name),"has_supports")==0)track_type->flags|=TRACK_HAS_SUPPORTS;
 			else if(strcmp(json_string_value(flag_name),"semi_split")==0)track_type->flags|=TRACK_SEMI_SPLIT;
+			else if(strcmp(json_string_value(flag_name),"split")==0)track_type->flags|=TRACK_SPLIT;
 			else if(strcmp(json_string_value(flag_name),"no_lift_sprite")==0)track_type->flags|=TRACK_NO_LIFT_SPRITE;
 			else if(strcmp(json_string_value(flag_name),"separate_tie")==0)track_type->flags|=TRACK_SEPARATE_TIE;
 			else if(strcmp(json_string_value(flag_name),"tie_at_boundary")==0)track_type->flags|=TRACK_SEPARATE_TIE|TRACK_TIE_AT_BOUNDARY;
@@ -329,7 +331,7 @@ int num_lights=json_array_size(json);
 		printf("Error: Property \"shadow\" not found or is not a boolean\n");
 		return 1;
 		}
-		if(json_boolean_value(shadow)==JSON_TRUE)lights[i].shadow=1;
+		if(json_boolean_value(shadow))lights[i].shadow=1;
 		else lights[i].shadow=0;
 
 	json_t* direction=json_object_get(light,"direction");
@@ -435,7 +437,7 @@ json_t* sprites=json_load_file(full_path,0,&error);
 	}
 
 
-context_t context=get_context(lights,9);
+context_t context=get_context(lights,num_lights);
 
 write_track_type(&context,&track_type,sprites,base_dir,sprite_dir);
 
