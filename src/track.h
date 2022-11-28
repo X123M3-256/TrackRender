@@ -23,6 +23,7 @@ TRACK_ALT_INVERT=2048,
 TRACK_NO_SUPPORTS=4096,
 TRACK_OFFSET_SPRITE_MASK=8192,
 TRACK_SUPPORT_BASE=16384,
+TRACK_DIAGONAL_2=32768,
 TRACK_SPECIAL_STEEP_TO_VERTICAL=0x01000000,
 TRACK_SPECIAL_VERTICAL_TO_STEEP=0x02000000,
 TRACK_SPECIAL_VERTICAL=0x03000000,
@@ -109,7 +110,8 @@ TRACK_GROUP_LARGE_HALF_LOOPS=0x800000,
 TRACK_GROUP_ZERO_G_ROLLS=0x1000000,
 TRACK_GROUP_SMALL_SLOPE_TRANSITIONS=0x2000000,
 TRACK_GROUP_STEEP_SLOPED_TURNS=0x4000000,
-TRACK_GROUP_VERTICAL_BOOSTERS=0x8000000,
+TRACK_GROUP_LARGE_SLOPED_TURNS=0x8000000,
+TRACK_GROUP_VERTICAL_BOOSTERS=0x10000000,
 };
 
 
@@ -305,6 +307,10 @@ typedef struct
 	track_section_t small_turn_left_bank_to_gentle_up;
 	track_section_t small_turn_right_bank_to_gentle_up;
 	track_section_t launched_lift;
+	track_section_t large_turn_left_to_diag_gentle_up;
+	track_section_t large_turn_right_to_diag_gentle_up;
+	track_section_t large_turn_left_to_orthogonal_gentle_up;
+	track_section_t large_turn_right_to_orthogonal_gentle_up;
 	track_section_t vertical_booster;
 	}track_list_t;
 

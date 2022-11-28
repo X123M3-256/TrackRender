@@ -46,6 +46,7 @@ track_point_t track_point;
 	}
 
 	if(flags&TRACK_DIAGONAL)track_point.position.x+=0.5*TILE_SIZE;
+	if(flags&TRACK_DIAGONAL_2)track_point.position.z+=0.5*TILE_SIZE;
 track_point.position.y+=z_offset-2*CLEARANCE_HEIGHT;
 	if(!(flags&TRACK_VERTICAL))track_point.position.z-=0.5*TILE_SIZE;
 
@@ -983,6 +984,19 @@ int groups=0;
 	write_track_section(context,&(track_list.small_flat_to_steep_up_diag),track_type,base_dir,output_path,sprites,subtype,subtype==TRACK_SUBTYPE_LIFT?small_flat_to_steep_up_diag_chain:NULL);
 	sprintf(output_path,"%.255ssmall_steep_to_flat_up_diag%s",output_dir,suffix);
 	write_track_section(context,&(track_list.small_steep_to_flat_up_diag),track_type,base_dir,output_path,sprites,subtype,subtype==TRACK_SUBTYPE_LIFT?small_steep_to_flat_up_diag_chain:NULL);
+	}
+
+	if(groups&TRACK_GROUP_LARGE_SLOPED_TURNS)
+	{
+	sprintf(output_path,"%.255slarge_turn_left_to_diag_gentle_up%s",output_dir,suffix);
+	write_track_section(context,&(track_list.large_turn_left_to_diag_gentle_up),track_type,base_dir,output_path,sprites,subtype,NULL);
+	sprintf(output_path,"%.255slarge_turn_right_to_diag_gentle_up%s",output_dir,suffix);
+	write_track_section(context,&(track_list.large_turn_right_to_diag_gentle_up),track_type,base_dir,output_path,sprites,subtype,NULL);
+	sprintf(output_path,"%.255slarge_turn_left_to_orthogonal_gentle_up%s",output_dir,suffix);
+	write_track_section(context,&(track_list.large_turn_left_to_orthogonal_gentle_up),track_type,base_dir,output_path,sprites,subtype,NULL);
+	sprintf(output_path,"%.255slarge_turn_right_to_orthogonal_gentle_up%s",output_dir,suffix);
+	write_track_section(context,&(track_list.large_turn_right_to_orthogonal_gentle_up),track_type,base_dir,output_path,sprites,subtype,NULL);
+
 	}
 
 //Launched lift

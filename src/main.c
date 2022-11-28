@@ -60,6 +60,7 @@ uint32_t groups=0;
 		else if(strcmp(json_string_value(group_name),"gentle_sloped_turns")==0)groups|=TRACK_GROUP_SLOPED_TURNS;
 		else if(strcmp(json_string_value(group_name),"banked_turns")==0)groups|=TRACK_GROUP_BANKED_TURNS;
 		else if(strcmp(json_string_value(group_name),"banked_sloped_turns")==0)groups|=TRACK_GROUP_BANKED_SLOPED_TURNS;
+		else if(strcmp(json_string_value(group_name),"large_sloped_turns")==0)groups|=TRACK_GROUP_LARGE_SLOPED_TURNS;
 		else if(strcmp(json_string_value(group_name),"s_bends")==0)groups|=TRACK_GROUP_S_BENDS;
 		else if(strcmp(json_string_value(group_name),"helices")==0)groups|=TRACK_GROUP_HELICES;
 		else if(strcmp(json_string_value(group_name),"small_slope_transitions")==0)groups|=TRACK_GROUP_SMALL_SLOPE_TRANSITIONS;
