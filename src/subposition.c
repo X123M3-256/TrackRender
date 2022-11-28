@@ -1900,7 +1900,8 @@ float get_rotation_distance(matrix_t a,matrix_t b)
 {
 matrix_t diff=matrix_mult(a,matrix_transpose(b));
 float arg=(diff.entries[0]+diff.entries[4]+diff.entries[8]-1.0)/2.0;
-	if(arg<=-1&&arg>=-1.0001)return M_PI;
+	if(arg<=-1)return M_PI;
+	else if(arg>=1.0)return 0;
 return acos(arg);
 }
 
@@ -1915,97 +1916,229 @@ int min_index=0;
 	sprite_rotation_t* sprite_rotations=sprite_group_rotations[j];
 	for(int i=0;i<sprite_group_counts[j];i++)
 	{
-	matrix_t candidate_rotation=matrix_mult(matrix_mult(rotate_y(-sprite_rotations[i].yaw),rotate_z(sprite_rotations[i].pitch)),rotate_x(sprite_rotations[i].roll));
+	matrix_t candidate_rotation=matrix_mult(matrix_mult(rotate_y(sprite_rotations[i].yaw),rotate_z(sprite_rotations[i].pitch)),rotate_x(sprite_rotations[i].roll));
+	//printf("%.2f\t%.2f %.2f\n",candidate_rotation.entries[0],candidate_rotation.entries[1],candidate_rotation.entries[2]);
+	//printf("%.2f\t%.2f %.2f\n",candidate_rotation.entries[3],candidate_rotation.entries[4],candidate_rotation.entries[5]);
+	//printf("%.2f\t%.2f %.2f\n\n",candidate_rotation.entries[6],candidate_rotation.entries[7],candidate_rotation.entries[8]);
 	float dist=get_rotation_distance(rotation,candidate_rotation);
-matrix_t diff=matrix_mult(rotation,matrix_transpose(candidate_rotation));
+	//printf("Candidate rotation %f %f %f\n",sprite_rotations[i].yaw,sprite_rotations[i].pitch,sprite_rotations[i].roll);
+	//printf("Candidate sprites %d %d %d Dist %f\n\n",sprite_rotations[i].yaw_sprite,sprite_rotations[i].pitch_sprite,sprite_rotations[i].bank_sprite,dist);
 		if(dist<min_dist)
 		{
 		min_dist=dist;
 		min_group=j;
 		min_index=i;
+		//printf("Min\n");
 		}
 	}
 	}
 return sprite_group_rotations[min_group][min_index];
 }
 
-//Reverse value is difference in height (in pixels) between final tile element base and track element end +1
-//Inverted track is 3 pixels higher than upright track of same height
 
-//Generate the subposition data for a track piece
-void generate_view_subposition_data(track_section_t* track_section,char* name,int groups,int view,int reverse)
+
+
+typedef struct
 {
-int length=(int)floor(0.5+32.0*(track_section->length/TILE_SIZE));
+int x;
+int y;
+int z;
+}subposition_t;
 
+int abs(int x)
+{
+	if(x<0)return -x;
+return x;
+}
 
-track_point_t end=track_section->curve(track_section->length);
-float finish_angle=M_PI_2*roundf(2.0*atan2(-end.tangent.x,-end.tangent.z)/M_PI);
-//printf("Angle %f\n",finish_angle);
-matrix_t reverse_transform=rotate_y(finish_angle);
-vector3_t reverse_offset=end.position;
+subposition_t get_subposition(vector3_t point,int view,int reverse,int diag)
+{
+subposition_t sub;
+sub.x=(int)round(32.0*point.z/TILE_SIZE);
+sub.y=(int)round(32.0*point.x/TILE_SIZE);
+sub.z=(int)round((16*sqrt(6))*point.y/TILE_SIZE);
+			if(reverse)sub.z+=reverse-1;	
+	int t;		
+		switch(view+4*diag)
+		{
+		case 0:
+			sub.x=(32-sub.x);
+			sub.y=(16-sub.y);
+		break;
+		case 1:
+			t=sub.x;
+			sub.x=(16-sub.y);
+			sub.y=t;
+		break;
+		case 2:	
+			sub.y=(16+sub.y);
+		break;
+		case 3:
+			t=sub.x;
+			sub.x=(16+sub.y);
+			sub.y=(32-t);
+		break;
+		case 4:
+			sub.x=(16-sub.x);
+			sub.y=(15-sub.y);
+		break;
+		case 5:
+			t=sub.x;
+			sub.x=(16-sub.y);
+			sub.y=(16+t);
+		break;
+		case 6:	
+			sub.x=(16+sub.x);
+			sub.y=(15+sub.y);
+		break;
+		case 7:
+			t=sub.x;
+			sub.x=(16+sub.y);
+			sub.y=(16-t);
+		break;
+		}
+return sub;
+}
 
-printf("CREATE_VEHICLE_INFO(TrackVehicleInfo%s%d, {\n",name,view);
-	for(int i=0;i<length;i+=1)
-	{
-	track_point_t point;
-		if(!reverse)point=track_section->curve(TILE_SIZE*(i+(view==0||view==3))/32.0);
+int calc_differing_coords(subposition_t sub1,subposition_t sub2)
+{
+int dx=abs(sub1.x-sub2.x);	
+int dy=abs(sub1.y-sub2.y);	
+int dz=abs(sub1.z-sub2.z);	
+
+	if(dx>1||dy>1||dz>1)return -1;
+
+int n=0;
+	if(dx==1)n++;
+	if(dy==1)n++;
+	if(dz==1)n++;
+return n;
+}
+
+track_point_t get_track_point(track_section_t* track_section,float progress,int reverse,matrix_t reverse_transform,vector3_t reverse_offset)
+{
+track_point_t point;
+		if(!reverse)point=track_section->curve(progress);
 		else
 		{
-		point=track_section->curve(TILE_SIZE*(length-(i+(view==0||view==3)))/32.0);
+		point=track_section->curve(track_section->length-progress);
 		point.position=matrix_vector(reverse_transform,vector3_sub(point.position,reverse_offset));
 		point.tangent=vector3_mult(matrix_vector(reverse_transform,point.tangent),-1.0);
 		point.normal=matrix_vector(reverse_transform,point.normal);
 		point.binormal=vector3_mult(matrix_vector(reverse_transform,point.binormal),-1.0);
 		}
-	int x=(int)floor(0.5+32.0*point.position.z/TILE_SIZE);
-	int y=(int)floor(0.5+32.0*point.position.x/TILE_SIZE);
-	int z=(int)floor(0.5+(16*sqrt(6))*point.position.y/TILE_SIZE)+reverse-1;
+return point;
+}
+
+
+
+//Generate the subposition data for a track piece
+//Reverse value is difference in height (in pixels) between final tile element base and track element end +1
+//Inverted track is 3 pixels higher than upright track of same height
+void generate_view_subposition_data(track_section_t* track_section,char* name,int groups,int view,int reverse)
+{
+//Calculate start and finish angles
+track_point_t start=track_section->curve(0);
+int start_angle=(int)roundf(4.0*atan2(-start.tangent.x,start.tangent.z)/M_PI);
+	if(start_angle<0)start_angle+=8;
+track_point_t end=track_section->curve(track_section->length);
+int finish_angle=(int)roundf(4.0*atan2(-end.tangent.x,end.tangent.z)/M_PI);
+	if(finish_angle<0)finish_angle+=8;
+
+
+matrix_t reverse_transform;
+vector3_t reverse_offset;
+	if(reverse)
+	{
+	reverse_transform=rotate_y(M_PI_4*((finish_angle&0xFE)+4));
+	reverse_offset=end.position;
+	int rot=(finish_angle&0xFE)+4;
+	int tmp=start_angle;
+	start_angle=(finish_angle+rot)%8;
+	finish_angle=(tmp+rot)%8;
+	}
+//Check if element starts on a diagonal
+int diag=start_angle&1;
+
+/*
+printf("View %d\n",view);
+printf("Diagonal %d\n",diag);
+printf("Start angle %d\n",start_angle);
+printf("Finish angle %d\n",finish_angle);
+printf("Skip start %d\n",view==0||view==3);
+printf("Skip finish %d %d\n",(((finish_angle&0xFE)+2*view)%8==2)||(((finish_angle&0xFE)+2*view)%8==4),((finish_angle&0xFE)+2*view)%8);
+*/
+
+printf("CREATE_VEHICLE_INFO(TrackVehicleInfo%s%d, {\n",name,view);
+int count=0;
+int done=0;
+float progress=0;
+	while(!done)
+	{
+	//Check if this is the last point
+		if(progress>=track_section->length)
+		{
+		progress=track_section->length;
+		done=1;
+		}
+
+	//Skip last point for view angles 1 and 2
+	int end_angle=((finish_angle&0xFE)+2*view)%8;
+		if(done&&(end_angle==2||end_angle==4))break;
+	//Get closest rotation
+	track_point_t point=get_track_point(track_section,progress,reverse,reverse_transform,reverse_offset);
+	subposition_t cur_sub=get_subposition(point.position,view,reverse,diag);
+
 	//matrix_t r=rotate_y(0.5*M_PI);
 	//printf("%.2f\t%.2f %.2f\n",r.entries[0],r.entries[1],r.entries[2]);
 	//printf("%.2f\t%.2f %.2f\n",r.entries[3],r.entries[4],r.entries[5]);
 	//printf("%.2f\t%.2f %.2f\n\n",r.entries[6],r.entries[7],r.entries[8]);
-	//matrix_t r=track_point_get_rotation(point);
-	//printf("%.2f\t%.2f %.2f\n",r.entries[0],r.entries[1],r.entries[2]);
-	//printf("%.2f\t%.2f %.2f\n",r.entries[3],r.entries[4],r.entries[5]);
-	//printf("%.2f\t%.2f %.2f\n\n",r.entries[6],r.entries[7],r.entries[8]);
-
-	sprite_rotation_t rotation=get_closest_rotation(track_point_get_rotation(point),groups);
-
-	
-	
-	int t;		
-		switch(view)
+	matrix_t r=track_point_get_rotation(point);
+	/*printf("%.2f\t%.2f %.2f\n",r.entries[0],r.entries[1],r.entries[2]);
+	printf("%.2f\t%.2f %.2f\n",r.entries[3],r.entries[4],r.entries[5]);
+	printf("%.2f\t%.2f %.2f\n\n",r.entries[6],r.entries[7],r.entries[8]);*/
+	//Write dataa
+		//Skip first point for view angles 0 and 3
+		if((view!=0&&view!=3)||progress!=0)
 		{
-		case 0:
-			x=(32-x);
-			y=(16-y);
-		break;
-		case 1:
-			t=x;
-			x=(16-y);
-			y=t;
-		break;
-		case 2:	
-			y=(16+y);
-		break;
-		case 3:
-			t=x;
-			x=(16+y);
-			y=(32-t);
-		break;
+		sprite_rotation_t rotation=get_closest_rotation(track_point_get_rotation(point),groups);
+
+			if(count%5==0)
+			{
+			printf("    ");
+			}
+		float h=sqrt(point.tangent.x*point.tangent.x+point.tangent.z*point.tangent.z);
+		//printf("Pitch %.1f (%d %d %d)\n",atan2(point.tangent.y,h)*180/M_PI,rotation.yaw_sprite,rotation.pitch_sprite,rotation.bank_sprite);
+
+		printf("{% 7d,% 5d,% 5d,% 3d,% 3d,% 3d }, ",cur_sub.x,cur_sub.y,cur_sub.z,(8*view+rotation.yaw_sprite+(reverse?0:0))%32,rotation.pitch_sprite,rotation.bank_sprite);
+			if(count%5==4)putchar('\n');
+		count++;
 		}
-		if(i%5==0)printf("    ");
 
-	if(rotation.pitch_sprite==0)
-	{
-	//printf("Alert\n");
-	//printf("%.2f\t%.2f %.2f\n",point.tangent.x,point.tangent.y,point.tangent.z);
-	}
-	//float h=sqrt(point.tangent.x*point.tangent.x+point.tangent.z*point.tangent.z);
-	//printf("Pitch %.1f (%d %d %d)\n",atan2(point.tangent.y,h)*180/M_PI,rotation.yaw_sprite,rotation.pitch_sprite,rotation.bank_sprite);
 
-	printf("{%d, %d, %d, %d, %d, %d}, ",x,y,z,(8*view+rotation.yaw_sprite+(reverse?0:0))%32,rotation.pitch_sprite,rotation.bank_sprite);
-		if(i%5==4||i==length-1)putchar('\n');
+
+
+
+	//Get next subposition point
+	int i=0;
+		do
+		{
+		//Get position of track point
+		track_point_t point=get_track_point(track_section,progress+0.01*i,reverse,reverse_transform,reverse_offset);
+		subposition_t sub=get_subposition(point.position,view,reverse,diag);
+		//printf("New sub %d %d %d\n",sub.x,sub.y,sub.z);
+		int n=calc_differing_coords(cur_sub,sub);
+		//printf("Diff %d\n",n);
+			if(n<0)
+			{
+			i--;
+			break;
+			}
+		//printf("%d\n",i);
+		i++;
+		}while(progress+0.01*i<track_section->length);
+	progress+=0.01*i;
+	//printf("Progress %f\n",progress);
 	}
 puts("})\n");
 }
@@ -2020,10 +2153,6 @@ void generate_subposition_data(track_section_t* track_section,char* name,int gro
 
 
 track_point_t large_zero_g_roll_left_curve(float distance);
-
-//3.397027
-//7.004382
-//10.218447
 
 void get_angle()
 {
@@ -2051,7 +2180,6 @@ printf("Position xy: %f %f tiles Height %f clearances (offset %f)\n",point.posit
 printf("Roll %f\n",roll*180/M_PI);
 
 }
-
 
 void calc_g_forces(track_section_t* track_section)
 {
@@ -2088,11 +2216,15 @@ printf("%f\n",lateral_factor);
 printf("%d %d\n",fabs(vertical_factor)<0.0001?0:(int)round(98.0*reference/vertical_factor),fabs(lateral_factor)<0.0001?0:(int)round(98.0*reference/lateral_factor));
 }
 
+
+
 int main(int argc,char** argv)
 {
 //get_angle();
-calc_g_forces(&(track_list_default.zero_g_roll_left));
-/*
+//calc_g_forces(&(track_list_default.zero_g_roll_left));
+
+
+
 generate_subposition_data(&(track_list_default.zero_g_roll_left),"LeftZeroGRollUp",SPRITE_GROUP_ZERO_G_ROLLS|SPRITE_GROUP_INLINE_TWIST|SPRITE_GROUP_ORTHOGONAL,0);
 generate_subposition_data(&(track_list_default.zero_g_roll_right),"RightZeroGRollUp",SPRITE_GROUP_ZERO_G_ROLLS|SPRITE_GROUP_INLINE_TWIST|SPRITE_GROUP_BASE,0);
 generate_subposition_data(&(track_list_default.zero_g_roll_left),"LeftZeroGRollDown",SPRITE_GROUP_ZERO_G_ROLLS|SPRITE_GROUP_INLINE_TWIST|SPRITE_GROUP_BASE,20);
@@ -2103,13 +2235,22 @@ generate_subposition_data(&(track_list_default.large_zero_g_roll_right),"RightLa
 generate_subposition_data(&(track_list_default.large_zero_g_roll_left),"LeftLargeZeroGRollDown",SPRITE_GROUP_ZERO_G_ROLLS|SPRITE_GROUP_INLINE_TWIST|SPRITE_GROUP_ORTHOGONAL,20);
 generate_subposition_data(&(track_list_default.large_zero_g_roll_right),"RightLargeZeroGRollDown",SPRITE_GROUP_ZERO_G_ROLLS|SPRITE_GROUP_INLINE_TWIST|SPRITE_GROUP_ORTHOGONAL,20);
 
-/*
+
 generate_subposition_data(&(track_list_default.medium_half_loop_left),"LeftMediumHalfLoopUp",SPRITE_GROUP_BASE,0);
 generate_subposition_data(&(track_list_default.medium_half_loop_right),"RightMediumHalfLoopUp",SPRITE_GROUP_BASE,0);
 generate_subposition_data(&(track_list_default.medium_half_loop_right),"LeftMediumHalfLoopDown",SPRITE_GROUP_BASE,36);
 generate_subposition_data(&(track_list_default.medium_half_loop_left),"RightMediumHalfLoopDown",SPRITE_GROUP_BASE,36);
+
+
+/*
+generate_subposition_data(&(track_list_default.large_turn_left_to_diag_gentle_up),"LeftEighthToDiagUp25",SPRITE_GROUP_BASE,0);
+generate_subposition_data(&(track_list_default.large_turn_right_to_diag_gentle_up),"RightEighthToDiagUp25",SPRITE_GROUP_BASE,0);
+generate_subposition_data(&(track_list_default.large_turn_right_to_orthogonal_gentle_up),"LeftEighthToDiagDown25",SPRITE_GROUP_BASE,17);
+generate_subposition_data(&(track_list_default.large_turn_left_to_orthogonal_gentle_up),"RightEighthToDiagDown25",SPRITE_GROUP_BASE,17);
+generate_subposition_data(&(track_list_default.large_turn_left_to_orthogonal_gentle_up),"LeftEighthToOrthogonalUp25",SPRITE_GROUP_BASE,0);
+generate_subposition_data(&(track_list_default.large_turn_right_to_orthogonal_gentle_up),"RightEighthToOrthogonalUp25",SPRITE_GROUP_BASE,0);
+generate_subposition_data(&(track_list_default.large_turn_right_to_diag_gentle_up),"LeftEighthToOrthogonalDown25",SPRITE_GROUP_BASE,17);
+generate_subposition_data(&(track_list_default.large_turn_left_to_diag_gentle_up),"RightEighthToOrthogonalDown25",SPRITE_GROUP_BASE,17);
 */
-
-
 return 0;
 }
