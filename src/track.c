@@ -195,7 +195,7 @@ assert(0);
 return 0;
 }
 
-void render_track_section(context_t* context,track_section_t* track_section,track_type_t* track_type,int extrude_behind,int track_mask,int rendered_views,image_t* images,int subtype)
+void render_track_section(context_t* context,track_section_t* track_section,track_type_t* track_type,int extrude_behind,int extrude_in_front,int track_mask,int rendered_views,image_t* images,int subtype)
 {
 int num_meshes=(int)floor(0.5+track_section->length/track_type->length);
 float scale=track_section->length/(num_meshes*track_type->length);
@@ -247,7 +247,7 @@ args.length=track_section->length;
 	else if(!extrude_behind)context_add_model_transformed(context,mesh,track_transform,&args,MESH_GHOST);
 args.offset=track_section->length;
 	if(track_mask)context_add_model_transformed(context,&(track_type->mask),track_transform,&args,0);//track_mask?0:MESH_GHOST);
-	else context_add_model_transformed(context,mesh,track_transform,&args,MESH_GHOST);
+	else if(!extrude_in_front)context_add_model_transformed(context,mesh,track_transform,&args,MESH_GHOST);
 
 
 	if(track_type->flags&TRACK_TIE_AT_BOUNDARY)
@@ -284,6 +284,7 @@ args.offset=track_section->length;
 		num_meshes++;
 		offset-=(extrude_behind?1:0)*corrected_scale*track_type->length;
 		}
+		if(extrude_in_front)num_meshes++;
 		for(int i=0;i<2*num_meshes+1;i++)
 		{
 		track_transform_args_t args;
@@ -322,6 +323,7 @@ args.offset=track_section->length;
 	else
 	{
 		if(extrude_behind)num_meshes++;
+		if(extrude_in_front)num_meshes++;
 		for(int i=0;i<num_meshes;i++)
 		{
 		track_transform_args_t args;
@@ -401,7 +403,7 @@ args.offset=track_section->length;
 		track_point_t support_point=only_yaw(track_point);
 
 		matrix_t rotation=matrix(support_point.binormal.x,support_point.normal.x,support_point.tangent.x,support_point.binormal.y,support_point.normal.y,support_point.tangent.y,support_point.binormal.z,support_point.normal.z,support_point.tangent.z);
-			if(bank_angle<0)rotation=matrix_mult(views[2],rotation);
+			if(bank_angle>=0)rotation=matrix_mult(views[2],rotation);
 
 		vector3_t translation=change_coordinates(support_point.position);
 		translation.y-=track_type->pivot/sqrt(track_point.tangent.x*track_point.tangent.x+track_point.tangent.z*track_point.tangent.z)-track_type->pivot;
@@ -492,38 +494,39 @@ set_offset(3,track_section);
 	if(views&0x8)render_track_section(context,track_section,track_type,0,track_mask,0x8,sprites,subtype);
 return;
 */
-	if(track_section->flags&TRACK_EXTRUDE_BEHIND)
+
+	if((track_section->flags&TRACK_EXTRUDE_BEHIND)||(track_section->flags&TRACK_EXTRUDE_IN_FRONT))
 	{
 		if(track_type->flags&TRACK_SEPARATE_TIE)
 		{
-			if(views&0x1)render_track_section(context,track_section,track_type,1,track_mask,0x1,sprites,subtype);
-			if(views&0x2)render_track_section(context,track_section,track_type,0,track_mask,0x2,sprites,subtype);
-			if(views&0x4)render_track_section(context,track_section,track_type,1,track_mask,0x4,sprites,subtype);
-			if(views&0x8)render_track_section(context,track_section,track_type,0,track_mask,0x8,sprites,subtype);
+			if(views&0x1)render_track_section(context,track_section,track_type,1,0,track_mask,0x1,sprites,subtype);
+			if(views&0x2)render_track_section(context,track_section,track_type,0,0,track_mask,0x2,sprites,subtype);
+			if(views&0x4)render_track_section(context,track_section,track_type,1,0,track_mask,0x4,sprites,subtype);
+			if(views&0x8)render_track_section(context,track_section,track_type,0,0,track_mask,0x8,sprites,subtype);
 		}
 		else
 		{
-			if(views&0x5)render_track_section(context,track_section,track_type,1,track_mask,views&0x5,sprites,subtype);
-			if(views&0xA)render_track_section(context,track_section,track_type,0,track_mask,views&0xA,sprites,subtype);
+			if(views&0x5)render_track_section(context,track_section,track_type,track_section->flags&TRACK_EXTRUDE_BEHIND,!(track_section->flags&TRACK_EXIT_90_DEG)&&(track_section->flags&TRACK_EXTRUDE_IN_FRONT),track_mask,views&0x5,sprites,subtype);
+			if(views&0xA)render_track_section(context,track_section,track_type,0,(track_section->flags&TRACK_EXIT_90_DEG)&&(track_section->flags&TRACK_EXTRUDE_IN_FRONT),track_mask,views&0xA,sprites,subtype);
 		}
 	}
 	else
 	{
 		if((track_type->flags&TRACK_SEPARATE_TIE)&&(track_section->flags&TRACK_EXIT_90_DEG))
 		{
-			if(views&0x1)render_track_section(context,track_section,track_type,0,track_mask,0x1,sprites,subtype);
-			if(views&0x2)render_track_section(context,track_section,track_type,0,track_mask,0x2,sprites,subtype);
-			if(views&0x4)render_track_section(context,track_section,track_type,0,track_mask,0x4,sprites,subtype);
-			if(views&0x8)render_track_section(context,track_section,track_type,0,track_mask,0x8,sprites,subtype);
+			if(views&0x1)render_track_section(context,track_section,track_type,0,0,track_mask,0x1,sprites,subtype);
+			if(views&0x2)render_track_section(context,track_section,track_type,0,0,track_mask,0x2,sprites,subtype);
+			if(views&0x4)render_track_section(context,track_section,track_type,0,0,track_mask,0x4,sprites,subtype);
+			if(views&0x8)render_track_section(context,track_section,track_type,0,0,track_mask,0x8,sprites,subtype);
 		}
 		else if((track_type->flags&TRACK_SEPARATE_TIE))
 		{
-			if(views&0x3)render_track_section(context,track_section,track_type,0,track_mask,views&0x3,sprites,subtype);
-			if(views&0xC)render_track_section(context,track_section,track_type,0,track_mask,views&0xC,sprites,subtype);
+			if(views&0x3)render_track_section(context,track_section,track_type,0,0,track_mask,views&0x3,sprites,subtype);
+			if(views&0xC)render_track_section(context,track_section,track_type,0,0,track_mask,views&0xC,sprites,subtype);
 		}
 		else
 		{
-		render_track_section(context,track_section,track_type,0,track_mask,views,sprites,subtype);
+		render_track_section(context,track_section,track_type,0,0,track_mask,views,sprites,subtype);
 		}
 	}
 }
@@ -996,7 +999,47 @@ int groups=0;
 	write_track_section(context,&(track_list.large_turn_left_to_orthogonal_gentle_up),track_type,base_dir,output_path,sprites,subtype,NULL);
 	sprintf(output_path,"%.255slarge_turn_right_to_orthogonal_gentle_up%s",output_dir,suffix);
 	write_track_section(context,&(track_list.large_turn_right_to_orthogonal_gentle_up),track_type,base_dir,output_path,sprites,subtype,NULL);
-
+	}
+	
+	if(groups&TRACK_GROUP_LARGE_BANKED_SLOPED_TURNS)
+	{
+	sprintf(output_path,"%.255sgentle_up_to_gentle_up_left_bank_diag%s",output_dir,suffix);
+	write_track_section(context,&(track_list.gentle_up_to_gentle_up_left_bank_diag),track_type,base_dir,output_path,sprites,subtype,NULL);
+	sprintf(output_path,"%.255sgentle_up_to_gentle_up_right_bank_diag%s",output_dir,suffix);
+	write_track_section(context,&(track_list.gentle_up_to_gentle_up_right_bank_diag),track_type,base_dir,output_path,sprites,subtype,NULL);
+	sprintf(output_path,"%.255sgentle_up_left_bank_to_gentle_up_diag%s",output_dir,suffix);
+	write_track_section(context,&(track_list.gentle_up_left_bank_to_gentle_up_diag),track_type,base_dir,output_path,sprites,subtype,NULL);
+	sprintf(output_path,"%.255sgentle_up_right_bank_to_gentle_up_diag%s",output_dir,suffix);
+	write_track_section(context,&(track_list.gentle_up_right_bank_to_gentle_up_diag),track_type,base_dir,output_path,sprites,subtype,NULL);
+	sprintf(output_path,"%.255sleft_bank_to_gentle_up_left_bank_diag%s",output_dir,suffix);
+	write_track_section(context,&(track_list.left_bank_to_gentle_up_left_bank_diag),track_type,base_dir,output_path,sprites,subtype,NULL);
+	sprintf(output_path,"%.255sright_bank_to_gentle_up_right_bank_diag%s",output_dir,suffix);
+	write_track_section(context,&(track_list.right_bank_to_gentle_up_right_bank_diag),track_type,base_dir,output_path,sprites,subtype,NULL);
+	sprintf(output_path,"%.255sgentle_up_left_bank_to_left_bank_diag%s",output_dir,suffix);
+	write_track_section(context,&(track_list.gentle_up_left_bank_to_left_bank_diag),track_type,base_dir,output_path,sprites,subtype,NULL);
+	sprintf(output_path,"%.255sgentle_up_right_bank_to_right_bank_diag%s",output_dir,suffix);
+	write_track_section(context,&(track_list.gentle_up_right_bank_to_right_bank_diag),track_type,base_dir,output_path,sprites,subtype,NULL);
+	sprintf(output_path,"%.255sgentle_up_left_bank_diag%s",output_dir,suffix);
+	write_track_section(context,&(track_list.gentle_up_left_bank_diag),track_type,base_dir,output_path,sprites,subtype,NULL);
+	sprintf(output_path,"%.255sgentle_up_right_bank_diag%s",output_dir,suffix);
+	write_track_section(context,&(track_list.gentle_up_right_bank_diag),track_type,base_dir,output_path,sprites,subtype,NULL);
+	sprintf(output_path,"%.255sflat_to_gentle_up_left_bank_diag%s",output_dir,suffix);
+	write_track_section(context,&(track_list.flat_to_gentle_up_left_bank_diag),track_type,base_dir,output_path,sprites,subtype,NULL);
+	sprintf(output_path,"%.255sflat_to_gentle_up_right_bank_diag%s",output_dir,suffix);
+	write_track_section(context,&(track_list.flat_to_gentle_up_right_bank_diag),track_type,base_dir,output_path,sprites,subtype,NULL);
+	sprintf(output_path,"%.255sgentle_up_left_bank_to_flat_diag%s",output_dir,suffix);
+	write_track_section(context,&(track_list.gentle_up_left_bank_to_flat_diag),track_type,base_dir,output_path,sprites,subtype,NULL);
+	sprintf(output_path,"%.255sgentle_up_right_bank_to_flat_diag%s",output_dir,suffix);
+	write_track_section(context,&(track_list.gentle_up_right_bank_to_flat_diag),track_type,base_dir,output_path,sprites,subtype,NULL);
+	sprintf(output_path,"%.255slarge_turn_left_bank_to_diag_gentle_up%s",output_dir,suffix);
+	write_track_section(context,&(track_list.large_turn_left_bank_to_diag_gentle_up),track_type,base_dir,output_path,sprites,subtype,NULL);
+	sprintf(output_path,"%.255slarge_turn_right_bank_to_diag_gentle_up%s",output_dir,suffix);
+	write_track_section(context,&(track_list.large_turn_right_bank_to_diag_gentle_up),track_type,base_dir,output_path,sprites,subtype,NULL);
+	sprintf(output_path,"%.255slarge_turn_left_bank_to_orthogonal_gentle_up%s",output_dir,suffix);
+	write_track_section(context,&(track_list.large_turn_left_bank_to_orthogonal_gentle_up),track_type,base_dir,output_path,sprites,subtype,NULL);
+	sprintf(output_path,"%.255slarge_turn_right_bank_to_orthogonal_gentle_up%s",output_dir,suffix);
+	write_track_section(context,&(track_list.large_turn_right_bank_to_orthogonal_gentle_up),track_type,base_dir,output_path,sprites,subtype,NULL);
+	
 	}
 
 //Launched lift

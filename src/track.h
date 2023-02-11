@@ -24,6 +24,7 @@ TRACK_NO_SUPPORTS=4096,
 TRACK_OFFSET_SPRITE_MASK=8192,
 TRACK_SUPPORT_BASE=16384,
 TRACK_DIAGONAL_2=32768,
+TRACK_EXTRUDE_IN_FRONT=65536,
 TRACK_SPECIAL_STEEP_TO_VERTICAL=0x01000000,
 TRACK_SPECIAL_VERTICAL_TO_STEEP=0x02000000,
 TRACK_SPECIAL_VERTICAL=0x03000000,
@@ -111,7 +112,8 @@ TRACK_GROUP_ZERO_G_ROLLS=0x1000000,
 TRACK_GROUP_SMALL_SLOPE_TRANSITIONS=0x2000000,
 TRACK_GROUP_STEEP_SLOPED_TURNS=0x4000000,
 TRACK_GROUP_LARGE_SLOPED_TURNS=0x8000000,
-TRACK_GROUP_VERTICAL_BOOSTERS=0x10000000,
+TRACK_GROUP_LARGE_BANKED_SLOPED_TURNS=0x10000000,
+TRACK_GROUP_VERTICAL_BOOSTERS=0x20000000,
 };
 
 
@@ -311,6 +313,37 @@ typedef struct
 	track_section_t large_turn_right_to_diag_gentle_up;
 	track_section_t large_turn_left_to_orthogonal_gentle_up;
 	track_section_t large_turn_right_to_orthogonal_gentle_up;
+
+
+        track_section_t gentle_up_to_gentle_up_left_bank_diag;
+        track_section_t gentle_up_to_gentle_up_right_bank_diag;
+        track_section_t gentle_up_left_bank_to_gentle_up_diag;
+        track_section_t gentle_up_right_bank_to_gentle_up_diag;
+        track_section_t left_bank_to_gentle_up_left_bank_diag;
+        track_section_t right_bank_to_gentle_up_right_bank_diag;
+        track_section_t gentle_up_left_bank_to_left_bank_diag;
+        track_section_t gentle_up_right_bank_to_right_bank_diag;
+        track_section_t gentle_up_left_bank_diag;
+        track_section_t gentle_up_right_bank_diag;
+        track_section_t flat_to_gentle_up_left_bank_diag;
+        track_section_t flat_to_gentle_up_right_bank_diag;
+        track_section_t gentle_up_left_bank_to_flat_diag;
+        track_section_t gentle_up_right_bank_to_flat_diag;
+	track_section_t large_turn_left_bank_to_diag_gentle_up;
+	track_section_t large_turn_right_bank_to_diag_gentle_up;
+	track_section_t large_turn_left_bank_to_orthogonal_gentle_up;
+	track_section_t large_turn_right_bank_to_orthogonal_gentle_up;
+
+	track_section_t flat_to_steep_up_diag;
+	track_section_t steep_to_flat_up_diag;
+	track_section_t steep_to_vertical_up_diag;
+	track_section_t vertical_to_steep_up_diag;
+	track_section_t vertical_diag;
+	track_section_t vertical_twist_left_to_diag_up;
+	track_section_t vertical_twist_right_to_diag_up;
+	track_section_t vertical_twist_left_to_orthogonal_up;
+	track_section_t vertical_twist_right_to_orthogonal_up;
+
 	track_section_t vertical_booster;
 	}track_list_t;
 

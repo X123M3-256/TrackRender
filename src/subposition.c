@@ -301,7 +301,7 @@ sprite_rotation_t orthogonal_sprite_rotations[176]=
 	{24,5,4,Y(24),-FG,-M_PI_4}
 };
 
-sprite_rotation_t diagonal_sprite_rotations[124]=
+sprite_rotation_t diagonal_sprite_rotations[172]=
 	{
 	//Flat sprites
 	{ 4,0,0,Y( 4),0.0,0.0},
@@ -419,6 +419,55 @@ sprite_rotation_t diagonal_sprite_rotations[124]=
 	{12,53,3,Y(12),-FGD,-M_PI_8},
 	{20,53,3,Y(20),-FGD,-M_PI_8},
 	{28,53,3,Y(28),-FGD,-M_PI_8},
+	//Diagonal sloped bank transition
+	{4 ,50,2, Y(4), FGD,M_PI_4},
+	{12,50,2,Y(12), FGD,M_PI_4},
+	{20,50,2,Y(20), FGD,M_PI_4},
+	{28,50,2,Y(28), FGD,M_PI_4},
+	{4 ,50,4, Y(4), FGD,-M_PI_4},
+	{12,50,4,Y(12), FGD,-M_PI_4},
+	{20,50,4,Y(20), FGD,-M_PI_4},
+	{28,50,4,Y(28), FGD,-M_PI_4},
+	{4 ,53,2, Y(4),-FGD,M_PI_4},
+	{12,53,2,Y(12),-FGD,M_PI_4},
+	{20,53,2,Y(20),-FGD,M_PI_4},
+	{28,53,2,Y(28),-FGD,M_PI_4},
+	{4 ,53,4, Y(4),-FGD,-M_PI_4},
+	{12,53,4,Y(12),-FGD,-M_PI_4},
+	{20,53,4,Y(20),-FGD,-M_PI_4},
+	{28,53,4,Y(28),-FGD,-M_PI_4},
+	{4 ,51,1, Y(4), GD,M_PI_8},
+	{12,51,1,Y(12), GD,M_PI_8},
+	{20,51,1,Y(20), GD,M_PI_8},
+	{28,51,1,Y(28), GD,M_PI_8},
+	{4 ,51,3, Y(4), GD,-M_PI_8},
+	{12,51,3,Y(12), GD,-M_PI_8},
+	{20,51,3,Y(20), GD,-M_PI_8},
+	{28,51,3,Y(28), GD,-M_PI_8},
+	{4 ,54,1, Y(4),-GD,M_PI_8},
+	{12,54,1,Y(12),-GD,M_PI_8},
+	{20,54,1,Y(20),-GD,M_PI_8},
+	{28,54,1,Y(28),-GD,M_PI_8},
+	{4 ,54,3, Y(4),-GD,-M_PI_8},
+	{12,54,3,Y(12),-GD,-M_PI_8},
+	{20,54,3,Y(20),-GD,-M_PI_8},
+	{28,54,3,Y(28),-GD,-M_PI_8},
+        {4 ,51,2, Y(4), GD,M_PI_4},
+	{12,51,2,Y(12), GD,M_PI_4},
+	{20,51,2,Y(20), GD,M_PI_4},
+	{28,51,2,Y(28), GD,M_PI_4},
+	{4 ,51,4, Y(4), GD,-M_PI_4},
+	{12,51,4,Y(12), GD,-M_PI_4},
+	{20,51,4,Y(20), GD,-M_PI_4},
+	{28,51,4,Y(28), GD,-M_PI_4},
+	{4 ,54,2, Y(4),-GD,M_PI_4},
+	{12,54,2,Y(12),-GD,M_PI_4},
+	{20,54,2,Y(20),-GD,M_PI_4},
+	{28,54,2,Y(28),-GD,M_PI_4},
+	{4 ,54,4, Y(4),-GD,-M_PI_4},
+	{12,54,4,Y(12),-GD,-M_PI_4},
+	{20,54,4,Y(20),-GD,-M_PI_4},
+	{28,54,4,Y(28),-GD,-M_PI_4},
 	//Sloped banked turn
 	{ 4,2,2,Y( 4),G,M_PI_4},
 	{12,2,2,Y(12),G,M_PI_4},
@@ -1882,7 +1931,7 @@ sprite_rotation_t zero_g_sprite_rotations[160]=
 };
 
 #define NUM_SPRITE_GROUPS 6
-int sprite_group_counts[NUM_SPRITE_GROUPS]={176,124,408,40,80,160};
+int sprite_group_counts[NUM_SPRITE_GROUPS]={176,172,408,40,80,160};
 sprite_rotation_t* sprite_group_rotations[NUM_SPRITE_GROUPS]={orthogonal_sprite_rotations,diagonal_sprite_rotations,turn_sprite_rotations,inline_twist_sprite_rotations,corkscrew_sprite_rotations,zero_g_sprite_rotations};
 
 
@@ -2224,7 +2273,7 @@ int main(int argc,char** argv)
 //calc_g_forces(&(track_list_default.zero_g_roll_left));
 
 
-
+/*
 generate_subposition_data(&(track_list_default.zero_g_roll_left),"LeftZeroGRollUp",SPRITE_GROUP_ZERO_G_ROLLS|SPRITE_GROUP_INLINE_TWIST|SPRITE_GROUP_ORTHOGONAL,0);
 generate_subposition_data(&(track_list_default.zero_g_roll_right),"RightZeroGRollUp",SPRITE_GROUP_ZERO_G_ROLLS|SPRITE_GROUP_INLINE_TWIST|SPRITE_GROUP_BASE,0);
 generate_subposition_data(&(track_list_default.zero_g_roll_left),"LeftZeroGRollDown",SPRITE_GROUP_ZERO_G_ROLLS|SPRITE_GROUP_INLINE_TWIST|SPRITE_GROUP_BASE,20);
@@ -2240,7 +2289,7 @@ generate_subposition_data(&(track_list_default.medium_half_loop_left),"LeftMediu
 generate_subposition_data(&(track_list_default.medium_half_loop_right),"RightMediumHalfLoopUp",SPRITE_GROUP_BASE,0);
 generate_subposition_data(&(track_list_default.medium_half_loop_right),"LeftMediumHalfLoopDown",SPRITE_GROUP_BASE,36);
 generate_subposition_data(&(track_list_default.medium_half_loop_left),"RightMediumHalfLoopDown",SPRITE_GROUP_BASE,36);
-
+*/
 
 /*
 generate_subposition_data(&(track_list_default.large_turn_left_to_diag_gentle_up),"LeftEighthToDiagUp25",SPRITE_GROUP_BASE,0);
@@ -2252,5 +2301,51 @@ generate_subposition_data(&(track_list_default.large_turn_right_to_orthogonal_ge
 generate_subposition_data(&(track_list_default.large_turn_right_to_diag_gentle_up),"LeftEighthToOrthogonalDown25",SPRITE_GROUP_BASE,17);
 generate_subposition_data(&(track_list_default.large_turn_left_to_diag_gentle_up),"RightEighthToOrthogonalDown25",SPRITE_GROUP_BASE,17);
 */
+
+
+
+generate_subposition_data(&(track_list_default.gentle_up_to_gentle_up_left_bank_diag ),"DiagUp25ToLeftBankedUp25",SPRITE_GROUP_DIAGONAL,0);
+generate_subposition_data(&(track_list_default.gentle_up_to_gentle_up_right_bank_diag),"DiagUp25ToRightBankedUp25",SPRITE_GROUP_DIAGONAL,0);
+generate_subposition_data(&(track_list_default.gentle_up_left_bank_to_gentle_up_diag ),"DiagLeftBankedUp25ToUp25",SPRITE_GROUP_DIAGONAL,0);
+generate_subposition_data(&(track_list_default.gentle_up_right_bank_to_gentle_up_diag),"DiagRightBankedUp25ToUp25",SPRITE_GROUP_DIAGONAL,0);
+generate_subposition_data(&(track_list_default.gentle_up_right_bank_to_gentle_up_diag),"DiagDown25ToLeftBankedDown25",SPRITE_GROUP_DIAGONAL,17);
+generate_subposition_data(&(track_list_default.gentle_up_left_bank_to_gentle_up_diag ),"DiagDown25ToRightBankedDown25",SPRITE_GROUP_DIAGONAL,17);
+generate_subposition_data(&(track_list_default.gentle_up_to_gentle_up_right_bank_diag),"DiagLeftBankedDown25ToDown25",SPRITE_GROUP_DIAGONAL,17);
+generate_subposition_data(&(track_list_default.gentle_up_to_gentle_up_left_bank_diag ),"DiagRightBankedDown25ToDown25",SPRITE_GROUP_DIAGONAL,17);
+
+generate_subposition_data(&(track_list_default.left_bank_to_gentle_up_left_bank_diag  ),"DiagLeftBankedFlatToLeftBankedUp25",SPRITE_GROUP_DIAGONAL,0);
+generate_subposition_data(&(track_list_default.right_bank_to_gentle_up_right_bank_diag),"DiagRightBankedFlatToRightBankedUp25",SPRITE_GROUP_DIAGONAL,0);
+generate_subposition_data(&(track_list_default.gentle_up_left_bank_to_left_bank_diag  ),"DiagLeftBankedUp25ToLeftBankedFlat",SPRITE_GROUP_DIAGONAL,0);
+generate_subposition_data(&(track_list_default.gentle_up_right_bank_to_right_bank_diag),"DiagRightBankedUp25ToRightBankedFlat",SPRITE_GROUP_DIAGONAL,0);
+generate_subposition_data(&(track_list_default.gentle_up_right_bank_to_right_bank_diag),"DiagLeftBankedFlatToLeftBankedDown25",SPRITE_GROUP_DIAGONAL,9);
+generate_subposition_data(&(track_list_default.gentle_up_left_bank_to_left_bank_diag  ),"DiagRightBankedFlatToRightBankedDown25",SPRITE_GROUP_DIAGONAL,9);
+generate_subposition_data(&(track_list_default.right_bank_to_gentle_up_right_bank_diag),"DiagLeftBankedDown25ToLeftBankedFlat",SPRITE_GROUP_DIAGONAL,9);
+generate_subposition_data(&(track_list_default.left_bank_to_gentle_up_left_bank_diag  ),"DiagRightBankedDown25ToRightBankedFlat",SPRITE_GROUP_DIAGONAL,9);
+
+
+generate_subposition_data(&(track_list_default.gentle_up_left_bank_diag), "DiagUp25LeftBanked",SPRITE_GROUP_DIAGONAL,0);
+generate_subposition_data(&(track_list_default.gentle_up_right_bank_diag),"DiagUp25RightBanked",SPRITE_GROUP_DIAGONAL,0);
+generate_subposition_data(&(track_list_default.gentle_up_right_bank_diag),"DiagDown25LeftBanked",SPRITE_GROUP_DIAGONAL,17);
+generate_subposition_data(&(track_list_default.gentle_up_left_bank_diag), "DiagDown25RightBanked",SPRITE_GROUP_DIAGONAL,17);
+
+
+generate_subposition_data(&(track_list_default.flat_to_gentle_up_left_bank_diag ),"DiagFlatToLeftBankedUp25",SPRITE_GROUP_DIAGONAL,0);
+generate_subposition_data(&(track_list_default.flat_to_gentle_up_right_bank_diag),"DiagFlatToRightBankedUp25",SPRITE_GROUP_DIAGONAL,0);
+generate_subposition_data(&(track_list_default.gentle_up_left_bank_to_flat_diag ),"DiagLeftBankedUp25ToFlat",SPRITE_GROUP_DIAGONAL,0);
+generate_subposition_data(&(track_list_default.gentle_up_right_bank_to_flat_diag),"DiagRightBankedUp25ToFlat",SPRITE_GROUP_DIAGONAL,0);
+generate_subposition_data(&(track_list_default.gentle_up_right_bank_to_flat_diag),"DiagFlatToLeftBankedDown25",SPRITE_GROUP_DIAGONAL,9);
+generate_subposition_data(&(track_list_default.gentle_up_left_bank_to_flat_diag ),"DiagFlatToRightBankedDown25",SPRITE_GROUP_DIAGONAL,9);
+generate_subposition_data(&(track_list_default.flat_to_gentle_up_right_bank_diag),"DiagLeftBankedDown25ToFlat",SPRITE_GROUP_DIAGONAL,9);
+generate_subposition_data(&(track_list_default.flat_to_gentle_up_left_bank_diag ),"DiagRightBankedDown25ToFlat",SPRITE_GROUP_DIAGONAL,9);
+
+generate_subposition_data(&(track_list_default.large_turn_left_bank_to_diag_gentle_up),"LeftEighthBankToDiagUp25",SPRITE_GROUP_BASE,0);
+generate_subposition_data(&(track_list_default.large_turn_right_bank_to_diag_gentle_up),"RightEighthBankToDiagUp25",SPRITE_GROUP_BASE,0);
+generate_subposition_data(&(track_list_default.large_turn_right_bank_to_orthogonal_gentle_up),"LeftEighthBankToDiagDown25",SPRITE_GROUP_BASE,17);
+generate_subposition_data(&(track_list_default.large_turn_left_bank_to_orthogonal_gentle_up),"RightEighthBankToDiagDown25",SPRITE_GROUP_BASE,17);
+generate_subposition_data(&(track_list_default.large_turn_left_bank_to_orthogonal_gentle_up),"LeftEighthBankToOrthogonalUp25",SPRITE_GROUP_BASE,0);
+generate_subposition_data(&(track_list_default.large_turn_right_bank_to_orthogonal_gentle_up),"RightEighthBankToOrthogonalUp25",SPRITE_GROUP_BASE,0);
+generate_subposition_data(&(track_list_default.large_turn_right_bank_to_diag_gentle_up),"LeftEighthBankToOrthogonalDown25",SPRITE_GROUP_BASE,17);
+generate_subposition_data(&(track_list_default.large_turn_left_bank_to_diag_gentle_up),"RightEighthBankToOrthogonalDown25",SPRITE_GROUP_BASE,17);
+
 return 0;
 }
