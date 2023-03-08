@@ -2,6 +2,9 @@ cmake_minimum_required (VERSION 3.1)
 
 project (TrackRender C)
 
+find_package(PNG REQUIRED)
+find_package(ZLIB REQUIRED)
+
 include_directories(${PNG_INCLUDE_DIRS} ${ZLIB_INCLUDE_DIRS} ../libIsoRender/src)
 link_directories(${PNG_LIBRARY_DIRS} ${ZLIB_LIBRARY_DIRS} ../libIsoRender)
 
